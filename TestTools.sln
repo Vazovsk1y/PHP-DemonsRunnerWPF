@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemonsRunner", "DemonsRunne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemonsRunner.Domain", "DemonsRunner.Domain\DemonsRunner.Domain.csproj", "{36A9F9DA-AE54-4516-8244-53B814AC5CB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemonsRunner.Implementations", "DemonsRunner.Implementations\DemonsRunner.Implementations.csproj", "{9A41652F-377E-4F41-BB6F-A55F7D1E8E60}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{36A9F9DA-AE54-4516-8244-53B814AC5CB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36A9F9DA-AE54-4516-8244-53B814AC5CB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36A9F9DA-AE54-4516-8244-53B814AC5CB7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A41652F-377E-4F41-BB6F-A55F7D1E8E60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A41652F-377E-4F41-BB6F-A55F7D1E8E60}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A41652F-377E-4F41-BB6F-A55F7D1E8E60}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A41652F-377E-4F41-BB6F-A55F7D1E8E60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

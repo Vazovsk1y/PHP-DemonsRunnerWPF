@@ -9,7 +9,7 @@ using Microsoft.Win32;
 
 namespace DemonsRunner.Implementations.Services
 {
-    internal class FileDialogService
+    internal class FileDialogService : IFileDialogService
     {
         private readonly OpenFileDialog fileDialog = new()
         {
