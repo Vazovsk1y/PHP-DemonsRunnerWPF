@@ -3,10 +3,58 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DemonsRunner.ViewModels"
+        xmlns:m="clr-namespace:DemonsRunner.Models;assembly=DemonsRunner.Domain"
         xmlns:local="clr-namespace:DemonsRunner"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="{Binding WindowTitle}" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
 
-    </Grid>
+        </Menu>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Content="Status"/>
+        </StatusBar>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0">
+                <DockPanel>
+                    <UniformGrid DockPanel.Dock="Bottom" Rows="1">
+                        <Button  
+                        Margin="5"
+                        Content="Add"
+                        Command="{Binding AddFileToListCommand}"
+                        />
+                        <Button 
+                        Margin="5"
+                        Content="Delete"
+                        Command="{Binding DeleteFileFromListCommand}"/>
+                    </UniformGrid>
+                    <ListBox 
+                        ItemsSource="{Binding Demons}"
+                        SelectedItem="{Binding SelectedDemon}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type m:PHPDemon}">
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </GroupBox>
+
+
+            <TabControl Grid.Column="1">
+                
+            </TabControl>
+        </Grid>
+    </DockPanel>
 </Window>
