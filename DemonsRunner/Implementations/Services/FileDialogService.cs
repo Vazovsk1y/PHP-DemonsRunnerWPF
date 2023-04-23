@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using DemonsRunner.Enums;
+using DemonsRunner.Domain.Enums;
+using DemonsRunner.Domain.Interfaces;
+using DemonsRunner.Domain.Models;
 using DemonsRunner.Implementations.Responses;
-using DemonsRunner.Interfaces;
-using DemonsRunner.Models;
 using Microsoft.Win32;
 
 namespace DemonsRunner.Implementations.Services

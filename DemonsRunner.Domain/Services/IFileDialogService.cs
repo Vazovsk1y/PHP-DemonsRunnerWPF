@@ -1,6 +1,6 @@
-﻿using DemonsRunner.Models;
+﻿using DemonsRunner.Domain.Models;
 
-namespace DemonsRunner.Interfaces
+namespace DemonsRunner.Domain.Interfaces
 {
     public interface IFileDialogService
     {

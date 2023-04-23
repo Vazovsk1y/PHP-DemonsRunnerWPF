@@ -1,4 +1,4 @@
-﻿namespace DemonsRunner.Models
+﻿namespace DemonsRunner.Domain.Models
 {
     public class PHPDemon
     {

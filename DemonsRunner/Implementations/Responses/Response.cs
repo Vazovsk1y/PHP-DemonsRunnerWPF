@@ -1,5 +1,5 @@
-﻿using DemonsRunner.Enums;
-using DemonsRunner.Interfaces;
+﻿using DemonsRunner.Domain.Enums;
+using DemonsRunner.Domain.Interfaces;
 using System.Collections.Generic;
 
 namespace DemonsRunner.Implementations.Responses
