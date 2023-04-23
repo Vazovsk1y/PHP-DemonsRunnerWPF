@@ -5,6 +5,8 @@ using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
 using DemonsRunner.Implementations.Services;
 using DemonsRunner.ViewModels.Base;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -18,7 +20,7 @@ namespace DemonsRunner.ViewModels
         private string _windowTitle = "Main";
         private PHPDemon _selectedDemon;
         private readonly ObservableCollection<PHPDemon> _demons = new();
-        private ObservableCollection<PHPScript> _scripts = new();
+        private ObservableCollection<PHPScript> _scripts;
         private readonly IFileDialogService _dialogService = new FileDialogService();
         private readonly IScriptConfigureService _configureService = new ScriptConfigureService();
 
@@ -80,10 +82,10 @@ namespace DemonsRunner.ViewModels
             }
         }
 
-        public ICommand DeleteFileFromListCommand => new RelayCommand(OnFileDeletingExecute, 
+        public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute, 
             (arg) => Demons.Count > 0 && SelectedDemon is not null);
 
-        private void OnFileDeletingExecute(object obj)
+        private void OnDeletingFileExecute(object obj)
         {
            if (Demons.Contains(SelectedDemon))
            {
@@ -92,13 +94,10 @@ namespace DemonsRunner.ViewModels
            }
         }
 
-        public ICommand ConfigureScriptsCommand => new RelayCommand(OnScriptsConfigureExecute, (arg) => Demons.Count > 0 
-        && 
-        Scripts is not null 
-        && 
-        Scripts.Count == 0);
+        public ICommand ConfigureScriptsCommand => new RelayCommand(OnConfigureScriptsExecute, 
+            (arg) => Demons.Count > 0);
 
-        private async void OnScriptsConfigureExecute(object obj)
+        private async void OnConfigureScriptsExecute(object obj)
         {
             var response = _configureService.ConfigureScripts(Demons);
             if (response.OperationStatus == StatusCode.Success)
@@ -109,6 +108,11 @@ namespace DemonsRunner.ViewModels
                 });
             }
         }
+
+        public ICommand ClearConfigureScripts => new RelayCommand(OnClearConfiguredScriptsExecute, 
+            (arg) => Scripts is ICollection<PHPScript> { Count: > 0 });
+
+        private void OnClearConfiguredScriptsExecute(object obj) => Scripts.Clear();
 
         #endregion
 

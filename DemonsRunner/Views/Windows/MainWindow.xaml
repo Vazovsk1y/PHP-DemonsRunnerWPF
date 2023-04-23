@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DemonsRunner.ViewModels"
-        xmlns:m="clr-namespace:DemonsRunner.Models;assembly=DemonsRunner.Domain"
+        xmlns:m="clr-namespace:DemonsRunner.Domain.Models;assembly=DemonsRunner.Domain"
         xmlns:local="clr-namespace:DemonsRunner"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="450" Width="800">
@@ -13,7 +13,9 @@
     </Window.DataContext>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-
+            <MenuItem Header="File">
+                
+            </MenuItem>
         </Menu>
 
         <StatusBar DockPanel.Dock="Bottom">
@@ -53,7 +55,42 @@
 
 
             <TabControl Grid.Column="1">
-                
+                <TabItem Header="Сконфигурированные скрипты">
+                    <DockPanel>
+                        <UniformGrid DockPanel.Dock="Bottom"
+                                     Rows="1">
+                            <Button Content="Сконфигурировать"
+                                    Margin="5"
+                                    Command="{Binding ConfigureScriptsCommand}"/>
+                            <Button Content="Сбросить скрипты"
+                                    Margin="5"
+                                    Command="{Binding ClearConfigureScripts}"/>
+                        </UniformGrid>
+                        <ListBox ItemsSource="{Binding Scripts}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="BorderBrush" Value="Black"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Setter Property="Margin" Value="0,5,0,5"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:PHPScript}">
+                                    <StackPanel>
+                                        <TextBlock 
+                                            Text="{Binding Name, StringFormat='Название скрипта: {0}'}"/>
+                                        <TextBlock Foreground="Red"
+                                                   Text="{Binding Command, StringFormat='Команда на выполнение: {0}'}"/>
+                                        <TextBlock Foreground="Blue"
+                                                   Text="{Binding ExecutableFile.Name, StringFormat='Исполняемый файл: {0}'}"/>
+                                        <TextBlock Foreground="Coral"
+                                                   Text="{Binding ExecutableFile.FullPath}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+                </TabItem>
             </TabControl>
         </Grid>
     </DockPanel>
