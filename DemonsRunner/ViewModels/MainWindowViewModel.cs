@@ -4,6 +4,7 @@ using DemonsRunner.Interfaces;
 using DemonsRunner.Models;
 using DemonsRunner.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
@@ -60,13 +61,17 @@ namespace DemonsRunner.ViewModels
                 {
                     foreach (var demon in response.Data)
                     {
-                        Demons.Add(demon);
+                        if (Demons.FirstOrDefault(d => d.Name == demon.Name && d.FullPath == demon.FullPath) is null)
+                        {
+                            Demons.Add(demon);
+                        }
                     }
                 });
             }
         }
 
-        public ICommand DeleteFileFromListCommand => new RelayCommand(OnFileDeletingExecute, (arg) => Demons.Count > 0 && SelectedDemon is not null);
+        public ICommand DeleteFileFromListCommand => new RelayCommand(OnFileDeletingExecute, 
+            (arg) => Demons.Count > 0 && SelectedDemon is not null);
 
         private void OnFileDeletingExecute(object obj)
         {

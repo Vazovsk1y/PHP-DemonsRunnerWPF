@@ -11,16 +11,17 @@ namespace DemonsRunner.Implementations.Services
 {
     internal class FileDialogService : IFileDialogService
     {
-        private readonly OpenFileDialog fileDialog = new()
+        private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
+            Title = "Выберите файл:",
         };
 
         public IResponse<PHPDemon> StartDialog()
         {
             try
             {
-                var dialogResult = fileDialog.ShowDialog();
+                var dialogResult = _fileDialog.ShowDialog();
 
                 return dialogResult is bool result && !result ?
                     new Response<PHPDemon>
@@ -47,8 +48,8 @@ namespace DemonsRunner.Implementations.Services
 
         private IEnumerable<PHPDemon> GetDemons()
         {
-            var fullFIlesPath = fileDialog.FileNames;
-            var filesName = fileDialog.SafeFileNames;
+            var fullFIlesPath = _fileDialog.FileNames;
+            var filesName = _fileDialog.SafeFileNames;
             List<PHPDemon> demons = new();
 
             for (int i = 0; i < fullFIlesPath.Length; i++)
