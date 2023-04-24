@@ -48,31 +48,19 @@ namespace DemonsRunner.Domain.Models
 
         public void Start()
         {
-            try
-            {
-                _executableConsole.Start();
-                _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-                _executableConsole.StandardInput.Flush();
-                _executableConsole.BeginOutputReadLine();
-                IsRunning = true;
-            }
-            catch
-            {
-                throw;
-            }
+            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            _executableConsole.Start();
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            _executableConsole.StandardInput.Flush();
+            _executableConsole.BeginOutputReadLine();
+            IsRunning = true;
         }
 
         public void Stop()
         {
-            try
-            {
-                _executableConsole.Kill();
-                IsRunning = false;
-            }
-            catch
-            {
-                throw;
-            }
+            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            _executableConsole.Kill();
+            IsRunning = false;
         }
 
         public void Dispose()
@@ -89,12 +77,12 @@ namespace DemonsRunner.Domain.Models
                 if (disposing)
                 {
                     // managed resources 
+                    _executableConsole.Exited -= OnScriptExited;
+                    _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
+                    _executableConsole.Dispose();
                 }
 
                 // unmanaged resourses
-                _executableConsole.Exited -= OnScriptExited;
-                _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
-                _executableConsole.Dispose();
                 _disposed = true;
             }
         }
