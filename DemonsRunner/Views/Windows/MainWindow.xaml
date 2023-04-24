@@ -65,8 +65,17 @@
                             <Button Content="Сбросить скрипты"
                                     Margin="5"
                                     Command="{Binding ClearConfigureScripts}"/>
+                            <Button Content="Запустить"
+                                    Margin="5"
+                                    Command="{Binding StartScriptsCommand}"/>
+                            <CheckBox Content="Окно?"
+                                      Margin="10"
+                                      IsChecked="{Binding ShowExecutingWindow}"/>
+                            <Button Content="Остановить"
+                                    Margin="5"
+                                    Command="{Binding StopScriptsCommand}"/>
                         </UniformGrid>
-                        <ListBox ItemsSource="{Binding Scripts}">
+                        <ListBox ItemsSource="{Binding ConfiguredScripts}">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListBoxItem}">
                                     <Setter Property="BorderBrush" Value="Black"/>

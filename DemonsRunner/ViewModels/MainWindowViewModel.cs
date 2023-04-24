@@ -18,20 +18,35 @@ namespace DemonsRunner.ViewModels
         #region --Fields--
 
         private string _windowTitle = "Main";
+        private bool _showExecutingWindow = false;
         private PHPDemon _selectedDemon;
         private readonly ObservableCollection<PHPDemon> _demons = new();
-        private ObservableCollection<PHPScript> _scripts;
+        private ObservableCollection<PHPScript> _configuredScripts;
+        private ObservableCollection<PHPScriptExecutor> _runningScripts;
         private readonly IFileDialogService _dialogService = new FileDialogService();
-        private readonly IScriptConfigureService _configureService = new ScriptConfigureService();
+        private readonly IScriptConfigureService _configureSctiptsService = new ScriptConfigureService();
+        private readonly IScriptExecutorService _executorScriptsService = new ScripExecutorService();
 
         #endregion
 
         #region --Properties--
 
-        public ObservableCollection<PHPScript> Scripts 
+        public bool ShowExecutingWindow
+        {
+            get => _showExecutingWindow;
+            set => Set(ref _showExecutingWindow, value);
+        }
+
+        public ObservableCollection<PHPScriptExecutor> RunningScripts 
         { 
-            get => _scripts; 
-            set => Set(ref _scripts, value);
+            get => _runningScripts; 
+            set => Set(ref _runningScripts, value); 
+        }
+
+        public ObservableCollection<PHPScript> ConfiguredScripts 
+        { 
+            get => _configuredScripts; 
+            set => Set(ref _configuredScripts, value);
         }
 
         public PHPDemon SelectedDemon
@@ -99,26 +114,64 @@ namespace DemonsRunner.ViewModels
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = _configureService.ConfigureScripts(Demons);
+            var response = _configureSctiptsService.ConfigureScripts(Demons);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Scripts = new ObservableCollection<PHPScript>(response.Data);
+                    ConfiguredScripts = new ObservableCollection<PHPScript>(response.Data);
                 });
             }
         }
 
         public ICommand ClearConfigureScripts => new RelayCommand(OnClearConfiguredScriptsExecute, 
-            (arg) => Scripts is ICollection<PHPScript> { Count: > 0 });
+            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 });
 
-        private void OnClearConfiguredScriptsExecute(object obj) => Scripts.Clear();
+        private void OnClearConfiguredScriptsExecute(object obj) => ConfiguredScripts.Clear();
+
+        public ICommand StartScriptsCommand => new RelayCommand(OnStartScriptsExecute, 
+            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } && RunningScripts is not ICollection<PHPScriptExecutor> { Count: > 0 });
+
+        private async void OnStartScriptsExecute(object obj)
+        {
+            var response = _executorScriptsService.Start(ConfiguredScripts, ShowExecutingWindow);
+            if (response.OperationStatus == StatusCode.Success)
+            {
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    RunningScripts = new ObservableCollection<PHPScriptExecutor>(response.Data);
+                    foreach (var runner in RunningScripts)
+                    {
+                        runner.ScriptExitedByUser += OnScriptExited;
+                    }
+                });
+            }
+        }
+
+        public ICommand StopScriptsCommand => new RelayCommand(OnStopScriptsExecute,
+            (arg) => RunningScripts is ICollection<PHPScriptExecutor> { Count: > 0 });
+
+        private void OnStopScriptsExecute(object obj)
+        {
+            var response = _executorScriptsService.Stop(RunningScripts);
+            if (response.OperationStatus == StatusCode.Success)
+            {
+                RunningScripts.Clear();
+            }
+        }
 
         #endregion
 
         #region --Methods--
 
-
+        private void OnScriptExited(object? sender, EventArgs e)
+        {
+            if (sender is PHPScriptExecutor scriptExecutor && RunningScripts.Contains(scriptExecutor))
+            {
+                RunningScripts.Remove(scriptExecutor);
+                scriptExecutor.Dispose();
+            }
+        }
 
         #endregion
     }
