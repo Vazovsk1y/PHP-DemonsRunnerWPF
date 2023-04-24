@@ -68,7 +68,6 @@ namespace DemonsRunner.Domain.Models
             {
                 _executableConsole.Kill();
                 IsRunning = false;
-                Dispose();
             }
             catch
             {
@@ -89,10 +88,13 @@ namespace DemonsRunner.Domain.Models
             {
                 if (disposing)
                 {
-                    _executableConsole.Exited -= OnScriptExited;
-                    _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
-                    _executableConsole.Dispose();
+                    // managed resources 
                 }
+
+                // unmanaged resourses
+                _executableConsole.Exited -= OnScriptExited;
+                _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
+                _executableConsole.Dispose();
                 _disposed = true;
             }
         }

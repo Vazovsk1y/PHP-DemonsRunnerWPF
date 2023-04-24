@@ -52,6 +52,7 @@ namespace DemonsRunner.Implementations.Services
                         throw new InvalidOperationException("Some script is not running!");
                     }
                     executor.Stop();
+                    executor.Dispose();
                 }
 
                 return new Response<PHPScriptExecutor>

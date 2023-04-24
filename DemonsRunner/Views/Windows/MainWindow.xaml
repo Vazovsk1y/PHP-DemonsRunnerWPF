@@ -100,6 +100,11 @@
                         </ListBox>
                     </DockPanel>
                 </TabItem>
+
+                <TabItem Header="Сообщения">
+                    <ListBox ItemsSource="{Binding ScriptMessages}">
+                    </ListBox>
+                </TabItem>
             </TabControl>
         </Grid>
     </DockPanel>
