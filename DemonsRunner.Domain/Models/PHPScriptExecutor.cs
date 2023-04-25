@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace DemonsRunner.Domain.Models
 {
@@ -26,14 +27,26 @@ namespace DemonsRunner.Domain.Models
                     FileName = "cmd.exe",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     UseShellExecute = false,
                     WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
                     CreateNoWindow = !showExecutingWindow,
+                    StandardErrorEncoding = Encoding.UTF8,
+                    StandardOutputEncoding = Encoding.UTF8,
                 },
                 EnableRaisingEvents = true,
             };
             _executableConsole.Exited += OnScriptExited;
+            _executableConsole.ErrorDataReceived += OnScriptErrorOutputReceived;
             _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
+        }
+
+        private void OnScriptErrorOutputReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                ScriptOutputMessageReceived?.Invoke(this, e);
+            }
         }
 
         private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -48,17 +61,20 @@ namespace DemonsRunner.Domain.Models
 
         public void Start()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (_disposed) 
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             _executableConsole.Start();
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
             _executableConsole.StandardInput.Flush();
             _executableConsole.BeginOutputReadLine();
+            _executableConsole.BeginErrorReadLine();
             IsRunning = true;
         }
 
         public void Stop()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (_disposed) 
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             _executableConsole.Kill();
             IsRunning = false;
         }
