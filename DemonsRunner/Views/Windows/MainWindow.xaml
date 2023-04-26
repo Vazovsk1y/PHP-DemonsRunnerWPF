@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DemonsRunner.ViewModels"
         xmlns:m="clr-namespace:DemonsRunner.Domain.Models;assembly=DemonsRunner.Domain"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:DemonsRunner"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="450" Width="800">
@@ -101,9 +102,28 @@
                     </DockPanel>
                 </TabItem>
 
-                <TabItem Header="Сообщения">
-                    <ListBox ItemsSource="{Binding ScriptMessages}">
-                    </ListBox>
+                <TabItem Header="Панель вывода">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ListBox ItemsSource="{Binding ScriptsOutputs}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="BorderBrush" Value="Black"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Setter Property="Margin" Value="5"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:PHPScriptOutput}">
+                                    <StackPanel>
+                                        <TextBlock Foreground="Red" Text="{Binding Owner.Name, StringFormat='Отправитель: {0}'}"/>
+                                        <Expander Header="Сообщения">
+                                            <ListBox ItemsSource="{Binding Messages}"/>
+                                        </Expander>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
         </Grid>
