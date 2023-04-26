@@ -16,29 +16,42 @@ namespace DemonsRunner.Domain.Models
 
         public bool IsRunning { get; private set; }
 
-        public PHPScriptExecutor(PHPScript script, bool showExecutingWindow)
+        public PHPScriptExecutor(PHPScript executableScript, bool showExecutingWindow)
         {
-            ExecutableScript = script;
+            ExecutableScript = executableScript;
             _executableConsole = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
+                    Arguments = "/k chcp 65001",      // set UTF8 endcoding to cmd output.
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     UseShellExecute = false,
                     WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
+                    //WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
                     CreateNoWindow = !showExecutingWindow,
                 },
                 EnableRaisingEvents = true,
             };
             _executableConsole.Exited += OnScriptExited;
+            _executableConsole.ErrorDataReceived += OnScriptOutputErrorReceived;
             _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
+        }
+
+        private void OnScriptOutputErrorReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                ScriptOutputMessageReceived?.Invoke(this, e);
+            }
         }
 
         private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(e.Data))
+            string endcodingMessage = "Active code page: 65001";
+            if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
             {
                 ScriptOutputMessageReceived?.Invoke(this, e);
             }
@@ -48,17 +61,21 @@ namespace DemonsRunner.Domain.Models
 
         public void Start()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (_disposed) 
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             _executableConsole.Start();
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
             _executableConsole.StandardInput.Flush();
             _executableConsole.BeginOutputReadLine();
+            _executableConsole.BeginErrorReadLine();
             IsRunning = true;
         }
 
         public void Stop()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (_disposed) 
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             _executableConsole.Kill();
             IsRunning = false;
         }

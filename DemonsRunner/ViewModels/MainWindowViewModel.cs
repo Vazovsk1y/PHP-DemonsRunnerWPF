@@ -8,7 +8,9 @@ using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
@@ -20,9 +22,11 @@ namespace DemonsRunner.ViewModels
         private string _windowTitle = "Main";
         private bool _showExecutingWindow = false;
         private PHPDemon _selectedDemon;
-        private readonly ObservableCollection<PHPDemon> _demons = new();
         private ObservableCollection<PHPScript> _configuredScripts;
         private ObservableCollection<PHPScriptExecutor> _runningScripts;
+        //private readonly ObservableCollection<string> _scriptMessages = new();
+        private readonly ObservableCollection<PHPScriptOutput> _scriptMessages = new();
+        private readonly ObservableCollection<PHPDemon> _demons = new();
         private readonly IFileDialogService _dialogService = new FileDialogService();
         private readonly IScriptConfigureService _configureSctiptsService = new ScriptConfigureService();
         private readonly IScriptExecutorService _executorScriptsService = new ScripExecutorService();
@@ -30,6 +34,8 @@ namespace DemonsRunner.ViewModels
         #endregion
 
         #region --Properties--
+
+        public ObservableCollection<PHPScriptOutput> ScriptsOutputs => _scriptMessages;
 
         public bool ShowExecutingWindow
         {
@@ -142,7 +148,8 @@ namespace DemonsRunner.ViewModels
                     RunningScripts = new ObservableCollection<PHPScriptExecutor>(response.Data);
                     foreach (var runner in RunningScripts)
                     {
-                        runner.ScriptExitedByUser += OnScriptExited;
+                        runner.ScriptExitedByUser += OnScriptExitedByUser;
+                        runner.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
                     }
                 });
             }
@@ -157,6 +164,7 @@ namespace DemonsRunner.ViewModels
             if (response.OperationStatus == StatusCode.Success)
             {
                 RunningScripts.Clear();
+                ScriptsOutputs.Clear();
             }
         }
 
@@ -164,12 +172,39 @@ namespace DemonsRunner.ViewModels
 
         #region --Methods--
 
-        private void OnScriptExited(object? sender, EventArgs e)
+        private async void OnScriptExitedByUser(object? sender, EventArgs e)
         {
             if (sender is PHPScriptExecutor scriptExecutor && RunningScripts.Contains(scriptExecutor))
             {
-                RunningScripts.Remove(scriptExecutor);
-                scriptExecutor.Dispose();
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    var messagesToClear = ScriptsOutputs.Where(x => x.Owner.Name == scriptExecutor.ExecutableScript.Name).ToList();
+                    foreach (var message in messagesToClear)
+                    {
+                        ScriptsOutputs.Remove(message);
+                    }
+                    RunningScripts.Remove(scriptExecutor);
+                    scriptExecutor.Dispose();
+                });
+            }
+        }
+
+        private async void OnScriptOutputMessageReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (sender is PHPScriptExecutor scriptExecutor && RunningScripts.Contains(scriptExecutor))
+            {
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    var scriptOutput = ScriptsOutputs.FirstOrDefault(s => s.Owner.Name == scriptExecutor.ExecutableScript.Name);
+                    if (scriptOutput is null)
+                    {
+                        ScriptsOutputs.Add(new PHPScriptOutput(scriptExecutor.ExecutableScript));
+                    }
+                    else
+                    {
+                        scriptOutput.Messages.Add(e.Data!);
+                    }
+                });
             }
         }
 
