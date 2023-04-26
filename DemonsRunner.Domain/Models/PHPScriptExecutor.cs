@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 
 namespace DemonsRunner.Domain.Models
 {
@@ -25,23 +24,22 @@ namespace DemonsRunner.Domain.Models
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
+                    Arguments = "/k chcp 65001",      // set UTF8 endcoding to cmd output.
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
                     CreateNoWindow = !showExecutingWindow,
-                    StandardErrorEncoding = Encoding.UTF8,
-                    StandardOutputEncoding = Encoding.UTF8,
                 },
                 EnableRaisingEvents = true,
             };
             _executableConsole.Exited += OnScriptExited;
-            _executableConsole.ErrorDataReceived += OnScriptErrorOutputReceived;
+            _executableConsole.ErrorDataReceived += OnScriptOutputErrorReceived;
             _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
         }
 
-        private void OnScriptErrorOutputReceived(object sender, DataReceivedEventArgs e)
+        private void OnScriptOutputErrorReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
