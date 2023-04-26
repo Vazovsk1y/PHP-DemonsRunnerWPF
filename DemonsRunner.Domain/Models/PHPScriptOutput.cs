@@ -1,26 +1,16 @@
-﻿using System.Text;
+﻿using System.Collections.ObjectModel;
 
 namespace DemonsRunner.Domain.Models
 {
     public class PHPScriptOutput
     {
-        private readonly StringBuilder _outputBuilder = new StringBuilder();
-
         public PHPScript Owner { get; }
 
-        public string Text => _outputBuilder.ToString();
+        public ICollection<string> Messages { get; } = new ObservableCollection<string>();
 
-        public PHPScriptOutput(PHPScript owner) 
+        public PHPScriptOutput(PHPScript outputOwner) 
         { 
-            Owner = owner; 
+            Owner = outputOwner; 
         }
-
-        public PHPScriptOutput(PHPScript script, string message)
-        {
-            Owner = script;
-            UpdateOutputText(message);
-        }
-
-        public void UpdateOutputText(string text) =>_outputBuilder.Append(text + Environment.NewLine);
     }
 }

@@ -30,6 +30,7 @@ namespace DemonsRunner.Domain.Models
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
+                    //WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
                     CreateNoWindow = !showExecutingWindow,
                 },
                 EnableRaisingEvents = true,
@@ -64,6 +65,7 @@ namespace DemonsRunner.Domain.Models
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             _executableConsole.Start();
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
             _executableConsole.StandardInput.Flush();
             _executableConsole.BeginOutputReadLine();
             _executableConsole.BeginErrorReadLine();
