@@ -16,9 +16,9 @@ namespace DemonsRunner.Domain.Models
 
         public bool IsRunning { get; private set; }
 
-        public PHPScriptExecutor(PHPScript script, bool showExecutingWindow)
+        public PHPScriptExecutor(PHPScript executableScript, bool showExecutingWindow)
         {
-            ExecutableScript = script;
+            ExecutableScript = executableScript;
             _executableConsole = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -49,7 +49,8 @@ namespace DemonsRunner.Domain.Models
 
         private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(e.Data))
+            string endcodingMessage = "Active code page: 65001";
+            if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
             {
                 ScriptOutputMessageReceived?.Invoke(this, e);
             }
