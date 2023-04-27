@@ -63,6 +63,8 @@ namespace DemonsRunner.Domain.Models
         {
             if (_disposed) 
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (IsRunning)
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
             _executableConsole.Start();
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
             //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
@@ -76,6 +78,8 @@ namespace DemonsRunner.Domain.Models
         {
             if (_disposed) 
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (!IsRunning)
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
             _executableConsole.Kill();
             IsRunning = false;
         }
