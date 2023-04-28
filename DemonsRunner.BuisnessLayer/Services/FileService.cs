@@ -10,9 +10,9 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class FileService : IFileService
     {
-        private readonly IFileRepository<PHPDemon> _repository;
+        private readonly IRepository<PHPDemon> _repository;
 
-        public FileService(IFileRepository<PHPDemon> repository)
+        public FileService(IRepository<PHPDemon> repository)
         {
             _repository = repository;
         }
@@ -21,7 +21,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
-                var files = _repository.GetAllFiles().ToList();
+                var files = _repository.GetAll().ToList();
 
                 if (files is null || files.Count == 0)
                 {
@@ -54,7 +54,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
-                _repository.SaveFiles(savedFiles);
+                _repository.Save(savedFiles);
 
                 return new BaseResponse
                 {

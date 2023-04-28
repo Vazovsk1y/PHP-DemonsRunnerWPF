@@ -68,7 +68,7 @@ namespace DemonsRunner
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            .AddSingleton<IFileRepository<PHPDemon>, FileRepository>()
+            .AddSingleton<IRepository<PHPDemon>, FileRepository>()
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IFileDialogService, FileDialogService>()
             .AddSingleton<IScriptConfigureService, ScriptConfigureService>()

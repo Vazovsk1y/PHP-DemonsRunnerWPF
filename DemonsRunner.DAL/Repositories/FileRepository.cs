@@ -1,40 +1,28 @@
-﻿using DemonsRunner.Domain.Models;
+﻿using DemonsRunner.DAL.Storage;
+using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Repositories;
 using Newtonsoft.Json;
 
 namespace DemonsRunner.DAL.Repositories
 {
-    public class FileRepository : IFileRepository<PHPDemon>
+    public class FileRepository : IRepository<PHPDemon>
     {
-        private readonly string _filePath;
+        private readonly StorageFile _storageFile = new StorageFile("data.json");
 
-        public FileRepository()
+        public IEnumerable<PHPDemon> GetAll()
         {
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appName = "DemonsRunner";
-            string directoryPath = Path.Combine(appDataPath, appName);
-
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-            _filePath = Path.Combine(directoryPath, "data.json");
-        }
-
-        public IEnumerable<PHPDemon> GetAllFiles()
-        {
-            if (!File.Exists(_filePath))
+            if (!File.Exists(_storageFile.FullPath))
             {
                 return Enumerable.Empty<PHPDemon>();
             }
-            using StreamReader reader = new StreamReader(_filePath);
+            using var reader = new StreamReader(_storageFile.FullPath);
             string json = reader.ReadToEnd();
             return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json);
         }
 
-        public bool SaveFiles(IEnumerable<PHPDemon> items)
+        public bool Save(IEnumerable<PHPDemon> items)
         {
-            using StreamWriter writer = new StreamWriter(_filePath);
+            using var writer = new StreamWriter(_storageFile.FullPath);
             string json = JsonConvert.SerializeObject(items, Formatting.Indented);
             writer.Write(json);
             return true;
