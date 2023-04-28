@@ -2,14 +2,12 @@
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
-using DemonsRunner.Implementations.Responses;
-using System;
-using System.Collections.Generic;
+using DemonsRunner.BuisnessLayer.Responses;
 using System.Diagnostics;
 
-namespace DemonsRunner.Implementations.Services
+namespace DemonsRunner.BuisnessLayer.Services
 {
-    internal class ScriptConfigureService : IScriptConfigureService
+    public class ScriptConfigureService : IScriptConfigureService
     {
         public IDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {

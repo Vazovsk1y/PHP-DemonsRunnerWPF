@@ -1,15 +1,13 @@
-﻿using DemonsRunner.Domain.Enums;
+﻿using DemonsRunner.BuisnessLayer.Responses;
+using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
-using DemonsRunner.Implementations.Responses;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace DemonsRunner.Implementations.Services
+namespace DemonsRunner.BuisnessLayer.Services
 {
-    internal class ScripExecutorService : IScriptExecutorService
+    public class ScripExecutorService : IScriptExecutorService
     {
         public IDataResponse<PHPScriptExecutor> Start(IEnumerable<PHPScript> scripts, bool showExecutingWindow)
         {

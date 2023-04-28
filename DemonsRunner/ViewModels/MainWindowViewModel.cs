@@ -3,7 +3,6 @@ using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
-using DemonsRunner.Implementations.Services;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;

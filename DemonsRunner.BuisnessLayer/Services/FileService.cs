@@ -1,18 +1,14 @@
-﻿using DemonsRunner.DAL.Repositories;
-using DemonsRunner.Domain.Interfaces;
+﻿using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Repositories;
 using DemonsRunner.Domain.Responses;
 using DemonsRunner.Domain.Services;
-using DemonsRunner.Implementations.Responses;
-using System;
-using System.Collections.Generic;
+using DemonsRunner.BuisnessLayer.Responses;
 using System.Diagnostics;
-using System.Linq;
 
-namespace DemonsRunner.Implementations.Services
+namespace DemonsRunner.BuisnessLayer.Services
 {
-    internal class FileService : IFileService
+    public class FileService : IFileService
     {
         private readonly IFileRepository<PHPDemon> _repository;
 

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Implementations.Responses;
+using DemonsRunner.BuisnessLayer.Responses;
 using Microsoft.Win32;
 
-namespace DemonsRunner.Implementations.Services
+namespace DemonsRunner.BuisnessLayer.Services
 {
-    internal class FileDialogService : IFileDialogService
+    public class FileDialogService : IFileDialogService
     {
         private readonly OpenFileDialog _fileDialog = new()
         {
