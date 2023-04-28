@@ -1,15 +1,21 @@
-﻿using System;
+﻿using Microsoft.Extensions.Hosting;
+using System;
+using System.Windows;
 
 namespace DemonsRunner
 {
     internal class Program
     {
         [STAThread]
-        internal static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            App app = new App();
-            app.InitializeComponent();
+            App app = new();
             app.Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) => Host
+            .CreateDefaultBuilder(args)
+            .ConfigureServices(App.ConfigureServices)
+            ;
     }
 }
