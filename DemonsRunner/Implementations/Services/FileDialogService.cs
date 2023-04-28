@@ -17,19 +17,19 @@ namespace DemonsRunner.Implementations.Services
             Title = "Выберите файл:",
         };
 
-        public IResponse<PHPDemon> StartDialog()
+        public IDataResponse<PHPDemon> StartDialog()
         {
             try
             {
                 var dialogResult = _fileDialog.ShowDialog();
 
                 return dialogResult is bool result && !result ?
-                    new Response<PHPDemon>
+                    new DataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Fail
                     }
                     :
-                    new Response<PHPDemon>
+                    new DataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Success,
                         Data = GetDemons()
@@ -38,7 +38,7 @@ namespace DemonsRunner.Implementations.Services
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new Response<PHPDemon>
+                return new DataResponse<PHPDemon>
                 {
                     OperationStatus = StatusCode.Fail
                 };

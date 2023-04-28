@@ -11,7 +11,7 @@ namespace DemonsRunner.Implementations.Services
 {
     internal class ScripExecutorService : IScriptExecutorService
     {
-        public IResponse<PHPScriptExecutor> Start(IEnumerable<PHPScript> scripts, bool showExecutingWindow)
+        public IDataResponse<PHPScriptExecutor> Start(IEnumerable<PHPScript> scripts, bool showExecutingWindow)
         {
             try
             {
@@ -23,7 +23,7 @@ namespace DemonsRunner.Implementations.Services
                     executor.Start();
                 }
 
-                return new Response<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     Description = "Scripts were successfully started!",
                     Data = executors,
@@ -33,7 +33,7 @@ namespace DemonsRunner.Implementations.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new Response<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail
@@ -41,7 +41,7 @@ namespace DemonsRunner.Implementations.Services
             }
         }
 
-        public IResponse<PHPScriptExecutor> Stop(IEnumerable<PHPScriptExecutor> executors)
+        public IDataResponse<PHPScriptExecutor> Stop(IEnumerable<PHPScriptExecutor> executors)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace DemonsRunner.Implementations.Services
                     executor.Dispose();
                 }
 
-                return new Response<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     OperationStatus = StatusCode.Success,
                     Description = "Runners were killed and disposed successfully!"
@@ -64,7 +64,7 @@ namespace DemonsRunner.Implementations.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new Response<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail

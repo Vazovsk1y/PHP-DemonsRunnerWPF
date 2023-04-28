@@ -11,7 +11,7 @@ namespace DemonsRunner.Implementations.Services
 {
     internal class ScriptConfigureService : IScriptConfigureService
     {
-        public IResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons)
+        public IDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {
             try
             {
@@ -21,7 +21,7 @@ namespace DemonsRunner.Implementations.Services
                     configuredScripts.Add(new PHPScript(demon));
                 }
 
-                return new Response<PHPScript>
+                return new DataResponse<PHPScript>
                 {
                     Description = "Scripts were successfully configurated!",
                     OperationStatus = StatusCode.Success,
@@ -31,7 +31,7 @@ namespace DemonsRunner.Implementations.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new Response<PHPScript>
+                return new DataResponse<PHPScript>
                 {
                     Description = "Something go wrong!",
                     OperationStatus = StatusCode.Fail

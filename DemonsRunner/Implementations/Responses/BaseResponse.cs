@@ -1,13 +1,12 @@
 ﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Interfaces;
-using System.Collections.Generic;
+using DemonsRunner.Domain.Responses;
 
 namespace DemonsRunner.Implementations.Responses
 {
-    public class Response<T> : IResponse<T>
+    public class BaseResponse : IBaseResponse
     {
         public string Description { get; set; }
-        public IEnumerable<T> Data { get; set; }
+
         public StatusCode OperationStatus { get; set; }
     }
 }

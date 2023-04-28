@@ -1,12 +1,10 @@
 ﻿using DemonsRunner.Domain.Enums;
 
-namespace DemonsRunner.Domain.Interfaces
+namespace DemonsRunner.Domain.Responses
 {
-    public interface IResponse<T>
+    public interface IBaseResponse
     {
         public string Description { get; set; }
-
-        public IEnumerable<T> Data { get; set; }
 
         public StatusCode OperationStatus { get; set; }
     }
