@@ -23,12 +23,12 @@ namespace DemonsRunner.ViewModels
         private PHPDemon _selectedDemon;
         private ObservableCollection<PHPScript> _configuredScripts;
         private ObservableCollection<PHPScriptExecutor> _runningScripts;
-        //private readonly ObservableCollection<string> _scriptMessages = new();
         private readonly ObservableCollection<PHPScriptOutput> _scriptMessages = new();
         private readonly ObservableCollection<PHPDemon> _demons = new();
         private readonly IFileDialogService _dialogService = new FileDialogService();
         private readonly IScriptConfigureService _configureSctiptsService = new ScriptConfigureService();
         private readonly IScriptExecutorService _executorScriptsService = new ScripExecutorService();
+        private readonly IFileService _fileService = new FileService();
 
         #endregion
 
@@ -74,7 +74,15 @@ namespace DemonsRunner.ViewModels
 
         public MainWindowViewModel()
         {
-
+            var response = _fileService.GetSaved();
+            if (response.OperationStatus == StatusCode.Success)
+            {
+                foreach (var file in response.Data)
+                {
+                    Demons.Add(file);
+                }
+            }
+            Demons.CollectionChanged += (s, e) => _fileService.Save(Demons);
         }
 
         #endregion
