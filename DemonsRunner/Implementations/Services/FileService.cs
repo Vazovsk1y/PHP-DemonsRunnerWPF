@@ -14,7 +14,12 @@ namespace DemonsRunner.Implementations.Services
 {
     internal class FileService : IFileService
     {
-        private readonly IFileRepository<PHPDemon> _repository = new FileRepository();
+        private readonly IFileRepository<PHPDemon> _repository;
+
+        public FileService(IFileRepository<PHPDemon> repository)
+        {
+            _repository = repository;
+        }
 
         public IDataResponse<PHPDemon> GetSaved()
         {
