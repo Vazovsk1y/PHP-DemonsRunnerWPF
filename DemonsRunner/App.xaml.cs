@@ -1,4 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DemonsRunner.DAL.Repositories;
+using DemonsRunner.Domain.Interfaces;
+using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Repositories;
+using DemonsRunner.Domain.Services;
+using DemonsRunner.Implementations.Services;
+using DemonsRunner.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -53,8 +60,7 @@ namespace DemonsRunner
                 await host.StartAsync();
                 IsDesignMode = false;
 
-                var window = new MainWindow();
-                window.Show();
+                Services.GetRequiredService<MainWindow>().Show();
             }
         }
 
@@ -66,10 +72,21 @@ namespace DemonsRunner
             Current.Shutdown();
         }
 
-        internal static void ConfigureServices(HostBuilderContext host, IServiceCollection service)
-        {
+        internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
+            .AddSingleton<IFileRepository<PHPDemon>, FileRepository>()
+            .AddSingleton<IFileService, FileService>()
+            .AddSingleton<IFileDialogService, FileDialogService>()
+            .AddSingleton<IScriptConfigureService, ScriptConfigureService>()
+            .AddSingleton<IScriptExecutorService, ScripExecutorService>()
+            .AddSingleton<MainWindowViewModel>()
+            .AddTransient(s =>
+            {
+                var viewModel = s.GetRequiredService<MainWindowViewModel>();
+                var window = new MainWindow { DataContext = viewModel };
 
-        }
+                return window;
+            })
+            ;
 
         private bool IsNewInstance()
         {
