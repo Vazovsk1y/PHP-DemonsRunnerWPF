@@ -19,7 +19,7 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Запущенные скрипты"/>
-                    <TextBlock Text="{Binding RunningScripts.Count}"/>
+                    <TextBlock Text="{Binding RunningScriptsViewModels.Count}"/>
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -115,11 +115,11 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Панель вывода"/>
-                            <TextBlock Text="{Binding ScriptsOutputs.Count, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding RunningScriptsViewModels.Count, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding ScriptsOutputs}">
+                        <ListBox ItemsSource="{Binding RunningScriptsViewModels}">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListBoxItem}">
                                     <Setter Property="BorderBrush" Value="Black"/>
@@ -128,11 +128,12 @@
                                 </Style>
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type m:PHPScriptOutput}">
+                                <DataTemplate DataType="{x:Type vm:PHPScriptExecutorViewModel}">
                                     <StackPanel>
-                                        <TextBlock Foreground="Red" Text="{Binding Owner.Name, StringFormat='Отправитель: {0}'}"/>
+                                        <TextBlock Foreground="Red" 
+                                                   Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
                                         <Expander Header="Сообщения">
-                                            <ListBox ItemsSource="{Binding Messages}"/>
+                                            <ListBox ItemsSource="{Binding OutputMessages}"/>
                                         </Expander>
                                     </StackPanel>
                                 </DataTemplate>

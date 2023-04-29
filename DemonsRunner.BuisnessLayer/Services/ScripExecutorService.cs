@@ -17,8 +17,10 @@ namespace DemonsRunner.BuisnessLayer.Services
                 foreach (var script in scripts)
                 {
                     var executor = new PHPScriptExecutor(script, showExecutingWindow);
-                    executors.Add(executor);
-                    executor.Start();
+                    if (executor.Start())
+                    {
+                        executors.Add(executor);
+                    }
                 }
 
                 return new DataResponse<PHPScriptExecutor>
@@ -43,12 +45,13 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
+                if (!IsScriptsRunning(executors))
+                {
+                    throw new InvalidOperationException("Some script is not running!");
+                }
+
                 foreach (var executor in executors)
                 {
-                    if (!executor.IsRunning)
-                    {
-                        throw new InvalidOperationException("Some script is not running!");
-                    }
                     executor.Stop();
                     executor.Dispose();
                 }
@@ -69,5 +72,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 };
             }
         }
+
+        private bool IsScriptsRunning(IEnumerable<PHPScriptExecutor> executors) => executors.ToList().TrueForAll(executor => executor.IsRunning);
     }
 }
