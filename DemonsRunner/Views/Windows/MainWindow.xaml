@@ -5,8 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DemonsRunner.ViewModels"
         xmlns:m="clr-namespace:DemonsRunner.Domain.Models;assembly=DemonsRunner.Domain"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:DemonsRunner"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="450" Width="800">
@@ -18,7 +16,12 @@
         </Menu>
 
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem Content="Status"/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Запущенные скрипты"/>
+                    <TextBlock Text="{Binding RunningScripts.Count}"/>
+                </StackPanel>
+            </StatusBarItem>
         </StatusBar>
 
         <Grid>
@@ -29,6 +32,8 @@
 
             <GroupBox Grid.Column="0">
                 <DockPanel>
+                    <TextBlock Text="{Binding Demons.Count}"
+                           DockPanel.Dock="Top"/>
                     <UniformGrid DockPanel.Dock="Bottom" Rows="1">
                         <Button  
                         Margin="5"
@@ -54,7 +59,13 @@
 
 
             <TabControl Grid.Column="1">
-                <TabItem Header="Сконфигурированные скрипты">
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Сконфигурированные скрипты"/>
+                            <TextBlock Text="{Binding ConfiguredScripts.Count}"/>
+                        </StackPanel>
+                    </TabItem.Header>
                     <DockPanel>
                         <UniformGrid DockPanel.Dock="Bottom"
                                      Rows="1">
@@ -100,7 +111,13 @@
                     </DockPanel>
                 </TabItem>
 
-                <TabItem Header="Панель вывода">
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Панель вывода"/>
+                            <TextBlock Text="{Binding ScriptsOutputs.Count, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ListBox ItemsSource="{Binding ScriptsOutputs}">
                             <ListBox.ItemContainerStyle>

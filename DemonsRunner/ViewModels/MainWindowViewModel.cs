@@ -3,6 +3,7 @@ using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
+using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ namespace DemonsRunner.ViewModels
 
         public MainWindowViewModel()
         {
-            
+
         }
 
         public MainWindowViewModel(
@@ -89,10 +90,7 @@ namespace DemonsRunner.ViewModels
             var response = _fileService.GetSaved();
             if (response.OperationStatus == StatusCode.Success)
             {
-                foreach (var file in response.Data)
-                {
-                    Demons.Add(file);
-                }
+                Demons.AddRange(response.Data);
             }
             Demons.CollectionChanged += (s, e) => _fileService.Save(Demons);
         }
@@ -106,18 +104,11 @@ namespace DemonsRunner.ViewModels
         private async void OnAddingFileExecute(object obj)
         {
             var response = _dialogService.StartDialog();
-
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    foreach (var demon in response.Data)
-                    {
-                        if (Demons.FirstOrDefault(d => d.Name == demon.Name && d.FullPath == demon.FullPath) is null)
-                        {
-                            Demons.Add(demon);
-                        }
-                    }
+                    Demons.AddIfNotExist(response.Data);
                 });
             }
         }
@@ -197,8 +188,8 @@ namespace DemonsRunner.ViewModels
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    var messagesToClear = ScriptsOutputs.Where(x => x.Owner.Name == scriptExecutor.ExecutableScript.Name).ToList();
-                    foreach (var message in messagesToClear)
+                    var scriptsOutput = ScriptsOutputs.Where(x => x.Owner.Name == scriptExecutor.ExecutableScript.Name).ToList();
+                    foreach (var message in scriptsOutput)
                     {
                         ScriptsOutputs.Remove(message);
                     }
