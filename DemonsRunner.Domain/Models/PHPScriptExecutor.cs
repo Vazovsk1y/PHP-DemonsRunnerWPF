@@ -1,20 +1,35 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace DemonsRunner.Domain.Models
 {
     public class PHPScriptExecutor : IDisposable
     {
+        #region --Events--
+
         public event EventHandler? ScriptExitedByUser;
 
         public event DataReceivedEventHandler? ScriptOutputMessageReceived;
+
+        #endregion
+
+        #region --Fields--
 
         private bool _disposed = false;
 
         private readonly Process _executableConsole;
 
+        #endregion
+
+        #region --Properties--
+
         public PHPScript ExecutableScript { get; }
 
         public bool IsRunning { get; private set; }
+
+        #endregion
+
+        #region --Constructors--
 
         public PHPScriptExecutor(PHPScript executableScript, bool showExecutingWindow)
         {
@@ -40,6 +55,45 @@ namespace DemonsRunner.Domain.Models
             _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
         }
 
+        #endregion
+
+        #region --Methods--
+
+        public bool Start()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (IsRunning)
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
+
+            var startingResult = _executableConsole.Start();
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
+            _executableConsole.StandardInput.Flush();
+            _executableConsole.BeginOutputReadLine();
+            _executableConsole.BeginErrorReadLine();
+            IsRunning = startingResult;
+            return IsRunning;
+        }
+
+        public void Stop()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (!IsRunning)
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
+
+            _executableConsole.Kill();
+            IsRunning = false;
+        }
+
+        public void Dispose()
+        {
+            IsRunning = false;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         private void OnScriptOutputErrorReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
@@ -59,38 +113,6 @@ namespace DemonsRunner.Domain.Models
 
         private void OnScriptExited(object? sender, EventArgs e) => ScriptExitedByUser?.Invoke(this, EventArgs.Empty);
 
-        public void Start()
-        {
-            if (_disposed) 
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            if (IsRunning)
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
-            _executableConsole.Start();
-            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
-            _executableConsole.StandardInput.Flush();
-            _executableConsole.BeginOutputReadLine();
-            _executableConsole.BeginErrorReadLine();
-            IsRunning = true;
-        }
-
-        public void Stop()
-        {
-            if (_disposed) 
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            if (!IsRunning)
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
-            _executableConsole.Kill();
-            IsRunning = false;
-        }
-
-        public void Dispose()
-        {
-            IsRunning = false;
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -107,5 +129,7 @@ namespace DemonsRunner.Domain.Models
                 _disposed = true;
             }
         }
+
+        #endregion
     }
 }
