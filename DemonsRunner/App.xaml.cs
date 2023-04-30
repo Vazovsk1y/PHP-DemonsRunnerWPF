@@ -8,7 +8,9 @@ using DemonsRunner.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 
@@ -28,6 +30,8 @@ namespace DemonsRunner
         #endregion
 
         #region --Properties--
+
+        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath()) : Environment.CurrentDirectory;
 
         public static bool IsDesignMode { get; private set; } = true;
 
@@ -98,6 +102,9 @@ namespace DemonsRunner
             }
             return false;
         }
+
+        private static string GetSourceCodePath([CallerFilePath] string Path = null) => string.IsNullOrWhiteSpace(Path) 
+            ? throw new ArgumentNullException(nameof(Path)) : Path;
 
         #endregion
     }

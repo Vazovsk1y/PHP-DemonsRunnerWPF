@@ -15,6 +15,7 @@ namespace DemonsRunner
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host
             .CreateDefaultBuilder(args)
+            .UseContentRoot(App.CurrentDirectory)
             .ConfigureServices(App.ConfigureServices)
             ;
     }
