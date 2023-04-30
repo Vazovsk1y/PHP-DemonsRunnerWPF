@@ -1,4 +1,6 @@
-﻿namespace DemonsRunner.DAL.Storage
+﻿using System.Reflection;
+
+namespace DemonsRunner.DAL.Storage
 {
     internal class StorageFile
     {
@@ -14,7 +16,7 @@
         {
             _name = fileName;
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appName = "DemonsRunner";
+            string appName = Assembly.GetEntryAssembly().GetName().Name;
             string fileDirectoryPath = Path.Combine(appDataPath, appName);
 
             if (!Directory.Exists(fileDirectoryPath)) 

@@ -8,6 +8,7 @@ using DemonsRunner.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 
@@ -22,7 +23,7 @@ namespace DemonsRunner
 
         private static IHost? _host;
 
-        private static readonly string UniqueEventName = "DemonsRunner";
+        private static readonly string UniqueEventName = Assembly.GetExecutingAssembly().GetName().Name;
 
         #endregion
 
