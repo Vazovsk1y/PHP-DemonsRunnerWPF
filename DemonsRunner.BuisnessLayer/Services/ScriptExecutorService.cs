@@ -45,27 +45,23 @@ namespace DemonsRunner.BuisnessLayer.Services
             }
         }
 
-        public Task<IBaseResponse> StopAsync(IEnumerable<PHPScriptExecutor> executingScripts)
+        public Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript)
         {
             try
             {
-                foreach (var executingScript in executingScripts)
+                if (!executingScript.IsRunning)
                 {
-                    if (!executingScript.IsRunning)
+                    return Task.FromResult<IBaseResponse>(new BaseResponse
                     {
-                        return Task.FromResult<IBaseResponse>(new BaseResponse
-                        {
-                            Description = $"{executingScript.ExecutableScript.Name} is not running!",
-                            OperationStatus = StatusCode.Fail
-                        });
-                    }
-                    executingScript.Stop();
-                    executingScript.Dispose();
+                        Description = $"{executingScript.ExecutableScript.Name} is not running!",
+                        OperationStatus = StatusCode.Fail
+                    });
                 }
 
+                executingScript.Stop();
                 return Task.FromResult<IBaseResponse>(new BaseResponse
                 {
-                    Description = "Runners were killed and disposed successfully!",
+                    Description = "Runner was killed successfully!",
                     OperationStatus = StatusCode.Success,
                 });
             }

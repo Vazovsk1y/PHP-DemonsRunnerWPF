@@ -8,6 +8,6 @@ namespace DemonsRunner.Domain.Services
     {
         public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow);
 
-        public Task<IBaseResponse> StopAsync(IEnumerable<PHPScriptExecutor> executingScripts);
+        public Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript);
     }
 }
