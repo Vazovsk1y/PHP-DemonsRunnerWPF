@@ -5,7 +5,7 @@ namespace DemonsRunner.BuisnessLayer.Responses
 {
     public class DataResponse<T> : IDataResponse<T>
     {
-        public IEnumerable<T> Data { get; set; }
+        public T Data { get; set; }
 
         public string Description { get; set; }
 

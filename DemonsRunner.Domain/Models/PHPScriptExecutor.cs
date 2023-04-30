@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace DemonsRunner.Domain.Models
 {
@@ -38,7 +37,7 @@ namespace DemonsRunner.Domain.Models
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "cmd.exe",
+                    FileName = "cmd",
                     Arguments = "/k chcp 65001",      // set UTF8 endcoding to cmd output.
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,

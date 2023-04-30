@@ -1,9 +1,10 @@
 ﻿using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Responses;
 
 namespace DemonsRunner.Domain.Interfaces
 {
     public interface IFileDialogService
     {
-        public IDataResponse<PHPDemon> StartDialog();
+        public ICollectionDataResponse<PHPDemon> StartDialog();
     }
 }

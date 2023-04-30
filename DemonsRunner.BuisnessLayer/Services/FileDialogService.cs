@@ -4,6 +4,7 @@ using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.BuisnessLayer.Responses;
 using Microsoft.Win32;
+using DemonsRunner.Domain.Responses;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
@@ -15,19 +16,19 @@ namespace DemonsRunner.BuisnessLayer.Services
             Title = "Выберите файл:",
         };
 
-        public IDataResponse<PHPDemon> StartDialog()
+        public ICollectionDataResponse<PHPDemon> StartDialog()
         {
             try
             {
                 var dialogResult = _fileDialog.ShowDialog();
 
                 return dialogResult is bool result && !result ?
-                    new DataResponse<PHPDemon>
+                    new CollectionDataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Fail
                     }
                     :
-                    new DataResponse<PHPDemon>
+                    new CollectionDataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Success,
                         Data = GetDemons()
@@ -36,7 +37,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new DataResponse<PHPDemon>
+                return new CollectionDataResponse<PHPDemon>
                 {
                     OperationStatus = StatusCode.Fail
                 };

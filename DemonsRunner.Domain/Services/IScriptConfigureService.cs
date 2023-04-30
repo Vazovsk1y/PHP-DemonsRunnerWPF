@@ -1,10 +1,10 @@
-﻿using DemonsRunner.Domain.Interfaces;
-using DemonsRunner.Domain.Models;
+﻿using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Responses;
 
 namespace DemonsRunner.Domain.Services
 {
     public interface IScriptConfigureService
     {
-        public IDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons);
+        public ICollectionDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons);
     }
 }

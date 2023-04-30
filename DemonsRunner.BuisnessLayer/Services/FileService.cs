@@ -17,7 +17,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             _repository = repository;
         }
 
-        public IDataResponse<PHPDemon> GetSaved()
+        public ICollectionDataResponse<PHPDemon> GetSaved()
         {
             try
             {
@@ -25,14 +25,14 @@ namespace DemonsRunner.BuisnessLayer.Services
 
                 if (files is null || files.Count == 0)
                 {
-                    return new DataResponse<PHPDemon>
+                    return new CollectionDataResponse<PHPDemon>
                     {
                         Description = "Data json file not founded!",
                         OperationStatus = Domain.Enums.StatusCode.Fail,
                     };
                 }
 
-                return new DataResponse<PHPDemon>
+                return new CollectionDataResponse<PHPDemon>
                 {
                     Description = "Files were succsessfully given to you!",
                     OperationStatus = Domain.Enums.StatusCode.Success,
@@ -42,7 +42,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new DataResponse<PHPDemon>
+                return new CollectionDataResponse<PHPDemon>
                 {
                     Description = "Something go wrong",
                     OperationStatus = Domain.Enums.StatusCode.Fail,
