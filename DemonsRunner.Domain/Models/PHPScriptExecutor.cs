@@ -66,11 +66,6 @@ namespace DemonsRunner.Domain.Models
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
 
             var startingResult = _executableConsole.Start();
-            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
-            _executableConsole.StandardInput.Flush();
-            _executableConsole.BeginOutputReadLine();
-            _executableConsole.BeginErrorReadLine();
             IsRunning = startingResult;
             return IsRunning;
         }
@@ -82,8 +77,23 @@ namespace DemonsRunner.Domain.Models
             if (!IsRunning)
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
 
+            _executableConsole.CancelErrorRead();
+            _executableConsole.CancelOutputRead();
             _executableConsole.Kill();
             IsRunning = false;
+        }
+
+        public void StartMessageReceiving()
+        {
+            _executableConsole.BeginOutputReadLine();
+            _executableConsole.BeginErrorReadLine();
+        }
+
+        public void ExecuteCommand()
+        {
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
+            _executableConsole.StandardInput.Flush();
         }
 
         public void Dispose()

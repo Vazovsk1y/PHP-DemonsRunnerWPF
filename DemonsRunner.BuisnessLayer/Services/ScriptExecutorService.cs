@@ -17,6 +17,8 @@ namespace DemonsRunner.BuisnessLayer.Services
                 var executor = new PHPScriptExecutor(script, showExecutingWindow);
                 if (executor.Start())
                 {
+                    executor.StartMessageReceiving();
+                    executor.ExecuteCommand();
                     return new DataResponse<PHPScriptExecutor>
                     {
                         Description = "Scripts were successfully started!",
