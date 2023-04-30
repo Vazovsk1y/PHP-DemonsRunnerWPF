@@ -1,5 +1,6 @@
 ﻿using DemonsRunner.BuisnessLayer.Services;
 using DemonsRunner.DAL.Repositories;
+using DemonsRunner.DAL.Storage;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Repositories;
@@ -74,6 +75,7 @@ namespace DemonsRunner
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             .AddSingleton<IRepository<PHPDemon>, FileRepository>()
+            .AddSingleton(new StorageFile("data.json"))
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IFileDialogService, FileDialogService>()
             .AddSingleton<IScriptConfigureService, ScriptConfigureService>()

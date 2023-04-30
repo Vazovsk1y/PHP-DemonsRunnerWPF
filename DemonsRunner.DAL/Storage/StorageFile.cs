@@ -2,7 +2,7 @@
 
 namespace DemonsRunner.DAL.Storage
 {
-    internal class StorageFile
+    public class StorageFile
     {
         private readonly string _name;
 
