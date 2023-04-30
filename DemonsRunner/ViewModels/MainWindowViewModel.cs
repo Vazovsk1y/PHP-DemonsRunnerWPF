@@ -8,7 +8,6 @@ using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 
@@ -22,7 +21,6 @@ namespace DemonsRunner.ViewModels
         private bool _showExecutingWindow = false;
         private PHPDemon _selectedDemon;
         private ObservableCollection<PHPScript> _configuredScripts;
-        private ObservableCollection<PHPScriptExecutor> _runningScripts;
         private readonly ObservableCollection<PHPScriptExecutorViewModel> _runningScriptsViewModels = new();
         private readonly ObservableCollection<PHPDemon> _demons = new();
         private readonly IFileDialogService _dialogService;
@@ -35,6 +33,8 @@ namespace DemonsRunner.ViewModels
         #region --Properties--
 
         public ObservableCollection<PHPScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
+
+        public ObservableCollection<PHPDemon> Demons => _demons;
 
         public bool ShowExecutingWindow
         {
@@ -59,8 +59,6 @@ namespace DemonsRunner.ViewModels
             get => _windowTitle;
             set => Set(ref _windowTitle, value);
         }
-
-        public ObservableCollection<PHPDemon> Demons => _demons;
 
         #endregion
 
@@ -140,34 +138,43 @@ namespace DemonsRunner.ViewModels
         private void OnClearConfiguredScriptsExecute(object obj) => ConfiguredScripts.Clear();
 
         public ICommand StartScriptsCommand => new RelayCommand(OnStartScriptsExecute, 
-            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } && _runningScripts is not ICollection<PHPScriptExecutor> { Count: > 0 });
+            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
+            RunningScriptsViewModels is not ICollection<PHPScriptExecutorViewModel> { Count: > 0 });
 
         private async void OnStartScriptsExecute(object obj)
         {
-            var response = _executorScriptsService.Start(ConfiguredScripts, ShowExecutingWindow);
-            if (response.OperationStatus == StatusCode.Success)
+            foreach (var script in ConfiguredScripts)
             {
-                await App.Current.Dispatcher.InvokeAsync(() =>
+                var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                if (response.OperationStatus == StatusCode.Success)
                 {
-                    _runningScripts = new ObservableCollection<PHPScriptExecutor>(response.Data);
-                    foreach (var runner in _runningScripts)
+                    await App.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        RunningScriptsViewModels.Add(new PHPScriptExecutorViewModel(runner));
-                    }
-                });
+                        var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
+                        executorViewModel.ScriptExited += OnScriptExited;
+                        RunningScriptsViewModels.Add(executorViewModel);
+                    });
+                }
             }
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(OnStopScriptsExecute,
-            (arg) => _runningScripts is ICollection<PHPScriptExecutor> { Count: > 0 });
+            (arg) => RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: > 0 });
 
-        private void OnStopScriptsExecute(object obj)
+        private async void OnStopScriptsExecute(object obj)
         {
-            var response = _executorScriptsService.Stop(_runningScripts);
-            if (response.OperationStatus == StatusCode.Success)
+            foreach (var scriptExecutorViewModel in RunningScriptsViewModels.ToList())
             {
-                _runningScripts.Clear();
-                RunningScriptsViewModels.Clear();
+                var response = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
+                if (response.OperationStatus == StatusCode.Success)
+                {
+                    await App.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        scriptExecutorViewModel.ScriptExited -= OnScriptExited;
+                        scriptExecutorViewModel.Dispose();
+                        RunningScriptsViewModels.Remove(scriptExecutorViewModel);
+                    });
+                }
             }
         }
 
@@ -175,7 +182,18 @@ namespace DemonsRunner.ViewModels
 
         #region --Methods--
 
-       
+        private async void OnScriptExited(object? sender, EventArgs e)
+        {
+            if (sender is PHPScriptExecutorViewModel scriptExecutorViewModel)
+            {
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    scriptExecutorViewModel.ScriptExited -= OnScriptExited;
+                    scriptExecutorViewModel.Dispose();
+                    RunningScriptsViewModels.Remove(scriptExecutorViewModel);
+                });
+            }
+        }
 
         #endregion
     }
