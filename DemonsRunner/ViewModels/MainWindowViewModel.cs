@@ -1,9 +1,7 @@
 ﻿using DemonsRunner.Commands;
 using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
-using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
@@ -19,14 +17,10 @@ namespace DemonsRunner.ViewModels
 
         private string _windowTitle = "Main";
         private bool _showExecutingWindow = false;
-        private PHPDemon _selectedDemon;
         private ObservableCollection<PHPScript> _configuredScripts;
         private readonly ObservableCollection<PHPScriptExecutorViewModel> _runningScriptsViewModels = new();
-        private readonly ObservableCollection<PHPDemon> _demons = new();
-        private readonly IFileDialogService _dialogService;
         private readonly IScriptConfigureService _configureSctiptsService;
         private readonly IScriptExecutorService _executorScriptsService;
-        private readonly IFileService _fileService;
 
         #endregion
 
@@ -34,7 +28,7 @@ namespace DemonsRunner.ViewModels
 
         public ObservableCollection<PHPScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
 
-        public ObservableCollection<PHPDemon> Demons => _demons;
+        public FilesPanelViewModel FilesPanelViewModel { get; }
 
         public bool ShowExecutingWindow
         {
@@ -46,12 +40,6 @@ namespace DemonsRunner.ViewModels
         { 
             get => _configuredScripts; 
             set => Set(ref _configuredScripts, value);
-        }
-
-        public PHPDemon SelectedDemon
-        {
-            get => _selectedDemon;
-            set => Set(ref _selectedDemon, value);
         }
 
         public string WindowTitle
@@ -70,59 +58,25 @@ namespace DemonsRunner.ViewModels
         }
 
         public MainWindowViewModel(
-            IFileDialogService dialogService, 
+            FilesPanelViewModel filesPanelViewModel,
             IScriptConfigureService configureSctiptsService, 
-            IScriptExecutorService executorScriptsService, 
-            IFileService fileService)
+            IScriptExecutorService executorScriptsService) 
         {
-            _dialogService = dialogService;
+            FilesPanelViewModel = filesPanelViewModel;
             _configureSctiptsService = configureSctiptsService;
             _executorScriptsService = executorScriptsService;
-            _fileService = fileService;
-            var response = _fileService.GetSaved();
-            if (response.OperationStatus == StatusCode.Success)
-            {
-                Demons.AddRange(response.Data);
-            }
-            Demons.CollectionChanged += (s, e) => _fileService.Save(Demons);
         }
 
         #endregion
 
         #region --Commands--
 
-        public ICommand AddFileToListCommand => new RelayCommand(OnAddingFileExecute);
-
-        private async void OnAddingFileExecute(object obj)
-        {
-            var response = _dialogService.StartDialog();
-            if (response.OperationStatus == StatusCode.Success)
-            {
-                await App.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    Demons.AddIfNotExist(response.Data);
-                });
-            }
-        }
-
-        public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute, 
-            (arg) => Demons.Count > 0 && SelectedDemon is not null);
-
-        private void OnDeletingFileExecute(object obj)
-        {
-           if (Demons.Contains(SelectedDemon))
-           {
-                Demons.Remove(SelectedDemon);
-                SelectedDemon = null;
-           }
-        }
-
         public ICommand ConfigureScriptsCommand => new RelayCommand(OnConfigureScriptsExecute, 
-            (arg) => Demons.Count > 0);
+            (arg) => FilesPanelViewModel.Demons.Count > 0);
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = _configureSctiptsService.ConfigureScripts(Demons);
+            var response = _configureSctiptsService.ConfigureScripts(FilesPanelViewModel.Demons);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>

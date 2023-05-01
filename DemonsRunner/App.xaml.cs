@@ -81,6 +81,7 @@ namespace DemonsRunner
             .AddSingleton<IScriptConfigureService, ScriptConfigureService>()
             .AddSingleton<IScriptExecutorService, ScriptExecutorService>()
             .AddSingleton<MainWindowViewModel>()
+            .AddSingleton<FilesPanelViewModel>()
             .AddTransient(s =>
             {
                 var viewModel = s.GetRequiredService<MainWindowViewModel>();
