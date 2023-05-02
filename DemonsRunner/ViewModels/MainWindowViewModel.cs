@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
@@ -102,10 +103,10 @@ namespace DemonsRunner.ViewModels
                 var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                 if (response.OperationStatus == StatusCode.Success)
                 {
+                    var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
+                    executorViewModel.ScriptExited += OnScriptExited;
                     await App.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
-                        executorViewModel.ScriptExited += OnScriptExited;
                         RunningScriptsViewModels.Add(executorViewModel);
                     });
                 }
@@ -122,10 +123,10 @@ namespace DemonsRunner.ViewModels
                 var response = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
                 if (response.OperationStatus == StatusCode.Success)
                 {
+                    scriptExecutorViewModel.ScriptExited -= OnScriptExited;
+                    scriptExecutorViewModel.Dispose();
                     await App.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        scriptExecutorViewModel.ScriptExited -= OnScriptExited;
-                        scriptExecutorViewModel.Dispose();
                         RunningScriptsViewModels.Remove(scriptExecutorViewModel);
                     });
                 }

@@ -10,69 +10,69 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptExecutorService : IScriptExecutorService
     {
-        public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
+        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
         {
             try
             {
                 var executor = new PHPScriptExecutor(script, showExecutingWindow);
-                if (executor.Start())
+                if (await executor.StartAsync())
                 {
-                    executor.StartMessageReceiving();
-                    executor.ExecuteCommand();
-                    return Task.FromResult <IDataResponse<PHPScriptExecutor>>(new DataResponse<PHPScriptExecutor>
+                    await executor.ExecuteCommandAsync();
+                    await executor.StartMessageReceivingAsync();
+
+                    return new DataResponse<PHPScriptExecutor>
                     {
                         Description = "Script was successfully started!",
                         OperationStatus = StatusCode.Success,
                         Data = executor,
-                    });
+                    };
                 }
 
-                return Task.FromResult<IDataResponse<PHPScriptExecutor>>(new DataResponse<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     Description = "Script was NOT started!",
                     OperationStatus = StatusCode.Fail,
-                });
-
+                };
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return Task.FromResult<IDataResponse<PHPScriptExecutor>>(new DataResponse<PHPScriptExecutor>
+                return new DataResponse<PHPScriptExecutor>
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail
-                });
+                };
             }
         }
 
-        public Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript)
+        public async Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript)
         {
             try
             {
                 if (!executingScript.IsRunning)
                 {
-                    return Task.FromResult<IBaseResponse>(new BaseResponse
+                    return new BaseResponse
                     {
                         Description = $"{executingScript.ExecutableScript.Name} is not running!",
                         OperationStatus = StatusCode.Fail
-                    });
+                    };
                 }
 
-                executingScript.Stop();
-                return Task.FromResult<IBaseResponse>(new BaseResponse
+                await executingScript.StopAsync();
+                return new BaseResponse
                 {
                     Description = "Runner was killed successfully!",
                     OperationStatus = StatusCode.Success,
-                });
+                };
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return Task.FromResult<IBaseResponse>(new BaseResponse
+                return new BaseResponse
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail
-                });
+                };
             }
         }
     }
