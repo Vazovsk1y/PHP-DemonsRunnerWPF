@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -89,7 +88,7 @@ namespace DemonsRunner.ViewModels
         public ICommand StartScriptsCommand => new RelayCommand(
             OnStartScriptsExecute,
             (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
-            RunningScriptsViewModels is not ICollection<PHPScriptExecutorViewModel> { Count: > 0 });
+            RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: 0 });
 
         private async void OnStartScriptsExecute(object obj)
         {
@@ -112,6 +111,9 @@ namespace DemonsRunner.ViewModels
             {
                 RunningScriptsViewModels.AddRange(viewModels);
             });
+
+            // update button unavailable state to prevent clicking when scripts are executed.
+            OnPropertyChanged(nameof(StartScriptsCommand));        
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(
