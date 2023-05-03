@@ -70,20 +70,6 @@ namespace DemonsRunner.Domain.Models
             return Task.FromResult(IsRunning);
         }
 
-        public Task StopAsync()
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            if (!IsRunning)
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
-
-            _executableConsole.CancelErrorRead();
-            _executableConsole.CancelOutputRead();
-            _executableConsole.Kill();
-            IsRunning = false;
-            return Task.CompletedTask;
-        }
-
         public Task StartMessageReceivingAsync()
         {
             _executableConsole.BeginOutputReadLine();
@@ -93,12 +79,28 @@ namespace DemonsRunner.Domain.Models
 
         public Task ExecuteCommandAsync()
         {
-            Task.Run(async () =>
-            {
-                await _executableConsole.StandardInput.WriteLineAsync(ExecutableScript.Command);
-                //await _executableConsole.StandardInput.WriteLineAsync("TelegramBot.exe start");  // for test
-                await _executableConsole.StandardInput.FlushAsync();
-            });
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //await _executableConsole.StandardInput.WriteLineAsync("TelegramBot.exe start");  // for test
+            _executableConsole.StandardInput.Flush();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            if (!IsRunning)
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
+
+            _executableConsole.Kill();
+            IsRunning = false;
+            return Task.CompletedTask;
+        }
+
+        public Task StopMessageReceivingAsync()
+        {
+            _executableConsole.CancelErrorRead();
+            _executableConsole.CancelOutputRead();
             return Task.CompletedTask;
         }
 
