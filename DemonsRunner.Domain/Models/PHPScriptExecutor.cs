@@ -50,7 +50,7 @@ namespace DemonsRunner.Domain.Models
                 EnableRaisingEvents = true,
             };
             _executableConsole.Exited += OnScriptExited;
-            _executableConsole.ErrorDataReceived += OnScriptOutputErrorReceived;
+            _executableConsole.ErrorDataReceived += OnScriptOutputDataReceived;
             _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
         }
 
@@ -58,7 +58,7 @@ namespace DemonsRunner.Domain.Models
 
         #region --Methods--
 
-        public bool Start()
+        public Task<bool> StartAsync()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
@@ -67,33 +67,41 @@ namespace DemonsRunner.Domain.Models
 
             var startingResult = _executableConsole.Start();
             IsRunning = startingResult;
-            return IsRunning;
+            return Task.FromResult(IsRunning);
         }
 
-        public void Stop()
+        public Task StartMessageReceivingAsync()
+        {
+            _executableConsole.BeginOutputReadLine();
+            _executableConsole.BeginErrorReadLine();
+            return Task.CompletedTask;
+        }
+
+        public Task ExecuteCommandAsync()
+        {
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //await _executableConsole.StandardInput.WriteLineAsync("TelegramBot.exe start");  // for test
+            _executableConsole.StandardInput.Flush();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
             if (!IsRunning)
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
 
-            _executableConsole.CancelErrorRead();
-            _executableConsole.CancelOutputRead();
             _executableConsole.Kill();
             IsRunning = false;
+            return Task.CompletedTask;
         }
 
-        public void StartMessageReceiving()
+        public Task StopMessageReceivingAsync()
         {
-            _executableConsole.BeginOutputReadLine();
-            _executableConsole.BeginErrorReadLine();
-        }
-
-        public void ExecuteCommand()
-        {
-            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
-            _executableConsole.StandardInput.Flush();
+            _executableConsole.CancelErrorRead();
+            _executableConsole.CancelOutputRead();
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -101,14 +109,6 @@ namespace DemonsRunner.Domain.Models
             IsRunning = false;
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        private void OnScriptOutputErrorReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                ScriptOutputMessageReceived?.Invoke(this, e);
-            }
         }
 
         private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -131,6 +131,7 @@ namespace DemonsRunner.Domain.Models
                     // managed resources 
                     _executableConsole.Exited -= OnScriptExited;
                     _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
+                    _executableConsole.ErrorDataReceived -= OnScriptOutputDataReceived;
                     _executableConsole.Dispose();
                 }
 

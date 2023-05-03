@@ -1,5 +1,6 @@
 ﻿using DemonsRunner.BuisnessLayer.Services;
 using DemonsRunner.DAL.Repositories;
+using DemonsRunner.DAL.Storage;
 using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Repositories;
@@ -8,6 +9,9 @@ using DemonsRunner.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 
@@ -22,11 +26,13 @@ namespace DemonsRunner
 
         private static IHost? _host;
 
-        private static readonly string UniqueEventName = "DemonsRunner";
+        private static readonly string UniqueEventName = Assembly.GetExecutingAssembly().GetName().Name;
 
         #endregion
 
         #region --Properties--
+
+        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath()) : Environment.CurrentDirectory;
 
         public static bool IsDesignMode { get; private set; } = true;
 
@@ -68,12 +74,15 @@ namespace DemonsRunner
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            .AddSingleton<IRepository<PHPDemon>, FileRepository>()
-            .AddSingleton<IFileService, FileService>()
-            .AddSingleton<IFileDialogService, FileDialogService>()
-            .AddSingleton<IScriptConfigureService, ScriptConfigureService>()
-            .AddSingleton<IScriptExecutorService, ScriptExecutorService>()
+            .AddScoped<IRepository<PHPDemon>, FileRepository>()
+            .AddSingleton(new StorageFile("data.json"))
+            .AddTransient<IFileService, FileService>()
+            .AddTransient<IFileDialogService, FileDialogService>()
+            .AddTransient<IScriptConfigureService, ScriptConfigureService>()
+            .AddTransient<IScriptExecutorService, ScriptExecutorService>()
             .AddSingleton<MainWindowViewModel>()
+            .AddSingleton<FilesPanelViewModel>()
+            .AddSingleton<WorkSpaceViewModel>()
             .AddTransient(s =>
             {
                 var viewModel = s.GetRequiredService<MainWindowViewModel>();
@@ -97,6 +106,9 @@ namespace DemonsRunner
             }
             return false;
         }
+
+        private static string GetSourceCodePath([CallerFilePath] string Path = null) => string.IsNullOrWhiteSpace(Path) 
+            ? throw new ArgumentNullException(nameof(Path)) : Path;
 
         #endregion
     }

@@ -7,7 +7,12 @@ namespace DemonsRunner.DAL.Repositories
 {
     public class FileRepository : IRepository<PHPDemon>
     {
-        private readonly StorageFile _storageFile = new StorageFile("data.json");
+        private readonly StorageFile _storageFile;
+
+        public FileRepository(StorageFile storageFile)
+        {
+            _storageFile = storageFile;
+        }
 
         public IEnumerable<PHPDemon> GetAll()
         {

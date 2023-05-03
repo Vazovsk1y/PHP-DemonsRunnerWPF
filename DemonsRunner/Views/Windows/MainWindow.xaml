@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DemonsRunner.ViewModels"
-        xmlns:m="clr-namespace:DemonsRunner.Domain.Models;assembly=DemonsRunner.Domain"
+        xmlns:controls="clr-namespace:DemonsRunner.Views.Controls"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="450" Width="800">
@@ -19,7 +19,7 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Запущенные скрипты"/>
-                    <TextBlock Text="{Binding RunningScriptsViewModels.Count}"/>
+                    <TextBlock Text="{Binding WorkSpaceViewModel.RunningScriptsViewModels.Count}"/>
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -30,125 +30,16 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0">
-                <DockPanel>
-                    <TextBlock Text="{Binding Demons.Count}"
-                           DockPanel.Dock="Top"/>
-                    <UniformGrid DockPanel.Dock="Bottom" Rows="1">
-                        <Button  
-                        Margin="5"
-                        Content="Add"
-                        Command="{Binding AddFileToListCommand}"
-                        />
-                        <Button 
-                        Margin="5"
-                        Content="Delete"
-                        Command="{Binding DeleteFileFromListCommand}"/>
-                    </UniformGrid>
-                    <ListBox 
-                        ItemsSource="{Binding Demons}"
-                        SelectedItem="{Binding SelectedDemon}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type m:PHPDemon}">
-                                <TextBlock Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </DockPanel>
-            </GroupBox>
+            <Grid Grid.Column="0">
+                <controls:FilesPanelControl 
+                    DataContext="{Binding FilesPanelViewModel}"
+                    d:DataContext="{d:DesignInstance vm:FilesPanelViewModel, IsDesignTimeCreatable=True}"/>
+            </Grid>
 
-
-            <TabControl Grid.Column="1">
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Сконфигурированные скрипты"/>
-                            <TextBlock Text="{Binding ConfiguredScripts.Count}"/>
-                        </StackPanel>
-                    </TabItem.Header>
-                    <DockPanel>
-                        <UniformGrid DockPanel.Dock="Bottom"
-                                     Rows="1">
-                            <Button Content="Сконфигурировать"
-                                    Margin="5"
-                                    Command="{Binding ConfigureScriptsCommand}"/>
-                            <Button Content="Сбросить скрипты"
-                                    Margin="5"
-                                    Command="{Binding ClearConfigureScripts}"/>
-                            <Button Content="Запустить"
-                                    Margin="5"
-                                    Command="{Binding StartScriptsCommand}"/>
-                            <CheckBox Content="Окно?"
-                                      Margin="10"
-                                      IsChecked="{Binding ShowExecutingWindow}"/>
-                            <Button Content="Остановить"
-                                    Margin="5"
-                                    Command="{Binding StopScriptsCommand}"/>
-                        </UniformGrid>
-                        <ListBox ItemsSource="{Binding ConfiguredScripts}">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListBoxItem}">
-                                    <Setter Property="BorderBrush" Value="Black"/>
-                                    <Setter Property="BorderThickness" Value="2"/>
-                                    <Setter Property="Margin" Value="0,5,0,5"/>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type m:PHPScript}">
-                                    <StackPanel>
-                                        <TextBlock 
-                                            Text="{Binding Name, StringFormat='Название скрипта: {0}'}"/>
-                                        <TextBlock Foreground="Red"
-                                                   Text="{Binding Command, StringFormat='Команда на выполнение: {0}'}"/>
-                                        <TextBlock Foreground="Blue"
-                                                   Text="{Binding ExecutableFile.Name, StringFormat='Исполняемый файл: {0}'}"/>
-                                        <TextBlock Foreground="Coral"
-                                                   Text="{Binding ExecutableFile.FullPath}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </DockPanel>
-                </TabItem>
-
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Панель вывода"/>
-                            <TextBlock Text="{Binding RunningScriptsViewModels.Count, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ListBox ItemsSource="{Binding RunningScriptsViewModels}">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListBoxItem}">
-                                    <Setter Property="BorderBrush" Value="Black"/>
-                                    <Setter Property="BorderThickness" Value="2"/>
-                                    <Setter Property="Margin" Value="5"/>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type vm:PHPScriptExecutorViewModel}">
-                                    <StackPanel>
-                                        <TextBlock Foreground="Red" 
-                                                   Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
-                                        <Expander>
-                                            <Expander.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Сообщения"/>
-                                                    <TextBlock Margin="0,0,5,0"
-                                                        Text="{Binding OutputMessages.Count}"/>
-                                                </StackPanel>
-                                            </Expander.Header>
-                                            <ListBox ItemsSource="{Binding OutputMessages}"/>
-                                        </Expander>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
+            <Grid Grid.Column="1">
+                <controls:WorkSpaceControl 
+                    DataContext="{Binding WorkSpaceViewModel}"/>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>
