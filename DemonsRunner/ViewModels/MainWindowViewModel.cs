@@ -2,6 +2,7 @@
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Services;
+using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
@@ -98,19 +99,25 @@ namespace DemonsRunner.ViewModels
 
         private async void OnStartScriptsExecute(object obj)
         {
-            foreach (var script in ConfiguredScripts)
+            var viewModels = new List<PHPScriptExecutorViewModel>();
+            await Task.Run(async () =>
             {
-                var response = await _executorScriptsService.StartExecutingAsync(script, ShowExecutingWindow).ConfigureAwait(false);
-                if (response.OperationStatus == StatusCode.Success)
+                foreach (var script in ConfiguredScripts)
                 {
-                    var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
-                    executorViewModel.ScriptExited += OnScriptExited;
-                    await App.Current.Dispatcher.InvokeAsync(() =>
+                    var response = await _executorScriptsService.StartExecutingAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    if (response.OperationStatus == StatusCode.Success)
                     {
-                        RunningScriptsViewModels.Add(executorViewModel);
-                    });
+                        var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
+                        executorViewModel.ScriptExited += OnScriptExited;
+                        viewModels.Add(executorViewModel);
+                    }
                 }
-            }
+            });
+
+            await App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                RunningScriptsViewModels.AddRange(viewModels);
+            });
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(OnStopScriptsExecute,
