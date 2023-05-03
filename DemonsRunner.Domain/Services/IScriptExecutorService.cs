@@ -6,7 +6,7 @@ namespace DemonsRunner.Domain.Services
 {
     public interface IScriptExecutorService
     {
-        public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow);
+        public Task<IDataResponse<PHPScriptExecutor>> StartExecutingAsync(PHPScript script, bool showExecutingWindow);
 
         public Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript);
     }

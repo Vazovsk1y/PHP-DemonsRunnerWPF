@@ -10,7 +10,10 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptExecutorService : IScriptExecutorService
     {
-        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
+        /// <summary>
+        /// Start new cmd process, executing command and start message receiving from running process.
+        /// </summary>
+        public async Task<IDataResponse<PHPScriptExecutor>> StartExecutingAsync(PHPScript script, bool showExecutingWindow)
         {
             try
             {
@@ -58,6 +61,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                     };
                 }
 
+                await executingScript.StopMessageReceivingAsync();
                 await executingScript.StopAsync();
                 return new BaseResponse
                 {
@@ -67,7 +71,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message + "\n" + ex.Source);
                 return new BaseResponse
                 {
                     Description = "Something go wrong",
