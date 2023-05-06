@@ -5,6 +5,6 @@ namespace DemonsRunner.Domain.Services
 {
     public interface IScriptConfigureService
     {
-        public ICollectionDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons);
+        public Task<ICollectionDataResponse<PHPScript>> ConfigureScripts(IEnumerable<PHPDemon> demons);
     }
 }
