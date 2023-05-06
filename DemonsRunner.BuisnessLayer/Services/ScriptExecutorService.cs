@@ -10,6 +10,13 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptExecutorService : IScriptExecutorService
     {
+        private readonly IFileService _fileService;
+
+        public ScriptExecutorService(IFileService fileService) 
+        {
+            _fileService = fileService;
+        }
+
         /// <summary>
         /// Start new cmd process, executing command and start message receiving from running process.
         /// </summary>
@@ -17,6 +24,14 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
+                var response = _fileService.IsFileExist(script.ExecutableFile);
+                if (response.OperationStatus is StatusCode.Fail)
+                    return new DataResponse<PHPScriptExecutor>
+                    {
+                        Description = $"{response.Description}",
+                        OperationStatus = StatusCode.Fail,
+                    };
+
                 var executor = new PHPScriptExecutor(script, showExecutingWindow);
                 if (await executor.StartAsync())
                 {
