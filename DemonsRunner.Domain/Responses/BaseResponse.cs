@@ -1,7 +1,7 @@
 ﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Responses;
+using DemonsRunner.Domain.Responses.Intefaces;
 
-namespace DemonsRunner.BuisnessLayer.Responses
+namespace DemonsRunner.Domain.Responses
 {
     public class BaseResponse : IBaseResponse
     {

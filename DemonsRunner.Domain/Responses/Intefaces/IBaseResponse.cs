@@ -1,6 +1,6 @@
 ﻿using DemonsRunner.Domain.Enums;
 
-namespace DemonsRunner.Domain.Responses
+namespace DemonsRunner.Domain.Responses.Intefaces
 {
     public interface IBaseResponse
     {

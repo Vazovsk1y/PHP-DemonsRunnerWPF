@@ -1,8 +1,7 @@
-﻿using DemonsRunner.Domain.Interfaces;
-using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Responses;
+﻿using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Responses.Intefaces;
 
-namespace DemonsRunner.Domain.Services
+namespace DemonsRunner.BuisnessLayer.Services.Interfaces
 {
     public interface IScriptExecutorService
     {

@@ -1,7 +1,7 @@
 ﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Interfaces;
+using DemonsRunner.Domain.Responses.Intefaces;
 
-namespace DemonsRunner.BuisnessLayer.Responses
+namespace DemonsRunner.Domain.Responses
 {
     public class DataResponse<T> : IDataResponse<T>
     {

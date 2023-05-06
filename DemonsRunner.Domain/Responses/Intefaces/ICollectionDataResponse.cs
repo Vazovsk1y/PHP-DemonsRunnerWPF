@@ -1,4 +1,4 @@
-﻿namespace DemonsRunner.Domain.Responses
+﻿namespace DemonsRunner.Domain.Responses.Intefaces
 {
     public interface ICollectionDataResponse<T> : IBaseResponse
     {

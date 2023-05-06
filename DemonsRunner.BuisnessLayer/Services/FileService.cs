@@ -1,10 +1,10 @@
 ﻿using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Repositories;
-using DemonsRunner.Domain.Responses;
-using DemonsRunner.Domain.Services;
-using DemonsRunner.BuisnessLayer.Responses;
 using System.Diagnostics;
 using DemonsRunner.Domain.Enums;
+using DemonsRunner.Domain.Responses.Intefaces;
+using DemonsRunner.DAL.Repositories.Interfaces;
+using DemonsRunner.Domain.Responses;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {

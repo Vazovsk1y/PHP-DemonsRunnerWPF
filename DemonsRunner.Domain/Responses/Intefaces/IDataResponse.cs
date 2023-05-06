@@ -1,6 +1,4 @@
-﻿using DemonsRunner.Domain.Responses;
-
-namespace DemonsRunner.Domain.Interfaces
+﻿namespace DemonsRunner.Domain.Responses.Intefaces
 {
     public interface IDataResponse<T> : IBaseResponse
     {

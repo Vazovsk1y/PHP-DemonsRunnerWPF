@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.BuisnessLayer.Responses;
 using Microsoft.Win32;
+using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.Domain.Responses;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {

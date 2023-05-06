@@ -1,6 +1,6 @@
-﻿using DemonsRunner.DAL.Storage;
+﻿using DemonsRunner.DAL.Repositories.Interfaces;
+using DemonsRunner.DAL.Storage;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Repositories;
 using Newtonsoft.Json;
 
 namespace DemonsRunner.DAL.Repositories
