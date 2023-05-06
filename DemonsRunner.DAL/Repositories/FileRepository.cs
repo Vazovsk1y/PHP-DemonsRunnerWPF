@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace DemonsRunner.DAL.Repositories
 {
-    public class FileRepository : IRepository<PHPDemon>
+    public class FileRepository : IFileRepository<PHPDemon>
     {
         private readonly StorageFile _storageFile;
 
@@ -25,7 +25,7 @@ namespace DemonsRunner.DAL.Repositories
             return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json);
         }
 
-        public bool Save(IEnumerable<PHPDemon> items)
+        public bool SaveAll(IEnumerable<PHPDemon> items)
         {
             using var writer = new StreamWriter(_storageFile.FullPath);
             string json = JsonConvert.SerializeObject(items, Formatting.Indented);
