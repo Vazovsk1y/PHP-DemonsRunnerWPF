@@ -2,12 +2,21 @@
 
 namespace DemonsRunner.Domain.Models
 {
+    /// <summary>
+    /// Abstraction over .NET Process class that represent the script execution model in cmd.
+    /// </summary>
     public class PHPScriptExecutor : IDisposable
     {
         #region --Events--
 
+        /// <summary>
+        /// Occurs when user closed cmd window or stop the process by task manager.
+        /// </summary>
         public event EventHandler? ScriptExitedByUser;
 
+        /// <summary>
+        /// Occurs when data have received from cmd output, such as errors or messages.
+        /// </summary>
         public event DataReceivedEventHandler? ScriptOutputMessageReceived;
 
         #endregion
@@ -22,6 +31,9 @@ namespace DemonsRunner.Domain.Models
 
         #region --Properties--
 
+        /// <summary>
+        /// Script that executed in cmd.
+        /// </summary>
         public PHPScript ExecutableScript { get; }
 
         public bool IsRunning { get; private set; }
@@ -58,6 +70,9 @@ namespace DemonsRunner.Domain.Models
 
         #region --Methods--
 
+        /// <summary>
+        /// Starts cmd process.
+        /// </summary>
         public Task<bool> StartAsync()
         {
             if (_disposed)
@@ -70,6 +85,9 @@ namespace DemonsRunner.Domain.Models
             return Task.FromResult(IsRunning);
         }
 
+        /// <summary>
+        /// Begin receiving data from output.
+        /// </summary>
         public Task StartMessageReceivingAsync()
         {
             _executableConsole.BeginOutputReadLine();
@@ -77,6 +95,9 @@ namespace DemonsRunner.Domain.Models
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Executes the command of the script to be executed at the command line.
+        /// </summary>
         public Task ExecuteCommandAsync()
         {
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
@@ -85,6 +106,9 @@ namespace DemonsRunner.Domain.Models
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Kills runnig cmd process immediately.
+        /// </summary>
         public Task StopAsync()
         {
             if (_disposed)
@@ -97,6 +121,9 @@ namespace DemonsRunner.Domain.Models
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Breaks receiveng messages from output.
+        /// </summary>
         public Task StopMessageReceivingAsync()
         {
             _executableConsole.CancelErrorRead();
