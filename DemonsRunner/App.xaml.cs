@@ -74,8 +74,10 @@ namespace DemonsRunner
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            .AddScoped<IRepository<PHPDemon>, FileRepository>()
-            .AddSingleton(new StorageFile("data.json"))
+            //.AddScoped<IRepository<PHPDemon>, FileRepository>()
+            //.AddSingleton(new StorageFile("data.json"))
+            .AddTransient<IRepository<PHPDemon>, FileRepository>()
+            .AddScoped(provider => new StorageFile("data.json"))
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()

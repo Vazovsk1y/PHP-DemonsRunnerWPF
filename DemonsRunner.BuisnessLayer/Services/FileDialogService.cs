@@ -16,33 +16,33 @@ namespace DemonsRunner.BuisnessLayer.Services
             Title = "Выберите файл:",
         };
 
-        public ICollectionDataResponse<PHPDemon> StartDialog()
+        public Task<ICollectionDataResponse<PHPDemon>> StartDialog()
         {
             try
             {
                 var dialogResult = _fileDialog.ShowDialog();
 
                 return dialogResult is bool result && !result ?
-                    new CollectionDataResponse<PHPDemon>
+                    Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Fail
-                    }
+                    })
                     :
-                    new CollectionDataResponse<PHPDemon>
+                    Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
                     {
                         OperationStatus = StatusCode.Success,
                         Data = GetDemons()
-                    };
+                    });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new CollectionDataResponse<PHPDemon>
+                return Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
                 {
+                    Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail
-                };
+                });
             }
-
         }
 
         private IEnumerable<PHPDemon> GetDemons()

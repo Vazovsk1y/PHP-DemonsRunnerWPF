@@ -59,7 +59,7 @@ namespace DemonsRunner.ViewModels
 
         private async void OnAddingFileExecute(object obj)
         {
-            var response = _fileDialogService.StartDialog();
+            var response = await _fileDialogService.StartDialog().ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>

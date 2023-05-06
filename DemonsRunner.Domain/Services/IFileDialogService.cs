@@ -5,6 +5,6 @@ namespace DemonsRunner.Domain.Interfaces
 {
     public interface IFileDialogService
     {
-        public ICollectionDataResponse<PHPDemon> StartDialog();
+        public Task<ICollectionDataResponse<PHPDemon>> StartDialog();
     }
 }
