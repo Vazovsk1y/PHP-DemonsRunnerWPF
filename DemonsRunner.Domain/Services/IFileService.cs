@@ -8,5 +8,7 @@ namespace DemonsRunner.Domain.Services
         public ICollectionDataResponse<PHPDemon> GetSaved();
 
         public IBaseResponse Save(IEnumerable<PHPDemon> savedFiles);
+
+        public IBaseResponse IsFileExist(PHPDemon file);
     }
 }
