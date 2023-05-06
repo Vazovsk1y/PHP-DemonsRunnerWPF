@@ -7,6 +7,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
     {
         public Task<IDataResponse<PHPScriptExecutor>> StartExecutingAsync(PHPScript script, bool showExecutingWindow);
 
-        public Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript);
+        public Task<IResponse> StopAsync(PHPScriptExecutor executingScript);
     }
 }

@@ -2,14 +2,14 @@
 using DemonsRunner.Domain.Models;
 using System.Diagnostics;
 using DemonsRunner.Domain.Responses.Intefaces;
-using DemonsRunner.Domain.Responses;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Domain.Responses;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptConfigureService : IScriptConfigureService
     {
-        public ICollectionDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons)
+        public IDataResponse<IEnumerable<PHPScript>> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                     configuredScripts.Add(new PHPScript(demon));
                 }
 
-                return new CollectionDataResponse<PHPScript>
+                return new DataResponse<IEnumerable<PHPScript>>
                 {
                     Description = "Scripts were successfully configurated!",
                     OperationStatus = StatusCode.Success,
@@ -29,7 +29,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new CollectionDataResponse<PHPScript>
+                return new DataResponse<IEnumerable<PHPScript>>
                 {
                     Description = "Something go wrong!",
                     OperationStatus = StatusCode.Fail

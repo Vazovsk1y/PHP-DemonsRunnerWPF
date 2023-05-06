@@ -5,10 +5,10 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
 {
     public interface IFileService
     {
-        public ICollectionDataResponse<PHPDemon> GetSaved();
+        public IDataResponse<IEnumerable<PHPDemon>> GetSaved();
 
-        public IBaseResponse Save(IEnumerable<PHPDemon> savedFiles);
+        public IResponse Save(IEnumerable<PHPDemon> savedFiles);
 
-        public IBaseResponse IsFileExist(PHPDemon file);
+        public IResponse IsFileExist(PHPDemon file);
     }
 }

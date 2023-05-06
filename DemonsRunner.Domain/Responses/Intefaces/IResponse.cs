@@ -1,9 +1,8 @@
 ﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Responses.Intefaces;
 
-namespace DemonsRunner.Domain.Responses
+namespace DemonsRunner.Domain.Responses.Intefaces
 {
-    public class BaseResponse : IBaseResponse
+    public interface IResponse
     {
         public string Description { get; set; }
 

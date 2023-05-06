@@ -5,6 +5,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
 {
     public interface IScriptConfigureService
     {
-        public ICollectionDataResponse<PHPScript> ConfigureScripts(IEnumerable<PHPDemon> demons);
+        public IDataResponse<IEnumerable<PHPScript>> ConfigureScripts(IEnumerable<PHPDemon> demons);
     }
 }

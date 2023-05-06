@@ -1,7 +1,0 @@
-﻿namespace DemonsRunner.Domain.Responses.Intefaces
-{
-    public interface ICollectionDataResponse<T> : IBaseResponse
-    {
-        public IEnumerable<T> Data { get; set; }
-    }
-}

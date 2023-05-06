@@ -16,19 +16,19 @@ namespace DemonsRunner.BuisnessLayer.Services
             Title = "Выберите файл:",
         };
 
-        public Task<ICollectionDataResponse<PHPDemon>> StartDialog()
+        public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialog()
         {
             try
             {
                 var dialogResult = _fileDialog.ShowDialog();
 
                 return dialogResult is bool result && !result ?
-                    Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
+                    Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
                     {
                         OperationStatus = StatusCode.Fail
                     })
                     :
-                    Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
+                    Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
                     {
                         OperationStatus = StatusCode.Success,
                         Data = GetDemons()
@@ -37,7 +37,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return Task.FromResult<ICollectionDataResponse<PHPDemon>>(new CollectionDataResponse<PHPDemon>
+                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail

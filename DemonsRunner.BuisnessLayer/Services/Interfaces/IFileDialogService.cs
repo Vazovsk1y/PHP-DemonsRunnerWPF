@@ -5,6 +5,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
 {
     public interface IFileDialogService
     {
-        public Task<ICollectionDataResponse<PHPDemon>> StartDialog();
+        public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialog();
     }
 }
