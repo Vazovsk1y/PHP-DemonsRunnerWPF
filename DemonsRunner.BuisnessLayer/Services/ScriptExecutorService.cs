@@ -19,7 +19,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         /// <summary>
         /// Start new cmd process, executing command and start message receiving from running process.
         /// </summary>
-        public async Task<IDataResponse<PHPScriptExecutor>> StartExecutingAsync(PHPScript script, bool showExecutingWindow)
+        public async Task<IDataResponse<PHPScriptExecutor>> LaunchAsync(PHPScript script, bool showExecutingWindow)
         {
             try
             {

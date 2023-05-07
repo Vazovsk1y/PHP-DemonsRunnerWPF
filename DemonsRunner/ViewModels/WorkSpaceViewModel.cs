@@ -97,7 +97,7 @@ namespace DemonsRunner.ViewModels
             {
                 foreach (var script in ConfiguredScripts)
                 {
-                    var response = await _executorScriptsService.StartExecutingAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    var response = await _executorScriptsService.LaunchAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                     if (response.OperationStatus == StatusCode.Success)
                     {
                         var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
