@@ -71,7 +71,7 @@ namespace DemonsRunner.ViewModels
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons);
+            var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons).ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>

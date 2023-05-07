@@ -9,7 +9,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptConfigureService : IScriptConfigureService
     {
-        public IDataResponse<IEnumerable<PHPScript>> ConfigureScripts(IEnumerable<PHPDemon> demons)
+        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {
             try
             {
@@ -19,21 +19,21 @@ namespace DemonsRunner.BuisnessLayer.Services
                     configuredScripts.Add(new PHPScript(demon));
                 }
 
-                return new DataResponse<IEnumerable<PHPScript>>
+                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
                 {
                     Description = "Scripts were successfully configurated!",
                     OperationStatus = StatusCode.Success,
                     Data = configuredScripts
-                }; 
+                }); 
             }
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new DataResponse<IEnumerable<PHPScript>>
+                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
                 {
                     Description = "Something go wrong!",
                     OperationStatus = StatusCode.Fail
-                };
+                });
             }
         }
     }
