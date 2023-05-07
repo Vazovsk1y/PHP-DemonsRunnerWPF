@@ -17,6 +17,7 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
+        private bool _isButtonStartScriptsPressed = false;
         private bool _showExecutingWindow = false;
         private ObservableCollection<PHPScript> _configuredScripts;
         private readonly ObservableCollection<PHPScriptExecutorViewModel> _runningScriptsViewModels = new();
@@ -27,6 +28,12 @@ namespace DemonsRunner.ViewModels
         #endregion
 
         #region --Properties--
+
+        public bool IsButtonStartScriptsPressed
+        {
+            get => _isButtonStartScriptsPressed;
+            set => Set(ref _isButtonStartScriptsPressed, value);
+        }
 
         public ObservableCollection<PHPScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
 
@@ -87,11 +94,14 @@ namespace DemonsRunner.ViewModels
 
         public ICommand StartScriptsCommand => new RelayCommand(
             OnStartScriptsExecute,
-            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
-            RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: 0 });
+            (arg) => 
+            ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
+            RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: 0 } && 
+            !IsButtonStartScriptsPressed);
 
         private async void OnStartScriptsExecute(object obj)
         {
+            IsButtonStartScriptsPressed = true;
             var viewModels = new List<PHPScriptExecutorViewModel>();
             await Task.Run(async () =>
             {
@@ -113,7 +123,7 @@ namespace DemonsRunner.ViewModels
             });
 
             // update button unavailable state to prevent clicking when scripts are executed.
-            OnPropertyChanged(nameof(StartScriptsCommand));        
+            OnPropertyChanged(nameof(StopScriptsCommand));
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(
@@ -135,6 +145,7 @@ namespace DemonsRunner.ViewModels
                     });
                 }
             }
+            IsButtonStartScriptsPressed = false;
         }
 
         #endregion
