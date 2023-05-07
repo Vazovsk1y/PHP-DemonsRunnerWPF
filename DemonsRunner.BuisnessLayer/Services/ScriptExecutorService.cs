@@ -1,10 +1,9 @@
-﻿using DemonsRunner.BuisnessLayer.Responses;
+﻿using DemonsRunner.Domain.Responses;
 using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Responses;
-using DemonsRunner.Domain.Services;
+using DemonsRunner.Domain.Responses.Intefaces;
 using System.Diagnostics;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
@@ -20,7 +19,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         /// <summary>
         /// Start new cmd process, executing command and start message receiving from running process.
         /// </summary>
-        public async Task<IDataResponse<PHPScriptExecutor>> StartExecutingAsync(PHPScript script, bool showExecutingWindow)
+        public async Task<IDataResponse<PHPScriptExecutor>> LaunchAsync(PHPScript script, bool showExecutingWindow)
         {
             try
             {
@@ -63,13 +62,13 @@ namespace DemonsRunner.BuisnessLayer.Services
             }
         }
 
-        public async Task<IBaseResponse> StopAsync(PHPScriptExecutor executingScript)
+        public async Task<IResponse> StopAsync(PHPScriptExecutor executingScript)
         {
             try
             {
                 if (!executingScript.IsRunning)
                 {
-                    return new BaseResponse
+                    return new Response
                     {
                         Description = $"{executingScript.ExecutableScript.Name} is not running!",
                         OperationStatus = StatusCode.Fail
@@ -78,7 +77,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
                 await executingScript.StopMessageReceivingAsync();
                 await executingScript.StopAsync();
-                return new BaseResponse
+                return new Response
                 {
                     Description = "Runner was killed successfully!",
                     OperationStatus = StatusCode.Success,
@@ -87,7 +86,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message + "\n" + ex.Source);
-                return new BaseResponse
+                return new Response
                 {
                     Description = "Something go wrong",
                     OperationStatus = StatusCode.Fail

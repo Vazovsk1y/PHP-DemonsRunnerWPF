@@ -1,10 +1,9 @@
 ﻿using DemonsRunner.BuisnessLayer.Services;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.DAL.Repositories;
+using DemonsRunner.DAL.Repositories.Interfaces;
 using DemonsRunner.DAL.Storage;
-using DemonsRunner.Domain.Interfaces;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Repositories;
-using DemonsRunner.Domain.Services;
 using DemonsRunner.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -76,7 +75,7 @@ namespace DemonsRunner
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             //.AddScoped<IRepository<PHPDemon>, FileRepository>()
             //.AddSingleton(new StorageFile("data.json"))
-            .AddTransient<IRepository<PHPDemon>, FileRepository>()
+            .AddTransient<IFileRepository<PHPDemon>, FileRepository>()
             .AddScoped(provider => new StorageFile("data.json"))
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()

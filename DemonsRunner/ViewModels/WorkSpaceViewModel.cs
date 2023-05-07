@@ -1,7 +1,7 @@
-﻿using DemonsRunner.Commands;
+﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Commands;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Services;
 using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
 using System;
@@ -71,7 +71,7 @@ namespace DemonsRunner.ViewModels
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons).ConfigureAwait(false);
+            var response = _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
@@ -97,7 +97,7 @@ namespace DemonsRunner.ViewModels
             {
                 foreach (var script in ConfiguredScripts)
                 {
-                    var response = await _executorScriptsService.StartExecutingAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    var response = await _executorScriptsService.LaunchAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                     if (response.OperationStatus == StatusCode.Success)
                     {
                         var executorViewModel = new PHPScriptExecutorViewModel(response.Data);

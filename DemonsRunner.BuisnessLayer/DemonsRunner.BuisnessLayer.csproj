@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DemonsRunner.DAL\DemonsRunner.DAL.csproj" />
     <ProjectReference Include="..\DemonsRunner.Domain\DemonsRunner.Domain.csproj" />
   </ItemGroup>
 
