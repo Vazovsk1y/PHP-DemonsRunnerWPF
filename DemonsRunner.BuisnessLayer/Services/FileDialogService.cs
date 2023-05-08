@@ -5,38 +5,54 @@ using Microsoft.Win32;
 using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.Domain.Responses;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
     public class FileDialogService : IFileDialogService
     {
+        private readonly ILogger<FileDialogService> _logger;
+
         private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
-            Title = "Выберите файл:",
+            Title = "Choose file:",
         };
+
+        public FileDialogService(ILogger<FileDialogService> logger)
+        {
+            _logger = logger;
+        }
 
         public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialog()
         {
             try
             {
+                _logger.LogInformation("Dialog started");
                 var dialogResult = _fileDialog.ShowDialog();
+                _logger.LogInformation("Dialog ended with result: {dialogResult}", dialogResult);
 
-                return dialogResult is bool result && !result ?
-                    Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
-                    {
-                        OperationStatus = StatusCode.Fail
-                    })
-                    :
-                    Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
+                if (dialogResult is bool result && result is true)
+                {
+                    var data = GetDemons().ToList();
+                    return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
                     {
                         OperationStatus = StatusCode.Success,
-                        Data = GetDemons()
+                        Data = data,
+                        Description = $"{data.Count} files were selected!",
                     });
+                }
+
+                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
+                {
+                    OperationStatus = StatusCode.Fail,
+                    Description = "No files were selected"
+                });
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
                 return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
                 {
                     Description = "Something go wrong",
@@ -47,6 +63,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
         private IEnumerable<PHPDemon> GetDemons()
         {
+            _logger.LogInformation("Searching demons in selected files started");
             var fullFIlesPath = _fileDialog.FileNames;
             var filesName = _fileDialog.SafeFileNames;
             List<PHPDemon> demons = new();
@@ -60,6 +77,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 });
             }
 
+            _logger.LogInformation("Demons count in selected files {demonsCount}", demons.Count);
             return demons;
         }
     }
