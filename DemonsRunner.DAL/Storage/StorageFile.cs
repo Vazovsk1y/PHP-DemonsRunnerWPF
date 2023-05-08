@@ -1,11 +1,12 @@
-﻿using System.Reflection;
+﻿using DemonsRunner.DAL.Storage.Interfaces;
+using System.Reflection;
 
 namespace DemonsRunner.DAL.Storage
 {
     /// <summary>
     /// File in AppData folder that store the selected files(php-daemons) on a previous app session.
     /// </summary>
-    public class StorageFile
+    public class StorageFile : IStorageFile
     {
         private readonly string _name;
 
@@ -19,7 +20,7 @@ namespace DemonsRunner.DAL.Storage
         {
             _name = fileName;
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appName = Assembly.GetEntryAssembly().GetName().Name;
+            string appName = AppDomain.CurrentDomain.FriendlyName;
             string fileDirectoryPath = Path.Combine(appDataPath, appName);
 
             if (!Directory.Exists(fileDirectoryPath)) 
