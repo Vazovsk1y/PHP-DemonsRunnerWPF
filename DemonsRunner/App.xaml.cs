@@ -3,6 +3,7 @@ using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.DAL.Repositories;
 using DemonsRunner.DAL.Repositories.Interfaces;
 using DemonsRunner.DAL.Storage;
+using DemonsRunner.DAL.Storage.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ namespace DemonsRunner
 
         private static IHost? _host;
 
-        private static readonly string UniqueEventName = Assembly.GetExecutingAssembly().GetName().Name;
+        private static readonly string UniqueEventName = AppDomain.CurrentDomain.FriendlyName;
 
         #endregion
 
@@ -75,8 +76,9 @@ namespace DemonsRunner
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             //.AddScoped<IRepository<PHPDemon>, FileRepository>()
             //.AddSingleton(new StorageFile("data.json"))
+            //.AddScoped(provider => new StorageFile("data.json"))
+            .AddTransient<IStorageFile, StorageFile>(p => new StorageFile("data.json"))
             .AddTransient<IFileRepository<PHPDemon>, FileRepository>()
-            .AddScoped(provider => new StorageFile("data.json"))
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
@@ -108,8 +110,8 @@ namespace DemonsRunner
             return false;
         }
 
-        private static string GetSourceCodePath([CallerFilePath] string Path = null) => string.IsNullOrWhiteSpace(Path) 
-            ? throw new ArgumentNullException(nameof(Path)) : Path;
+        private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
+            ? throw new ArgumentNullException(nameof(path)) : path;
 
         #endregion
     }
