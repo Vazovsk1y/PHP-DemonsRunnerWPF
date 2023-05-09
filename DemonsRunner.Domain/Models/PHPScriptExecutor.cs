@@ -55,8 +55,8 @@ namespace DemonsRunner.Domain.Models
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
-                    //WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
+                    //WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
+                    WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
                     CreateNoWindow = !showExecutingWindow,
                 },
                 EnableRaisingEvents = true,
@@ -88,7 +88,7 @@ namespace DemonsRunner.Domain.Models
         /// <summary>
         /// Begin receiving data from output.
         /// </summary>
-        public Task StartMessageReceivingAsync()
+        public Task StartMessagesReceivingAsync()
         {
             _executableConsole.BeginOutputReadLine();
             _executableConsole.BeginErrorReadLine();
@@ -100,8 +100,8 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task ExecuteCommandAsync()
         {
-            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-            //await _executableConsole.StandardInput.WriteLineAsync("TelegramBot.exe start");  // for test
+            //_executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            _executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
             _executableConsole.StandardInput.Flush();
             return Task.CompletedTask;
         }
@@ -124,7 +124,7 @@ namespace DemonsRunner.Domain.Models
         /// <summary>
         /// Breaks receiveng messages from output.
         /// </summary>
-        public Task StopMessageReceivingAsync()
+        public Task StopMessagesReceivingAsync()
         {
             _executableConsole.CancelErrorRead();
             _executableConsole.CancelOutputRead();
