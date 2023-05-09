@@ -20,21 +20,17 @@ namespace DemonsRunner.DAL.Repositories
             {
                 return null;
             }
+
             using var reader = new StreamReader(_storageFile.FullPath);
             string json = reader.ReadToEnd();
             return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json) ?? Enumerable.Empty<PHPDemon>();
         }
 
-        public bool SaveAll(IEnumerable<PHPDemon> items)
+        public void SaveAll(IEnumerable<PHPDemon> items)
         {
-            if (!File.Exists(_storageFile.FullPath))
-            {
-                return false;
-            }
             using var writer = new StreamWriter(_storageFile.FullPath);
             string json = JsonConvert.SerializeObject(items, Formatting.Indented);
             writer.Write(json);
-            return true;
         }
     }
 }

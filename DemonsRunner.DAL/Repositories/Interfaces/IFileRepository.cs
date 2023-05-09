@@ -13,6 +13,6 @@
         /// <summary>
         /// Saves all provided by you files in storage file.
         /// </summary>
-        public bool SaveAll(IEnumerable<T> entities);
+        public void SaveAll(IEnumerable<T> entities);
     }
 }
