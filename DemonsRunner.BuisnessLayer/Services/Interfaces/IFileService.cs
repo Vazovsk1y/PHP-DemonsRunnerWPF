@@ -16,7 +16,7 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <summary>
         /// Sends back response with status operation, saves all files provided by.
         /// </summary>
-        public IResponse Save(IEnumerable<PHPDemon> savedFiles);
+        public IResponse SaveAll(IEnumerable<PHPDemon> savedFiles);
 
         /// <summary>
         /// Checks is file exist on PC. 

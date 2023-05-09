@@ -25,7 +25,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             try
             {
                 _logger.LogInformation("Getting saved files from the storage .json file started");
-                var files = _repository.GetAll().ToList();
+                var files = _repository.GetAll();
 
                 if (files is null)
                 {
@@ -37,7 +37,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                     };
                 }
 
-                if (files.Count is 0)
+                if (files.ToList().Count is 0)
                 {
                     _logger.LogWarning($"Received files count was 0");
                     return new DataResponse<IEnumerable<PHPDemon>>
@@ -47,10 +47,10 @@ namespace DemonsRunner.BuisnessLayer.Services
                     };
                 }
 
-                _logger.LogInformation("Received files count {filesCount}", files.Count);
+                _logger.LogInformation("Received files count [{filesCount}]", files.ToList().Count);
                 return new DataResponse<IEnumerable<PHPDemon>>
                 {
-                    Description = $"{files.Count} files were succsessfully given to you!",
+                    Description = $"{files.ToList().Count} files were succsessfully given to you!",
                     OperationStatus = StatusCode.Success,
                     Data = files
                 };
@@ -70,11 +70,11 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
-                _logger.LogInformation("Checking the existence of the file has started");
+                _logger.LogInformation("Checking the existence of the [{fileName}] file has started", file.Name);
                 var fileInfo = new FileInfo(file.FullPath);
                 if (fileInfo.Exists)
                 {
-                    _logger.LogInformation("{FileName} exist in {FileFullPath}", file.Name, file.FullPath);
+                    _logger.LogInformation("[{FileName}] exist in [{FileFullPath}]", file.Name, file.FullPath);
                     return new Response
                     {
                         Description = "File exist!",
@@ -82,7 +82,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                     };
                 }
 
-                _logger.LogWarning("{fileName} isn't exist in {fileFullPath}", file.Name, file.FullPath);
+                _logger.LogWarning("[{fileName}] isn't exist in [{fileFullPath}]", file.Name, file.FullPath);
                 return new Response
                 {
                     Description = "File isn't exist!",
@@ -100,22 +100,13 @@ namespace DemonsRunner.BuisnessLayer.Services
             }
         }
 
-        public IResponse Save(IEnumerable<PHPDemon> savedFiles)
+        public IResponse SaveAll(IEnumerable<PHPDemon> savedFiles)
         {
             try
             {
-                _logger.LogInformation("Saving {savedFilesCount} files in storage file started", savedFiles?.ToList().Count);
-                if (!_repository.SaveAll(savedFiles))
-                {
-                    _logger.LogError("Storage .json data file not founded");
-                    return new DataResponse<PHPDemon>
-                    {
-                        Description = "Storage json data file not founded",
-                        OperationStatus = StatusCode.Fail,
-                    };
-                }
-
-                _logger.LogInformation("{savedFilesCount} files were succsessfully saved", savedFiles.ToList().Count);
+                _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savedFiles.ToList().Count);
+                _repository.SaveAll(savedFiles);
+                _logger.LogInformation("[{savedFilesCount}] files were succsessfully saved", savedFiles.ToList().Count);
                 return new Response
                 {
                     Description = "Files were succsessfully saved",

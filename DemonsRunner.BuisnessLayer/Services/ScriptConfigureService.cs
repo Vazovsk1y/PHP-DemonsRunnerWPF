@@ -21,7 +21,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             try
             {
-                _logger.LogInformation("Configuring {demonsCount} files in script started", demons?.ToList().Count);
+                _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", demons.ToList().Count);
                 var configuredScripts = new List<PHPScript>();
 
                 foreach (var demon in demons)
@@ -29,10 +29,10 @@ namespace DemonsRunner.BuisnessLayer.Services
                     configuredScripts.Add(new PHPScript(demon));
                 }
 
-                _logger.LogInformation("{configuredScriptsCount} scripts were successfully configured", configuredScripts.Count);
+                _logger.LogInformation("[{configuredScriptsCount}] scripts were successfully configured", configuredScripts.Count);
                 return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
                 {
-                    Description = "Scripts were successfully configurated!",
+                    Description = "Scripts were successfully configured!",
                     OperationStatus = StatusCode.Success,
                     Data = configuredScripts
                 }); 
