@@ -20,15 +20,24 @@ namespace DemonsRunner.Infrastructure.Extensions
             }
         }
 
-        public static void AddIfNotExist(this IList<PHPDemon> demons, IEnumerable<PHPDemon> demonsToAdd)
+        /// <summary>
+        /// Add demon if it not exist in collection.
+        /// </summary>
+        /// <returns>
+        /// true - if any item was added, false - if collection wasn't modified.
+        /// </returns>
+        public static bool AddIfNotExist(this IList<PHPDemon> demons, IEnumerable<PHPDemon> demonsToAdd)
         {
+            bool isCollectionModified = false;
             foreach (var demon in demonsToAdd)
             {
                 if (demons.FirstOrDefault(d => d.Name == demon.Name && d.FullPath == demon.FullPath) is null)
                 {
+                    isCollectionModified = true;
                     demons.Add(demon);
                 }
             }
+            return isCollectionModified;
         }
     }
 }
