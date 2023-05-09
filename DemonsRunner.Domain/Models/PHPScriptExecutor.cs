@@ -80,7 +80,7 @@ namespace DemonsRunner.Domain.Models
             if (IsRunning)
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
 
-            var startingResult = _executableConsole.Start();
+            bool startingResult = _executableConsole.Start();
             IsRunning = startingResult;
             return Task.FromResult(IsRunning);
         }

@@ -47,7 +47,6 @@ namespace DemonsRunner.ViewModels
             {
                 Demons.AddRange(response.Data);
             }
-            Demons.CollectionChanged += (s, e) => _fileService.Save(Demons);
         }
 
         #endregion
@@ -58,13 +57,19 @@ namespace DemonsRunner.ViewModels
 
         private async void OnAddingFileExecute(object obj)
         {
+            bool isCollectionModified = false;
             var response = await _fileDialogService.StartDialog().ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Demons.AddIfNotExist(response.Data);
+                    isCollectionModified = Demons.AddIfNotExist(response.Data);
                 });
+
+                if (isCollectionModified)
+                {
+                    _fileService.SaveAll(Demons);
+                }
             }
         }
 
@@ -77,6 +82,7 @@ namespace DemonsRunner.ViewModels
             {
                 Demons.Remove(SelectedDemon);
                 SelectedDemon = null;
+                _fileService.SaveAll(Demons);
             }
         }
 

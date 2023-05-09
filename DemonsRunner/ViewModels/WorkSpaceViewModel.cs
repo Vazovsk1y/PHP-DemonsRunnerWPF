@@ -107,10 +107,12 @@ namespace DemonsRunner.ViewModels
             {
                 foreach (var script in ConfiguredScripts.ToList())
                 {
-                    var response = await _executorScriptsService.LaunchAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                     if (response.OperationStatus == StatusCode.Success)
                     {
                         var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
+                        await _executorScriptsService.StartMessagesReceivingAsync(executorViewModel.ScriptExecutor);
+                        await _executorScriptsService.ExecuteCommandAsync(executorViewModel.ScriptExecutor);
                         executorViewModel.ScriptExited += OnScriptExited;
                         viewModels.Add(executorViewModel);
                     }
@@ -134,8 +136,9 @@ namespace DemonsRunner.ViewModels
         {
             foreach (var scriptExecutorViewModel in RunningScriptsViewModels.ToList())
             {
-                var response = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
-                if (response.OperationStatus == StatusCode.Success)
+                var messageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
+                var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
+                if (stoppingResponse.OperationStatus == StatusCode.Success && messageReceivingResponse.OperationStatus == StatusCode.Success)
                 {
                     scriptExecutorViewModel.ScriptExited -= OnScriptExited;
                     scriptExecutorViewModel.Dispose();
