@@ -13,11 +13,13 @@ namespace DemonsRunner.BuisnessLayer.Services
     {
         private readonly IFileRepository<PHPDemon> _repository;
         private readonly ILogger<FileService> _logger;
+        private readonly IResponseFactory _responseFactory;
 
-        public FileService(IFileRepository<PHPDemon> repository, ILogger<FileService> logger)
+        public FileService(IFileRepository<PHPDemon> repository, ILogger<FileService> logger, IResponseFactory responseFactory)
         {
             _repository = repository;
             _logger = logger;
+            _responseFactory = responseFactory;
         }
 
         public IDataResponse<IEnumerable<PHPDemon>> GetSaved()
@@ -30,39 +32,22 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (files is null)
                 {
                     _logger.LogError("Storage json file not founded!");
-                    return new DataResponse<IEnumerable<PHPDemon>>
-                    {
-                        Description = "Storage json file not founded!",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    return _responseFactory.CreateDataResponse(StatusCode.Fail, "Storage json file not founded!", Enumerable.Empty<PHPDemon>());
                 }
 
                 if (files.ToList().Count is 0)
                 {
                     _logger.LogWarning($"Received files count was 0");
-                    return new DataResponse<IEnumerable<PHPDemon>>
-                    {
-                        Description = "Storage file was empty",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    return _responseFactory.CreateDataResponse(StatusCode.Fail, "Storage file was empty", Enumerable.Empty<PHPDemon>());
                 }
 
                 _logger.LogInformation("Received files count [{filesCount}]", files.ToList().Count);
-                return new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    Description = $"{files.ToList().Count} files were succsessfully given to you!",
-                    OperationStatus = StatusCode.Success,
-                    Data = files
-                };
+                return _responseFactory.CreateDataResponse(StatusCode.Success, $"{files.ToList().Count} files were succsessfully given to you!", files);
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
+                return _responseFactory.CreateDataResponse(StatusCode.Fail, "Something go wrong", Enumerable.Empty<PHPDemon>());
             }
         }
 
@@ -75,28 +60,16 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (fileInfo.Exists)
                 {
                     _logger.LogInformation("[{FileName}] exist in [{FileFullPath}]", file.Name, file.FullPath);
-                    return new Response
-                    {
-                        Description = "File exist!",
-                        OperationStatus = StatusCode.Success,
-                    };
+                    return _responseFactory.CreateResponse(StatusCode.Success, "File exist!");
                 }
 
                 _logger.LogWarning("[{fileName}] isn't exist in [{fileFullPath}]", file.Name, file.FullPath);
-                return new Response
-                {
-                    Description = "File isn't exist!",
-                    OperationStatus = StatusCode.Fail,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "File isn't exist!");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
 
@@ -107,20 +80,12 @@ namespace DemonsRunner.BuisnessLayer.Services
                 _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savedFiles.ToList().Count);
                 _repository.SaveAll(savedFiles);
                 _logger.LogInformation("[{savedFilesCount}] files were succsessfully saved", savedFiles.ToList().Count);
-                return new Response
-                {
-                    Description = "Files were succsessfully saved",
-                    OperationStatus = StatusCode.Success,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Success, "Files were succsessfully saved");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new DataResponse<PHPDemon>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
     }

@@ -83,6 +83,7 @@ namespace DemonsRunner
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
             .AddTransient<IScriptExecutorService, ScriptExecutorService>()
+            .AddTransient<IResponseFactory, ResponseFactory>()
             .AddSingleton<MainWindowViewModel>()
             .AddSingleton<FilesPanelViewModel>()
             .AddSingleton<WorkSpaceViewModel>()

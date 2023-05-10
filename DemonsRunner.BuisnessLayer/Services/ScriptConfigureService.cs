@@ -11,10 +11,12 @@ namespace DemonsRunner.BuisnessLayer.Services
     public class ScriptConfigureService : IScriptConfigureService
     {
         private readonly ILogger<ScriptConfigureService> _logger;
+        private readonly IResponseFactory _responseFactory;
 
-        public ScriptConfigureService(ILogger<ScriptConfigureService> logger) 
+        public ScriptConfigureService(ILogger<ScriptConfigureService> logger, IResponseFactory responseFactory)
         {
             _logger = logger;
+            _responseFactory = responseFactory;
         }
 
         public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons)
@@ -30,21 +32,12 @@ namespace DemonsRunner.BuisnessLayer.Services
                 }
 
                 _logger.LogInformation("[{configuredScriptsCount}] scripts were successfully configured", configuredScripts.Count);
-                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
-                {
-                    Description = "Scripts were successfully configured!",
-                    OperationStatus = StatusCode.Success,
-                    Data = configuredScripts
-                }); 
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, "Scripts were successfully configured!", configuredScripts.AsEnumerable()));
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
-                {
-                    Description = "Something go wrong!",
-                    OperationStatus = StatusCode.Fail
-                });
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, "Something go wrong!", Enumerable.Empty<PHPScript>()));
             }
         }
     }

@@ -2,7 +2,6 @@
 using DemonsRunner.Domain.Models;
 using Microsoft.Win32;
 using DemonsRunner.Domain.Responses.Intefaces;
-using DemonsRunner.Domain.Responses;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +10,7 @@ namespace DemonsRunner.BuisnessLayer.Services
     public class FileDialogService : IFileDialogService
     {
         private readonly ILogger<FileDialogService> _logger;
+        private readonly IResponseFactory _responseFactory;
 
         private readonly OpenFileDialog _fileDialog = new()
         {
@@ -18,9 +18,10 @@ namespace DemonsRunner.BuisnessLayer.Services
             Title = "Choose file:",
         };
 
-        public FileDialogService(ILogger<FileDialogService> logger)
+        public FileDialogService(ILogger<FileDialogService> logger, IResponseFactory responseFactory)
         {
             _logger = logger;
+            _responseFactory = responseFactory;
         }
 
         public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialog()
@@ -33,29 +34,16 @@ namespace DemonsRunner.BuisnessLayer.Services
 
                 if (dialogResult is bool result && result is true)
                 {
-                    var data = GetDemons().ToList();
-                    return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
-                    {
-                        OperationStatus = StatusCode.Success,
-                        Data = data,
-                        Description = $"{data.Count} files were selected!",
-                    });
+                    var data = GetDemons();
+                    return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, $"{data.ToList().Count} files were selected!", data));
                 }
 
-                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    OperationStatus = StatusCode.Fail,
-                    Description = "No files were selected"
-                });
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, "No files were selected", Enumerable.Empty<PHPDemon>()));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                });
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, "Something go wrong", Enumerable.Empty<PHPDemon>()));
             }
         }
 

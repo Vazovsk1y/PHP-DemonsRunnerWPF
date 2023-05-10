@@ -1,5 +1,4 @@
-﻿using DemonsRunner.Domain.Responses;
-using DemonsRunner.Domain.Enums;
+﻿using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
@@ -11,11 +10,13 @@ namespace DemonsRunner.BuisnessLayer.Services
     {
         private readonly IFileService _fileService;
         private readonly ILogger<ScriptExecutorService> _logger;
+        private readonly IResponseFactory _responseFactory;
 
-        public ScriptExecutorService(IFileService fileService, ILogger<ScriptExecutorService> logger) 
+        public ScriptExecutorService(IFileService fileService, ILogger<ScriptExecutorService> logger, IResponseFactory responseFactory)
         {
             _fileService = fileService;
             _logger = logger;
+            _responseFactory = responseFactory;
         }
 
         public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
@@ -28,40 +29,23 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (response.OperationStatus is StatusCode.Fail)
                 {
                     _logger.LogError("The start was aborted, executable [{executableFileName}] file is not exist", script.ExecutableFile.Name);
-                    return new DataResponse<PHPScriptExecutor>
-                    {
-                        Description = $"Executable {response.Description}",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, $"Executable {response.Description}");
                 }
 
                 var executor = new PHPScriptExecutor(script, showExecutingWindow);
                 if (await executor.StartAsync().ConfigureAwait(false))
                 {
                     _logger.LogInformation("Cmd was started successfully");
-                    return new DataResponse<PHPScriptExecutor>
-                    {
-                        Description = "Script was successfully started!",
-                        OperationStatus = StatusCode.Success,
-                        Data = executor,
-                    };
+                    return _responseFactory.CreateDataResponse(StatusCode.Success, "Script was successfully started!", executor);
                 }
 
                 _logger.LogInformation("Cmd wasn't started");
-                return new DataResponse<PHPScriptExecutor>
-                {
-                    Description = "Script was NOT started!",
-                    OperationStatus = StatusCode.Fail,
-                };
+                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, "Script was NOT started!");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new DataResponse<PHPScriptExecutor>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                };
+                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, "Something go wrong");
             }
         }
 
@@ -73,29 +57,17 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (!runningScript.IsRunning)
                 {
                     _logger.LogError("[{RunningScriptName}] was not running", runningScript.ExecutableScript.Name);
-                    return new Response
-                    {
-                        Description = "Script was not running",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
                 }
 
                 await runningScript.StartMessagesReceivingAsync().ConfigureAwait(false);
                 _logger.LogInformation("Starting messages receiving was started successfully");
-                return new Response
-                {
-                    Description = "Messages receiving was started successfully",
-                    OperationStatus = StatusCode.Success,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Success, "Messages receiving was started successfully");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
 
@@ -107,29 +79,17 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (!runningScript.IsRunning)
                 {
                     _logger.LogError("[{RunningScript}] was not running", runningScript.ExecutableScript.Name);
-                    return new Response
-                    {
-                        Description = "Script was not running",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    return _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
                 }
 
                 await runningScript.ExecuteCommandAsync().ConfigureAwait(false);
                 _logger.LogInformation("Executing command was completed successfully");
-                return new Response
-                {
-                    Description = "Command was executed successfully",
-                    OperationStatus = StatusCode.Success,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Success, "Command was executed successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
 
@@ -141,30 +101,17 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (!executingScript.IsRunning)
                 {
                     _logger.LogInformation("[{executingScriptName}] was not running", executingScript.ExecutableScript.Name);
-                    return new Response
-                    {
-                        Description = $"{executingScript.ExecutableScript.Name} is not running!",
-                        OperationStatus = StatusCode.Fail
-                    };
+                    _responseFactory.CreateResponse(StatusCode.Fail, $"{executingScript.ExecutableScript.Name} is not running!");
                 }
 
                 await executingScript.StopAsync().ConfigureAwait(false);
                 _logger.LogInformation("Cmd was killed successfully");
-
-                return new Response
-                {
-                    Description = "Script was killed successfully!",
-                    OperationStatus = StatusCode.Success,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Success, "Script was killed successfully!");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
 
@@ -176,29 +123,17 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (!runningScript.IsRunning)
                 {
                     _logger.LogError("[{RunningScript}] was not running", runningScript.ExecutableScript.Name);
-                    return new Response
-                    {
-                        Description = "Script was not running",
-                        OperationStatus = StatusCode.Fail,
-                    };
+                    return _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
                 }
 
                 await runningScript.StopMessagesReceivingAsync().ConfigureAwait(false);
                 _logger.LogInformation("Stopping message receiving successfully completed");
-                return new Response
-                {
-                    Description = "Message receiving was successfully stopped",
-                    OperationStatus = StatusCode.Success,
-                };
+                return _responseFactory.CreateResponse(StatusCode.Success, "Message receiving was successfully stopped");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail
-                };
+                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
             }
         }
     }
