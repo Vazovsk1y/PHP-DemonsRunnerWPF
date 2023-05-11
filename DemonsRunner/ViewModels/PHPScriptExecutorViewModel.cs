@@ -1,22 +1,18 @@
 ﻿using DemonsRunner.Domain.Models;
 using DemonsRunner.ViewModels.Base;
-using System.Diagnostics;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Infrastructure.Messages;
 
 namespace DemonsRunner.ViewModels
 {
-    internal class PHPScriptExecutorViewModel : BaseViewModel, IDisposable
+    internal class PHPScriptExecutorViewModel : BaseViewModel, IScriptExecutorViewModel
     {
-        #region --Events--
-
-        public event EventHandler? ScriptExited;
-
-        #endregion
-
         #region --Fields--
 
+        private readonly IDataBus _dataBus;
         private bool _disposed = false;
 
         #endregion
@@ -31,11 +27,14 @@ namespace DemonsRunner.ViewModels
 
         #region --Constructors--
 
-        public PHPScriptExecutorViewModel(PHPScriptExecutor scriptExecutor)
+        public PHPScriptExecutorViewModel(
+            PHPScriptExecutor scriptExecutor, 
+            IDataBus dataBus)
         {
             ScriptExecutor = scriptExecutor;
             ScriptExecutor.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUser += OnScriptExited;
+            ScriptExecutor.ScriptExitedByUser += OnScriptExitedByUser;
+            _dataBus = dataBus;
         }
 
         #endregion
@@ -54,16 +53,7 @@ namespace DemonsRunner.ViewModels
             GC.SuppressFinalize(this);
         }
 
-        private async void OnScriptExited(object? sender, EventArgs e)
-        {
-            if (sender is PHPScriptExecutor scriptExecutor)
-            {
-                await App.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    ScriptExited?.Invoke(this, e);
-                });
-            }
-        }
+        private void OnScriptExitedByUser(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, e));
 
         private async Task OnScriptOutputMessageReceived(object sender, string message) => 
             await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
@@ -75,7 +65,7 @@ namespace DemonsRunner.ViewModels
                 if (disposing)
                 {
                     ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-                    ScriptExecutor.ScriptExitedByUser -= OnScriptExited;
+                    ScriptExecutor.ScriptExitedByUser -= OnScriptExitedByUser;
                     ScriptExecutor.Dispose();
                     OutputMessages.Clear();
                 }
