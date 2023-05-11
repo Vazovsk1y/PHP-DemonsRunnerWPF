@@ -21,6 +21,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
         public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", demons.ToList().Count);
@@ -32,12 +33,16 @@ namespace DemonsRunner.BuisnessLayer.Services
                 }
 
                 _logger.LogInformation("[{configuredScriptsCount}] scripts were successfully configured", configuredScripts.Count);
-                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, "Scripts were successfully configured!", configuredScripts.AsEnumerable()));
+                messageResponse = "All files were successfully configured.";
+
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, messageResponse, configuredScripts.AsEnumerable()));
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, "Something go wrong!", Enumerable.Empty<PHPScript>()));
+                messageResponse = "Something go wrong!";
+
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPScript>()));
             }
         }
     }

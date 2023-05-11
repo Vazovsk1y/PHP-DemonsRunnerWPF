@@ -26,19 +26,23 @@ namespace DemonsRunner.BuisnessLayer.Services
 
         public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialog()
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Dialog started");
                 var dialogResult = _fileDialog.ShowDialog();
-                _logger.LogInformation("Dialog ended with result: {dialogResult}", dialogResult);
+                _logger.LogInformation("Dialog ended with result: [{dialogResult}]", dialogResult);
 
                 if (dialogResult is bool result && result is true)
                 {
                     var data = GetDemons();
-                    return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, $"{data.ToList().Count} files were selected!", data));
+                    messageResponse = $"[{data.ToList().Count}] files were selected!";
+
+                    return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Success, messageResponse , data));
                 }
 
-                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, "No files were selected", Enumerable.Empty<PHPDemon>()));
+                messageResponse = "No files were selected";
+                return Task.FromResult(_responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPDemon>()));
             }
             catch (Exception ex)
             {

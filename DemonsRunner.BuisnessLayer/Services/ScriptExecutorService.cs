@@ -21,6 +21,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
         public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Starting [{scriptName}] started, show window - [{showExecutingWindow}]", script.Name, showExecutingWindow);
@@ -29,111 +30,147 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (response.OperationStatus is StatusCode.Fail)
                 {
                     _logger.LogError("The start was aborted, executable [{executableFileName}] file is not exist", script.ExecutableFile.Name);
-                    return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, $"Executable {response.Description}");
+                    messageResponse = $"{response.Description} the launch was canceled";
+
+                    return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, messageResponse);
                 }
 
                 var executor = new PHPScriptExecutor(script, showExecutingWindow);
                 if (await executor.StartAsync().ConfigureAwait(false))
                 {
                     _logger.LogInformation("Cmd was started successfully");
-                    return _responseFactory.CreateDataResponse(StatusCode.Success, "Script was successfully started!", executor);
+                    messageResponse = "Script was successfully started";
+
+                    return _responseFactory.CreateDataResponse(StatusCode.Success, messageResponse, executor);
                 }
 
-                _logger.LogInformation("Cmd wasn't started");
-                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, "Script was NOT started!");
+                _logger.LogError("Cmd wasn't started");
+                messageResponse = "Script wasn't started.";
+
+                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, messageResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateDataResponse<PHPScriptExecutor>(StatusCode.Fail, messageResponse);
             }
         }
 
         public async Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScript)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Starting messages reception of [{runningScriptName}] has started", runningScript.ExecutableScript.Name);
                 if (!runningScript.IsRunning)
                 {
                     _logger.LogError("[{RunningScriptName}] was not running", runningScript.ExecutableScript.Name);
-                    _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
+                    messageResponse = $"{runningScript.ExecutableScript.Name} script was not running messages receiving not available.";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
 
                 await runningScript.StartMessagesReceivingAsync().ConfigureAwait(false);
                 _logger.LogInformation("Starting messages receiving was started successfully");
-                return _responseFactory.CreateResponse(StatusCode.Success, "Messages receiving was started successfully");
+                messageResponse = "Messages receiving was started successfully";
+
+                return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
 
         public async Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScript)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Executing command in [{runningScriptName}] started", runningScript.ExecutableScript.Name);
                 if (!runningScript.IsRunning)
                 {
-                    _logger.LogError("[{RunningScript}] was not running", runningScript.ExecutableScript.Name);
-                    return _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
+                    _logger.LogError("[{runningScriptName}] was not running", runningScript.ExecutableScript.Name);
+                    messageResponse = $"{runningScript.ExecutableScript.Name} script was not running command executing canceled.";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
 
                 await runningScript.ExecuteCommandAsync().ConfigureAwait(false);
                 _logger.LogInformation("Executing command was completed successfully");
-                return _responseFactory.CreateResponse(StatusCode.Success, "Command was executed successfully");
+                messageResponse = "Command was executed successfully";
+
+                return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
 
         public async Task<IResponse> StopAsync(PHPScriptExecutor executingScript)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Stopping script [{executingScriptName}] executing started.", executingScript.ExecutableScript.Name);
                 if (!executingScript.IsRunning)
                 {
                     _logger.LogInformation("[{executingScriptName}] was not running", executingScript.ExecutableScript.Name);
-                    _responseFactory.CreateResponse(StatusCode.Fail, $"{executingScript.ExecutableScript.Name} is not running!");
+                    messageResponse = $"{executingScript.ExecutableScript.Name} is not running stoping is imposible.";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
 
                 await executingScript.StopAsync().ConfigureAwait(false);
                 _logger.LogInformation("Cmd was killed successfully");
-                return _responseFactory.CreateResponse(StatusCode.Success, "Script was killed successfully!");
+                messageResponse = $"{executingScript.ExecutableScript.Name} was stopped successfully!";
+
+                return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
 
         public async Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScript)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Stopping message receiving in [{runningScriptName}] started", runningScript.ExecutableScript.Name);
                 if (!runningScript.IsRunning)
                 {
-                    _logger.LogError("[{RunningScript}] was not running", runningScript.ExecutableScript.Name);
-                    return _responseFactory.CreateResponse(StatusCode.Fail, "Script was not running");
+                    _logger.LogError("[{runningScriptName}] was not running", runningScript.ExecutableScript.Name);
+                    messageResponse = $"{runningScript.ExecutableScript.Name} was not running top receiving messages is not available";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
 
                 await runningScript.StopMessagesReceivingAsync().ConfigureAwait(false);
                 _logger.LogInformation("Stopping message receiving successfully completed");
-                return _responseFactory.CreateResponse(StatusCode.Success, "Message receiving was successfully stopped");
+                messageResponse = "Message receiving was successfully stopped";
+
+                return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
     }

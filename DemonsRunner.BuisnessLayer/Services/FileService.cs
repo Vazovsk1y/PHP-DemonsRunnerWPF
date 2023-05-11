@@ -24,6 +24,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
         public IDataResponse<IEnumerable<PHPDemon>> GetSaved()
         {
+            var messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Getting saved files from the storage .json file started");
@@ -31,28 +32,37 @@ namespace DemonsRunner.BuisnessLayer.Services
 
                 if (files is null)
                 {
-                    _logger.LogError("Storage json file not founded!");
-                    return _responseFactory.CreateDataResponse(StatusCode.Fail, "Storage json file not founded!", Enumerable.Empty<PHPDemon>());
+                    _logger.LogError("Storage [data.json] file wasn't founded or was renamed!");
+                    messageResponse = "Storage [data.json] file was't founded.";
+
+                    return _responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPDemon>());
                 }
 
                 if (files.ToList().Count is 0)
                 {
-                    _logger.LogWarning($"Received files count was 0");
-                    return _responseFactory.CreateDataResponse(StatusCode.Fail, "Storage file was empty", Enumerable.Empty<PHPDemon>());
+                    _logger.LogWarning($"Received files count was [0]");
+                    messageResponse = "Storage file was empty.";
+
+                    return _responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPDemon>());
                 }
 
                 _logger.LogInformation("Received files count [{filesCount}]", files.ToList().Count);
-                return _responseFactory.CreateDataResponse(StatusCode.Success, $"{files.ToList().Count} files were succsessfully given to you!", files);
+                messageResponse = $"{files.ToList().Count} files were succsessfully given to you!";
+
+                return _responseFactory.CreateDataResponse(StatusCode.Success, messageResponse, files);
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateDataResponse(StatusCode.Fail, "Something go wrong", Enumerable.Empty<PHPDemon>());
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPDemon>());
             }
         }
 
         public IResponse IsFileExist(PHPDemon file)
         {
+            string messageResponse = string.Empty;
             try
             {
                 _logger.LogInformation("Checking the existence of the [{fileName}] file has started", file.Name);
@@ -60,32 +70,44 @@ namespace DemonsRunner.BuisnessLayer.Services
                 if (fileInfo.Exists)
                 {
                     _logger.LogInformation("[{FileName}] exist in [{FileFullPath}]", file.Name, file.FullPath);
-                    return _responseFactory.CreateResponse(StatusCode.Success, "File exist!");
+                    messageResponse = $"{file.Name} exist.";
+
+                    return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
                 }
 
                 _logger.LogWarning("[{fileName}] isn't exist in [{fileFullPath}]", file.Name, file.FullPath);
-                return _responseFactory.CreateResponse(StatusCode.Fail, "File isn't exist!");
+                messageResponse = $"{file.Name} isn't exist in {file.FullPath.TrimEnd(file.Name.ToCharArray())} or was renamed";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
 
         public IResponse SaveAll(IEnumerable<PHPDemon> savedFiles)
         {
+            string messageResponse = string.Empty;
             try
             {
-                _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savedFiles.ToList().Count);
+                int savedFilesCount = savedFiles.ToList().Count;
+                _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savedFilesCount);
                 _repository.SaveAll(savedFiles);
-                _logger.LogInformation("[{savedFilesCount}] files were succsessfully saved", savedFiles.ToList().Count);
-                return _responseFactory.CreateResponse(StatusCode.Success, "Files were succsessfully saved");
+                _logger.LogInformation("[{savedFilesCount}] files were succsessfully saved", savedFilesCount);
+                messageResponse = $"{savedFilesCount} files were succsessfully saved";
+
+                return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                return _responseFactory.CreateResponse(StatusCode.Fail, "Something go wrong");
+                messageResponse = "Something go wrong";
+
+                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
     }
