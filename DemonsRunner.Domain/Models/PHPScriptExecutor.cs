@@ -17,7 +17,7 @@ namespace DemonsRunner.Domain.Models
         /// <summary>
         /// Occurs when data have received from cmd output, such as errors or messages.
         /// </summary>
-        public event DataReceivedEventHandler? ScriptOutputMessageReceived;
+        public event Func<object, string, Task> ScriptOutputMessageReceived;
 
         #endregion
 
@@ -143,7 +143,7 @@ namespace DemonsRunner.Domain.Models
             string endcodingMessage = "Active code page: 65001";
             if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
             {
-                ScriptOutputMessageReceived?.Invoke(this, e);
+                ScriptOutputMessageReceived?.Invoke(this, e.Data);
             }
         }
 

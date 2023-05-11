@@ -3,6 +3,7 @@ using DemonsRunner.ViewModels.Base;
 using System.Diagnostics;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace DemonsRunner.ViewModels
 {
@@ -64,13 +65,8 @@ namespace DemonsRunner.ViewModels
             }
         }
 
-        private async void OnScriptOutputMessageReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (sender is PHPScriptExecutor scriptExecutor)
-            {
-                await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add(e.Data! + DateTime.Now));
-            }
-        }
+        private async Task OnScriptOutputMessageReceived(object sender, string message) => 
+            await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
 
         protected virtual void Dispose(bool disposing)
         {
