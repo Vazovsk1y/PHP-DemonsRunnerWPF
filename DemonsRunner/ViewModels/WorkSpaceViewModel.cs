@@ -3,6 +3,7 @@ using DemonsRunner.Commands;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Infrastructure.Extensions;
+using DemonsRunner.Infrastructure.Messages;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,13 @@ namespace DemonsRunner.ViewModels
         private bool _isButtonStartScriptsPressed = false;
         private bool _showExecutingWindow = false;
         private ObservableCollection<PHPScript> _configuredScripts;
-        private readonly ObservableCollection<PHPScriptExecutorViewModel> _runningScriptsViewModels = new();
+        private readonly ObservableCollection<IScriptExecutorViewModel> _runningScriptsViewModels = new();
         private readonly FilesPanelViewModel _filesPanelViewModel;
         private readonly IScriptConfigureService _configureSctiptsService;
         private readonly IScriptExecutorService _executorScriptsService;
+        private readonly IScriptExecutorViewModelFactory _scriptExecutorViewModelFactory;
+        private readonly IDataBus _dataBus;
+        private readonly IDisposable _subscription;
 
         #endregion
 
@@ -35,7 +39,7 @@ namespace DemonsRunner.ViewModels
             set => Set(ref _isButtonStartScriptsPressed, value);
         }
 
-        public ObservableCollection<PHPScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
+        public ObservableCollection<IScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
 
         public bool ShowExecutingWindow
         {
@@ -61,11 +65,16 @@ namespace DemonsRunner.ViewModels
         public WorkSpaceViewModel(
             FilesPanelViewModel filesPanelViewModel,
             IScriptConfigureService configureSctiptsService,
-            IScriptExecutorService executorScriptsService)
+            IScriptExecutorService executorScriptsService, 
+            IScriptExecutorViewModelFactory scriptExecutorViewModelFactory,
+            IDataBus dataBus)
         {
             _filesPanelViewModel = filesPanelViewModel;
             _configureSctiptsService = configureSctiptsService;
             _executorScriptsService = executorScriptsService;
+            _scriptExecutorViewModelFactory = scriptExecutorViewModelFactory;
+            _dataBus = dataBus;
+            _subscription = _dataBus.RegisterHandler<ScriptExitedMessage>(OnScriptExited);
         }
 
         #endregion
@@ -96,13 +105,13 @@ namespace DemonsRunner.ViewModels
             OnStartScriptsExecute,
             (arg) => 
             ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
-            RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: 0 } && 
+            RunningScriptsViewModels is ICollection<IScriptExecutorViewModel> { Count: 0 } && 
             !IsButtonStartScriptsPressed);
 
         private async void OnStartScriptsExecute(object obj)
         {
             IsButtonStartScriptsPressed = true;
-            var viewModels = new List<PHPScriptExecutorViewModel>();
+            var viewModels = new List<IScriptExecutorViewModel>();
             await Task.Run(async () =>
             {
                 foreach (var script in ConfiguredScripts.ToList())
@@ -110,10 +119,9 @@ namespace DemonsRunner.ViewModels
                     var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                     if (response.OperationStatus == StatusCode.Success)
                     {
-                        var executorViewModel = new PHPScriptExecutorViewModel(response.Data);
+                        var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(response.Data);
                         await _executorScriptsService.StartMessagesReceivingAsync(executorViewModel.ScriptExecutor);
                         await _executorScriptsService.ExecuteCommandAsync(executorViewModel.ScriptExecutor);
-                        executorViewModel.ScriptExited += OnScriptExited;
                         viewModels.Add(executorViewModel);
                     }
                 }
@@ -124,13 +132,13 @@ namespace DemonsRunner.ViewModels
                 RunningScriptsViewModels.AddRange(viewModels);
             });
 
-            // update button unavailable state to prevent clicking when scripts are executed.
+            // update button unavailable state to prevent clicking when scripts are not already executed.
             OnPropertyChanged(nameof(StopScriptsCommand));
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(
             OnStopScriptsExecute,
-            (arg) => RunningScriptsViewModels is ICollection<PHPScriptExecutorViewModel> { Count: > 0 });
+            (arg) => RunningScriptsViewModels is ICollection<IScriptExecutorViewModel> { Count: > 0 });
 
         private async void OnStopScriptsExecute(object obj)
         {
@@ -140,12 +148,11 @@ namespace DemonsRunner.ViewModels
                 var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
                 if (stoppingResponse.OperationStatus == StatusCode.Success && messageReceivingResponse.OperationStatus == StatusCode.Success)
                 {
-                    scriptExecutorViewModel.ScriptExited -= OnScriptExited;
-                    scriptExecutorViewModel.Dispose();
                     await App.Current.Dispatcher.InvokeAsync(() =>
                     {
                         RunningScriptsViewModels.Remove(scriptExecutorViewModel);
                     });
+                    scriptExecutorViewModel.Dispose();
                 }
             }
             IsButtonStartScriptsPressed = false;
@@ -155,16 +162,15 @@ namespace DemonsRunner.ViewModels
 
         #region --Methods--
 
-        private async void OnScriptExited(object? sender, EventArgs e)
+        private async void OnScriptExited(ScriptExitedMessage message)
         {
-            if (sender is PHPScriptExecutorViewModel scriptExecutorViewModel)
+            if (message.Sender is IScriptExecutorViewModel scriptExecutorViewModel && RunningScriptsViewModels.Contains(scriptExecutorViewModel))
             {
-                scriptExecutorViewModel.ScriptExited -= OnScriptExited;
-                scriptExecutorViewModel.Dispose();
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
                     RunningScriptsViewModels.Remove(scriptExecutorViewModel);
                 });
+                scriptExecutorViewModel.Dispose();
             }
         }
 

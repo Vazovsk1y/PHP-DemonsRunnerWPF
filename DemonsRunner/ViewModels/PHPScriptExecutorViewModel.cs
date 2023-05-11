@@ -58,7 +58,7 @@ namespace DemonsRunner.ViewModels
         private async Task OnScriptOutputMessageReceived(object sender, string message) => 
             await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
 
-        protected virtual void Dispose(bool disposing)
+        protected async virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
@@ -67,7 +67,7 @@ namespace DemonsRunner.ViewModels
                     ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
                     ScriptExecutor.ScriptExitedByUser -= OnScriptExitedByUser;
                     ScriptExecutor.Dispose();
-                    OutputMessages.Clear();
+                    await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
                 }
                 _disposed = true;
             }

@@ -84,6 +84,8 @@ namespace DemonsRunner
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
             .AddTransient<IScriptExecutorService, ScriptExecutorService>()
             .AddTransient<IResponseFactory, ResponseFactory>()
+            .AddSingleton<IDataBus, DataBusService>()
+            .AddTransient<IScriptExecutorViewModelFactory, PHPScriptExecutorViewModelFactory>()
             .AddSingleton<MainWindowViewModel>()
             .AddSingleton<FilesPanelViewModel>()
             .AddSingleton<WorkSpaceViewModel>()

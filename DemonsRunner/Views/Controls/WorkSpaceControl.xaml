@@ -80,7 +80,7 @@
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewmodels:FilesPanelViewModel}">
+                            <DataTemplate DataType="{x:Type viewmodels:IScriptExecutorViewModel}">
                                 <StackPanel>
                                     <TextBlock Foreground="Red" 
                                                    Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
