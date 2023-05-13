@@ -8,15 +8,18 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptExecutorService : IScriptExecutorService
     {
-        private readonly IFileService _fileService;
+        private readonly IFileStateChecker _fileStateChecker;
         private readonly ILogger<ScriptExecutorService> _logger;
         private readonly IResponseFactory _responseFactory;
 
-        public ScriptExecutorService(IFileService fileService, ILogger<ScriptExecutorService> logger, IResponseFactory responseFactory)
+        public ScriptExecutorService(
+            ILogger<ScriptExecutorService> logger, 
+            IResponseFactory responseFactory, 
+            IFileStateChecker fileStateChecker)
         {
-            _fileService = fileService;
             _logger = logger;
             _responseFactory = responseFactory;
+            _fileStateChecker = fileStateChecker;
         }
 
         public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
@@ -25,7 +28,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             try
             {
                 _logger.LogInformation("Starting [{scriptName}] started, show window - [{showExecutingWindow}]", script.Name, showExecutingWindow);
-                var response = _fileService.IsFileExist(script.ExecutableFile);
+                var response = await _fileStateChecker.IsFileExistAsync(script.ExecutableFile).ConfigureAwait(false);
 
                 if (response.OperationStatus is StatusCode.Fail)
                 {

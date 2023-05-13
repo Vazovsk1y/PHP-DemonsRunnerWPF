@@ -15,7 +15,10 @@ namespace DemonsRunner.BuisnessLayer.Services
         private readonly ILogger<FileService> _logger;
         private readonly IResponseFactory _responseFactory;
 
-        public FileService(IFileRepository<PHPDemon> repository, ILogger<FileService> logger, IResponseFactory responseFactory)
+        public FileService(
+            IFileRepository<PHPDemon> repository, 
+            ILogger<FileService> logger, 
+            IResponseFactory responseFactory)
         {
             _repository = repository;
             _logger = logger;
@@ -57,35 +60,6 @@ namespace DemonsRunner.BuisnessLayer.Services
                 messageResponse = "Something go wrong";
 
                 return _responseFactory.CreateDataResponse(StatusCode.Fail, messageResponse, Enumerable.Empty<PHPDemon>());
-            }
-        }
-
-        public IResponse IsFileExist(PHPDemon file)
-        {
-            string messageResponse = string.Empty;
-            try
-            {
-                _logger.LogInformation("Checking the existence of the [{fileName}] file has started", file.Name);
-                var fileInfo = new FileInfo(file.FullPath);
-                if (fileInfo.Exists)
-                {
-                    _logger.LogInformation("[{FileName}] exist in [{FileFullPath}]", file.Name, file.FullPath);
-                    messageResponse = $"{file.Name} exist.";
-
-                    return _responseFactory.CreateResponse(StatusCode.Success, messageResponse);
-                }
-
-                _logger.LogWarning("[{fileName}] isn't exist in [{fileFullPath}]", file.Name, file.FullPath);
-                messageResponse = $"{file.Name} isn't exist in {file.FullPath.TrimEnd(file.Name.ToCharArray())} or was renamed";
-
-                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                messageResponse = "Something go wrong";
-
-                return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
             }
         }
 
