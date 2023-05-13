@@ -38,6 +38,8 @@ namespace DemonsRunner.Domain.Models
 
         public bool IsRunning { get; private set; }
 
+        public bool IsMessagesReceiving { get; private set; }
+
         #endregion
 
         #region --Constructors--
@@ -76,9 +78,13 @@ namespace DemonsRunner.Domain.Models
         public Task<bool> StartAsync()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            }
             if (IsRunning)
+            {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
+            }
 
             bool startingResult = _executableConsole.Start();
             IsRunning = startingResult;
@@ -90,8 +96,22 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StartMessagesReceivingAsync()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            }
+            if (!IsRunning)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+            }
+            if (IsMessagesReceiving)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is already started");
+            }
+
             _executableConsole.BeginOutputReadLine();
             _executableConsole.BeginErrorReadLine();
+            IsMessagesReceiving = true;
             return Task.CompletedTask;
         }
 
@@ -100,6 +120,15 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task ExecuteCommandAsync()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            }
+            if (!IsRunning)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+            }
+
             //_executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
             _executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
             _executableConsole.StandardInput.Flush();
@@ -112,9 +141,17 @@ namespace DemonsRunner.Domain.Models
         public Task StopAsync()
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            }
+            if (IsMessagesReceiving)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active");
+            }
             if (!IsRunning)
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is not starting");
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+            }
 
             _executableConsole.Kill();
             IsRunning = false;
@@ -126,17 +163,26 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StopMessagesReceivingAsync()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
+            }
+            if (!IsRunning)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+            }
+            if (!IsMessagesReceiving)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving wasnt started");
+            }
+
             _executableConsole.CancelErrorRead();
             _executableConsole.CancelOutputRead();
+            IsMessagesReceiving = false;
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            IsRunning = false;
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => CleanUp();
 
         private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -149,22 +195,18 @@ namespace DemonsRunner.Domain.Models
 
         private void OnScriptExited(object? sender, EventArgs e) => ScriptExitedByUser?.Invoke(this, EventArgs.Empty);
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void CleanUp()
         {
-            if (!_disposed)
+            if (_disposed)
             {
-                if (disposing)
-                {
-                    // managed resources 
-                    _executableConsole.Exited -= OnScriptExited;
-                    _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
-                    _executableConsole.ErrorDataReceived -= OnScriptOutputDataReceived;
-                    _executableConsole.Dispose();
-                }
-
-                // unmanaged resourses
-                _disposed = true;
+                return;
             }
+
+            _executableConsole.Exited -= OnScriptExited;
+            _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
+            _executableConsole.ErrorDataReceived -= OnScriptOutputDataReceived;
+            _executableConsole.Dispose();
+            _disposed = true;
         }
 
         #endregion

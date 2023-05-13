@@ -72,6 +72,14 @@ namespace DemonsRunner.BuisnessLayer.Services
                     return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
 
+                if (runningScript.IsMessagesReceiving)
+                {
+                    _logger.LogError("[{RunningScriptName}] messages receiving was already started", runningScript.ExecutableScript.Name);
+                    messageResponse = $"{runningScript.ExecutableScript.Name} script messages receiving was already started";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
+                }
+
                 await runningScript.StartMessagesReceivingAsync().ConfigureAwait(false);
                 _logger.LogInformation("Starting messages receiving was started successfully");
                 messageResponse = "Messages receiving was started successfully";
@@ -155,6 +163,14 @@ namespace DemonsRunner.BuisnessLayer.Services
                 {
                     _logger.LogError("[{runningScriptName}] was not running", runningScript.ExecutableScript.Name);
                     messageResponse = $"{runningScript.ExecutableScript.Name} was not running top receiving messages is not available";
+
+                    return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
+                }
+
+                if (!runningScript.IsMessagesReceiving)
+                {
+                    _logger.LogError("[{RunningScriptName}] messages receiving wasn't started", runningScript.ExecutableScript.Name);
+                    messageResponse = $"{runningScript.ExecutableScript.Name} script messages receiving wasn't started";
 
                     return _responseFactory.CreateResponse(StatusCode.Fail, messageResponse);
                 }
