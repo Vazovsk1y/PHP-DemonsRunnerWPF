@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Infrastructure.Messages;
+using System.Windows.Controls;
 
 namespace DemonsRunner.ViewModels
 {
@@ -47,30 +48,25 @@ namespace DemonsRunner.ViewModels
 
         #region --Methods--
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => CleanUp();
 
         private void OnScriptExitedByUser(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, e));
 
         private async Task OnScriptOutputMessageReceived(object sender, string message) => 
             await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
 
-        protected async virtual void Dispose(bool disposing)
+        protected async void CleanUp()
         {
-            if (!_disposed)
+            if (_disposed)
             {
-                if (disposing)
-                {
-                    ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-                    ScriptExecutor.ScriptExitedByUser -= OnScriptExitedByUser;
-                    ScriptExecutor.Dispose();
-                    await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
-                }
-                _disposed = true;
+                return;
             }
+
+            ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
+            ScriptExecutor.ScriptExitedByUser -= OnScriptExitedByUser;
+            ScriptExecutor.Dispose();
+            await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
+            _disposed = true;
         }
 
         #endregion
