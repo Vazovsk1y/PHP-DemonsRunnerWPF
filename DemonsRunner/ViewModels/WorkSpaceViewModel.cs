@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
 {
-    internal class WorkSpaceViewModel : BaseViewModel
+    internal class WorkSpaceViewModel : BaseViewModel, IDisposable
     {
         #region --Fields--
 
@@ -26,8 +26,8 @@ namespace DemonsRunner.ViewModels
         private readonly IScriptConfigureService _configureSctiptsService;
         private readonly IScriptExecutorService _executorScriptsService;
         private readonly IScriptExecutorViewModelFactory _scriptExecutorViewModelFactory;
-        private readonly IDataBus _dataBus;
         private readonly IDisposable _subscription;
+        private readonly IDataBus _dataBus;
 
         #endregion
 
@@ -92,9 +92,10 @@ namespace DemonsRunner.ViewModels
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    ConfiguredScripts = new ObservableCollection<PHPScript>(response.Data);
+                    ConfiguredScripts = new ObservableCollection<PHPScript>(response.Data!);
                 });
             }
+            _dataBus.Send(response.Description);
         }
 
         public ICommand ClearConfigureScripts => new RelayCommand(
@@ -111,7 +112,7 @@ namespace DemonsRunner.ViewModels
         private async void OnStartScriptsExecute(object obj)
         {
             IsButtonStartScriptsPressed = true;
-            var viewModels = new List<IScriptExecutorViewModel>();
+            var runningViewModels = new List<IScriptExecutorViewModel>();
             await Task.Run(async () =>
             {
                 foreach (var script in ConfiguredScripts.ToList())
@@ -119,18 +120,19 @@ namespace DemonsRunner.ViewModels
                     var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
                     if (response.OperationStatus == StatusCode.Success)
                     {
-                        var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(response.Data);
+                        var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(response.Data!);
                         await _executorScriptsService.StartMessagesReceivingAsync(executorViewModel.ScriptExecutor);
                         await _executorScriptsService.ExecuteCommandAsync(executorViewModel.ScriptExecutor);
-                        viewModels.Add(executorViewModel);
+                        runningViewModels.Add(executorViewModel);
                     }
                 }
             }).ConfigureAwait(false);
 
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                RunningScriptsViewModels.AddRange(viewModels);
+                RunningScriptsViewModels.AddRange(runningViewModels);
             });
+
 
             // update button unavailable state to prevent clicking when scripts are not already executed.
             OnPropertyChanged(nameof(StopScriptsCommand));
@@ -171,6 +173,18 @@ namespace DemonsRunner.ViewModels
                     RunningScriptsViewModels.Remove(scriptExecutorViewModel);
                 });
                 scriptExecutorViewModel.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            if (RunningScriptsViewModels.Count > 0)
+            {
+                foreach (var scriptViewModel in RunningScriptsViewModels)
+                {
+                    scriptViewModel.Dispose();
+                }
+                RunningScriptsViewModels.Clear();
             }
         }
 

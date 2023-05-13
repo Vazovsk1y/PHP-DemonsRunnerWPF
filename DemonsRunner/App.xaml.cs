@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace DemonsRunner
 {
@@ -58,7 +59,7 @@ namespace DemonsRunner
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
                 var host = Host;
                 base.OnStartup(e);
-                await host.StartAsync();
+                await host.StartAsync().ConfigureAwait(false);
                 IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
@@ -69,31 +70,31 @@ namespace DemonsRunner
         {
             using var host = Host;
             base.OnExit(e);
-            await host.StopAsync();
+            await host.StopAsync().ConfigureAwait(false);
             Current.Shutdown();
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            //.AddScoped<IRepository<PHPDemon>, FileRepository>()
-            //.AddSingleton(new StorageFile("data.json"))
-            //.AddScoped(provider => new StorageFile("data.json"))
             .AddTransient<IStorageFile, StorageFile>(p => new StorageFile("data.json"))
-            .AddTransient<IFileRepository<PHPDemon>, FileRepository>()
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
             .AddTransient<IScriptExecutorService, ScriptExecutorService>()
             .AddTransient<IResponseFactory, ResponseFactory>()
             .AddTransient<IFileStateChecker, FileStateChecker>()
+            .AddSingleton<IScriptExecutorViewModelFactory, PHPScriptExecutorViewModelFactory>()
             .AddSingleton<IDataBus, DataBusService>()
-            .AddTransient<IScriptExecutorViewModelFactory, PHPScriptExecutorViewModelFactory>()
             .AddSingleton<MainWindowViewModel>()
             .AddSingleton<FilesPanelViewModel>()
             .AddSingleton<WorkSpaceViewModel>()
-            .AddTransient(s =>
+            .AddSingleton<NotificationPanelViewModel>()
+            .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
+            .AddScoped(s =>
             {
-                var viewModel = s.GetRequiredService<MainWindowViewModel>();
+                var scope = s.CreateScope();
+                var viewModel = scope.ServiceProvider.GetRequiredService<MainWindowViewModel>();
                 var window = new MainWindow { DataContext = viewModel };
+                window.Closed += (_, _) => scope.Dispose();
 
                 return window;
             })

@@ -17,6 +17,7 @@ namespace DemonsRunner.ViewModels
         private readonly ObservableCollection<PHPDemon> _demons = new();
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
+        private readonly IDataBus _dataBus;
 
         #endregion
 
@@ -38,15 +39,18 @@ namespace DemonsRunner.ViewModels
 
         public FilesPanelViewModel(
             IFileService fileService,
-            IFileDialogService fileDialogService)
+            IFileDialogService fileDialogService,
+            IDataBus dataBus)
         {
             _fileService = fileService;
             _fileDialogService = fileDialogService;
             var response = _fileService.GetSaved();
             if (response.OperationStatus == StatusCode.Success)
             {
-                Demons.AddRange(response.Data);
+                Demons.AddRange(response.Data!);
             }
+            _dataBus = dataBus;
+            _dataBus.Send(response.Description);
         }
 
         #endregion
@@ -71,6 +75,7 @@ namespace DemonsRunner.ViewModels
                     _fileService.SaveAll(Demons);
                 }
             }
+            _dataBus.Send(response.Description);
         }
 
         public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute,
