@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Infrastructure.Messages;
-using System.Windows.Controls;
 
 namespace DemonsRunner.ViewModels
 {
@@ -34,7 +33,7 @@ namespace DemonsRunner.ViewModels
         {
             ScriptExecutor = scriptExecutor;
             ScriptExecutor.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUser += OnScriptExitedByUser;
+            ScriptExecutor.ScriptExitedByUserOutsideApp += OnScriptExitedByUserOutsideApp;
             _dataBus = dataBus;
         }
 
@@ -50,7 +49,7 @@ namespace DemonsRunner.ViewModels
 
         public void Dispose() => CleanUp();
 
-        private void OnScriptExitedByUser(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, e));
+        private void OnScriptExitedByUserOutsideApp(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, ExitType.OutsideApp)); 
 
         private async Task OnScriptOutputMessageReceived(object sender, string message) => 
             await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
@@ -63,7 +62,7 @@ namespace DemonsRunner.ViewModels
             }
 
             ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUser -= OnScriptExitedByUser;
+            ScriptExecutor.ScriptExitedByUserOutsideApp -= OnScriptExitedByUserOutsideApp;
             ScriptExecutor.Dispose();
             await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
             _disposed = true;

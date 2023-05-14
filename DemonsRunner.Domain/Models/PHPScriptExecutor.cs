@@ -10,9 +10,10 @@ namespace DemonsRunner.Domain.Models
         #region --Events--
 
         /// <summary>
-        /// Occurs when user closed cmd window or stop the process by task manager.
+        /// Occurs when user closed cmd window manualy or stop the script process in task manager.
+        /// Messages receiving if it was started will be stop.
         /// </summary>
-        public event EventHandler? ScriptExitedByUser;
+        public event EventHandler? ScriptExitedByUserOutsideApp;
 
         /// <summary>
         /// Occurs when data have received from cmd output, such as errors or messages.
@@ -193,7 +194,18 @@ namespace DemonsRunner.Domain.Models
             }
         }
 
-        private void OnScriptExited(object? sender, EventArgs e) => ScriptExitedByUser?.Invoke(this, EventArgs.Empty);
+        private void OnScriptExited(object? sender, EventArgs e) 
+        {
+            if (IsMessagesReceiving)
+            {
+                _executableConsole.CancelOutputRead();
+                _executableConsole.CancelErrorRead();
+                IsMessagesReceiving = false;
+            }
+            IsRunning = false;
+            IsMessagesReceiving = false;
+            ScriptExitedByUserOutsideApp?.Invoke(this, EventArgs.Empty);
+        }
 
         protected virtual void CleanUp()
         {

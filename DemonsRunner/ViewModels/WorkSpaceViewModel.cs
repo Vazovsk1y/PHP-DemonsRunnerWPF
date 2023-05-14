@@ -166,13 +166,26 @@ namespace DemonsRunner.ViewModels
 
         private async void OnScriptExited(ScriptExitedMessage message)
         {
-            if (message.Sender is IScriptExecutorViewModel scriptExecutorViewModel && RunningScriptsViewModels.Contains(scriptExecutorViewModel))
+            if (RunningScriptsViewModels.Contains(message.Sender))
             {
-                await App.Current.Dispatcher.InvokeAsync(() =>
+                switch(message.ExitType)
                 {
-                    RunningScriptsViewModels.Remove(scriptExecutorViewModel);
-                });
-                scriptExecutorViewModel.Dispose();
+                    case ExitType.OutsideApp:
+                        {
+                            await App.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                RunningScriptsViewModels.Remove(message.Sender);
+                            });
+                            message.Sender.Dispose();
+                            break;
+                        }
+                    case ExitType.InsideApp:
+                        {
+                          
+                            break;
+                        }
+                }
+               
             }
         }
 
