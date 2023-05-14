@@ -75,6 +75,7 @@ namespace DemonsRunner
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
+            .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
             .AddTransient<IStorageFile, StorageFile>(p => new StorageFile("data.json"))
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()
@@ -88,13 +89,10 @@ namespace DemonsRunner
             .AddSingleton<FilesPanelViewModel>()
             .AddSingleton<WorkSpaceViewModel>()
             .AddSingleton<NotificationPanelViewModel>()
-            .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
-            .AddScoped(s =>
+            .AddSingleton(s =>
             {
-                var scope = s.CreateScope();
-                var viewModel = scope.ServiceProvider.GetRequiredService<MainWindowViewModel>();
+                var viewModel = s.GetRequiredService<MainWindowViewModel>();
                 var window = new MainWindow { DataContext = viewModel };
-                window.Closed += (_, _) => scope.Dispose();
 
                 return window;
             })
