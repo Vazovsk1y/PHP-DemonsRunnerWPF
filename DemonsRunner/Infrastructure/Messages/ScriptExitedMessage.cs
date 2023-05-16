@@ -4,7 +4,7 @@ namespace DemonsRunner.Infrastructure.Messages
 {
     internal enum ExitType
     {
-        OutsideApp,
+        ByTaskManager,
         InsideApp
     }
 

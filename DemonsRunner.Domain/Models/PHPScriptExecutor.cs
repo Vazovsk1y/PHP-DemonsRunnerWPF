@@ -26,6 +26,8 @@ namespace DemonsRunner.Domain.Models
 
         private bool _disposed = false;
 
+        private bool _isExitedByTaskManager = true;
+
         private readonly Process _executableConsole;
 
         #endregion
@@ -155,6 +157,7 @@ namespace DemonsRunner.Domain.Models
             }
 
             _executableConsole.Kill();
+            _isExitedByTaskManager = false;
             IsRunning = false;
             return Task.CompletedTask;
         }
@@ -196,6 +199,11 @@ namespace DemonsRunner.Domain.Models
 
         private void OnScriptExited(object? sender, EventArgs e) 
         {
+            if (!_isExitedByTaskManager)
+            {
+                return;
+            }
+
             if (IsMessagesReceiving)
             {
                 _executableConsole.CancelOutputRead();

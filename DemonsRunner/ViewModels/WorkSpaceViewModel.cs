@@ -170,21 +170,32 @@ namespace DemonsRunner.ViewModels
             {
                 switch(message.ExitType)
                 {
-                    case ExitType.OutsideApp:
+                    case ExitType.ByTaskManager:
                         {
                             await App.Current.Dispatcher.InvokeAsync(() =>
                             {
                                 RunningScriptsViewModels.Remove(message.Sender);
                             });
+                            _dataBus.Send($"{message.Sender.ScriptExecutor.ExecutableScript.Name} was killed in task manager");
                             message.Sender.Dispose();
                             break;
                         }
                     case ExitType.InsideApp:
                         {
-                          
+                            var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(message.Sender.ScriptExecutor);
+                            var stoppingResponse = await _executorScriptsService.StopAsync(message.Sender.ScriptExecutor);
+                            await App.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                RunningScriptsViewModels.Remove(message.Sender);
+                            });
+                            _dataBus.Send(stoppingMessageReceivingResponse.Description);
+                            _dataBus.Send(stoppingResponse.Description);
+                            message.Sender.Dispose();
                             break;
                         }
                 }
+            }
+        }
                
             }
         }
