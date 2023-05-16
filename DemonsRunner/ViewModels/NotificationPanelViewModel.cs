@@ -1,8 +1,10 @@
 ﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Commands;
 using DemonsRunner.ViewModels.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
 {
@@ -36,7 +38,9 @@ namespace DemonsRunner.ViewModels
 
         #region --Commands--
 
-
+        public ICommand ClearNotificationsCommand => new RelayCommand(
+            (arg) => Notifications.Clear(),
+            (arg) => Notifications.Count > 0);
 
         #endregion
 

@@ -2,6 +2,7 @@
 using DemonsRunner.Commands;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.Infrastructure.Messages;
 using DemonsRunner.ViewModels.Base;
@@ -112,27 +113,24 @@ namespace DemonsRunner.ViewModels
         private async void OnStartScriptsExecute(object obj)
         {
             IsButtonStartScriptsPressed = true;
-            var runningViewModels = new List<IScriptExecutorViewModel>();
-            await Task.Run(async () =>
+            var (responses, executorsViewModels) = await GetStartingResult().ConfigureAwait(false);
+            var failedResponses = responses.Where(r => r.OperationStatus is StatusCode.Fail).ToList();
+            if (failedResponses.Count is 0)
             {
-                foreach (var script in ConfiguredScripts.ToList())
+                _dataBus.Send($"{executorsViewModels.ToList().Count} scripts were successfully started");
+            }
+            else
+            {
+                foreach (var response in failedResponses)
                 {
-                    var response = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
-                    if (response.OperationStatus == StatusCode.Success)
-                    {
-                        var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(response.Data!);
-                        await _executorScriptsService.StartMessagesReceivingAsync(executorViewModel.ScriptExecutor);
-                        await _executorScriptsService.ExecuteCommandAsync(executorViewModel.ScriptExecutor);
-                        runningViewModels.Add(executorViewModel);
-                    }
+                    _dataBus.Send(response.Description);
                 }
-            }).ConfigureAwait(false);
+            }
 
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                RunningScriptsViewModels.AddRange(runningViewModels);
+                RunningScriptsViewModels.AddRange(executorsViewModels);
             });
-
 
             // update button unavailable state to prevent clicking when scripts are not already executed.
             OnPropertyChanged(nameof(StopScriptsCommand));
@@ -144,25 +142,50 @@ namespace DemonsRunner.ViewModels
 
         private async void OnStopScriptsExecute(object obj)
         {
-            foreach (var scriptExecutorViewModel in RunningScriptsViewModels.ToList())
+            var (responses, successfullyStoppedViewModels) = await GetStoppingResult().ConfigureAwait(false);
+            var failedResponses = responses.Where(r => r.OperationStatus is StatusCode.Fail).ToList();
+            if (failedResponses.Count is 0)
             {
-                var messageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
-                var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
-                if (stoppingResponse.OperationStatus == StatusCode.Success && messageReceivingResponse.OperationStatus == StatusCode.Success)
+                _dataBus.Send($"All scripts were succsessfully stopped");
+            }
+            else
+            {
+                foreach (var response in failedResponses)
                 {
-                    await App.Current.Dispatcher.InvokeAsync(() =>
-                    {
-                        RunningScriptsViewModels.Remove(scriptExecutorViewModel);
-                    });
-                    scriptExecutorViewModel.Dispose();
+                    _dataBus.Send(response.Description);
                 }
             }
+
+            await App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                foreach (var viewModel in successfullyStoppedViewModels)
+                {
+                    if (RunningScriptsViewModels.Contains(viewModel))
+                    {
+                        RunningScriptsViewModels.Remove(viewModel);
+                    }
+                }
+            });
+
             IsButtonStartScriptsPressed = false;
         }
 
         #endregion
 
         #region --Methods--
+
+        public void Dispose()
+        {
+            _subscription.Dispose();
+            if (RunningScriptsViewModels.Count > 0)
+            {
+                foreach (var scriptViewModel in RunningScriptsViewModels)
+                {
+                    scriptViewModel.Dispose();
+                }
+                RunningScriptsViewModels.Clear();
+            }
+        }
 
         private async void OnScriptExited(ScriptExitedMessage message)
         {
@@ -196,20 +219,57 @@ namespace DemonsRunner.ViewModels
                 }
             }
         }
-               
-            }
+
+        private async Task<(IEnumerable<IResponse> responses, IEnumerable<IScriptExecutorViewModel> successfullyStartedViewModels)> GetStartingResult()
+        {
+            var successfullyStartedViewModels = new List<IScriptExecutorViewModel>();
+            var responses = new List<IResponse>();
+
+            await Task.Run(async () =>
+            {
+                foreach (var script in ConfiguredScripts.ToList())
+                {
+                    var startingResponse = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    responses.Add(startingResponse);
+                    if (startingResponse.OperationStatus is StatusCode.Success)
+                    {
+                        var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(startingResponse.Data!);
+                        successfullyStartedViewModels.Add(executorViewModel);
+                    }
+                    var messageReceivingResponse = await _executorScriptsService.StartMessagesReceivingAsync(startingResponse.Data).ConfigureAwait(false);
+                    responses.Add(messageReceivingResponse);
+                    var executingCommandResponse = await _executorScriptsService.ExecuteCommandAsync(startingResponse.Data);
+                    responses.Add(executingCommandResponse);
+                }
+            });
+
+            return (responses, successfullyStartedViewModels);
         }
 
-        public void Dispose()
+        private async Task<(IEnumerable<IResponse> responses, IEnumerable<IScriptExecutorViewModel> successfullyStoppedViewModels)> GetStoppingResult()
         {
-            if (RunningScriptsViewModels.Count > 0)
+            var responses = new List<IResponse>();
+            var successfullyStoppedViewModels = new List<IScriptExecutorViewModel>();
+
+            await Task.Run(async () =>
             {
-                foreach (var scriptViewModel in RunningScriptsViewModels)
+                foreach (var scriptExecutorViewModel in RunningScriptsViewModels.ToList())
                 {
-                    scriptViewModel.Dispose();
+                    var messageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
+                    responses.Add(messageReceivingResponse);
+                    var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
+                    responses.Add(stoppingResponse);
+
+                    if (messageReceivingResponse.OperationStatus is StatusCode.Success &&
+                        stoppingResponse.OperationStatus is StatusCode.Success)
+                    {
+                        successfullyStoppedViewModels.Add(scriptExecutorViewModel);
+                    }
+                    scriptExecutorViewModel.Dispose();
                 }
-                RunningScriptsViewModels.Clear();
-            }
+            });
+
+            return (responses, successfullyStoppedViewModels);
         }
 
         #endregion

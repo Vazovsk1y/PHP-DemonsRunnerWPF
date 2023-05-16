@@ -50,7 +50,6 @@ namespace DemonsRunner.ViewModels
                 Demons.AddRange(response.Data!);
             }
             _dataBus = dataBus;
-            _dataBus.Send(response.Description);
         }
 
         #endregion
@@ -67,15 +66,15 @@ namespace DemonsRunner.ViewModels
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    isCollectionModified = Demons.AddIfNotExist(response.Data);
+                    isCollectionModified = Demons.AddIfNotExist(response.Data!);
                 });
 
                 if (isCollectionModified)
                 {
-                    _fileService.SaveAll(Demons);
+                    var savingResponse = _fileService.SaveAll(Demons);
+                    _dataBus.Send(savingResponse.Description);
                 }
             }
-            _dataBus.Send(response.Description);
         }
 
         public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute,
@@ -87,7 +86,8 @@ namespace DemonsRunner.ViewModels
             {
                 Demons.Remove(SelectedDemon);
                 SelectedDemon = null;
-                _fileService.SaveAll(Demons);
+                var response = _fileService.SaveAll(Demons);
+                _dataBus.Send(response.Description);
             }
         }
 

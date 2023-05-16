@@ -9,7 +9,18 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListBox ItemsSource="{Binding Notifications}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="0.5*"/>
+        </Grid.RowDefinitions>
+
+        <ListBox Grid.Row="0" 
+            ItemsSource="{Binding Notifications}">
         </ListBox>
+
+        <Button Content="Clear Notifications"
+                Command="{Binding ClearNotificationsCommand}"
+                Grid.Row="1"
+                Margin="100,5,100,5"/>
     </Grid>
 </UserControl>

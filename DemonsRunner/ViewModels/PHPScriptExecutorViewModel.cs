@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Infrastructure.Messages;
+using System.Windows.Input;
+using DemonsRunner.Commands;
 
 namespace DemonsRunner.ViewModels
 {
@@ -28,7 +30,7 @@ namespace DemonsRunner.ViewModels
         #region --Constructors--
 
         public PHPScriptExecutorViewModel(
-            PHPScriptExecutor scriptExecutor, 
+            PHPScriptExecutor scriptExecutor,
             IDataBus dataBus)
         {
             ScriptExecutor = scriptExecutor;
@@ -41,7 +43,10 @@ namespace DemonsRunner.ViewModels
 
         #region --Commands--
 
-
+        public ICommand StopScriptCommand => new RelayCommand((arg) =>
+        {
+            _dataBus.Send(new ScriptExitedMessage(this, ExitType.InsideApp));
+        });
 
         #endregion
 
@@ -49,7 +54,7 @@ namespace DemonsRunner.ViewModels
 
         public void Dispose() => CleanUp();
 
-        private void OnScriptExitedByUserOutsideApp(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, ExitType.OutsideApp)); 
+        private void OnScriptExitedByUserOutsideApp(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, ExitType.ByTaskManager)); 
 
         private async Task OnScriptOutputMessageReceived(object sender, string message) => 
             await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
