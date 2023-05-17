@@ -5,8 +5,10 @@ namespace DemonsRunner.Infrastructure.Messages
     internal enum ExitType
     {
         ByTaskManager,
-        InsideApp
+        ByAppInfrastructure
     }
+
+   
 
     internal record ScriptExitedMessage(IScriptExecutorViewModel Sender, ExitType ExitType);
 }

@@ -45,7 +45,7 @@ namespace DemonsRunner.ViewModels
 
         public ICommand StopScriptCommand => new RelayCommand((arg) =>
         {
-            _dataBus.Send(new ScriptExitedMessage(this, ExitType.InsideApp));
+            _dataBus.Send(new ScriptExitedMessage(this, ExitType.ByAppInfrastructure));
         });
 
         #endregion
