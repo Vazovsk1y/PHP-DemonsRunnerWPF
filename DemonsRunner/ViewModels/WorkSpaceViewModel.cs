@@ -148,20 +148,9 @@ namespace DemonsRunner.ViewModels
             }
             else
             {
-                foreach (var response in failedResponses)
-                {
-                    _dataBus.Send(response.Description);
-                }
-            IsStopButtonEnable = true;
+                _dataBus.SendDescriptions(failedResponses);
             }
-
-            await App.Current.Dispatcher.InvokeAsync(() =>
-            {
-                RunningScriptsViewModels.AddRange(executorsViewModels);
-            });
-
-            // update button unavailable state to prevent clicking when scripts are not already executed.
-            OnPropertyChanged(nameof(StopScriptsCommand));
+            IsStopButtonEnable = true;
         }
 
         public ICommand StopScriptsCommand => new RelayCommand(
@@ -185,25 +174,9 @@ namespace DemonsRunner.ViewModels
             }
             else
             {
-                foreach (var response in failedResponses)
-                {
-                    _dataBus.Send(response.Description);
-                }
-            IsStartButtonEnable = true;
+                _dataBus.SendDescriptions(failedResponses);
             }
-
-            await App.Current.Dispatcher.InvokeAsync(() =>
-            {
-                foreach (var viewModel in successfullyStoppedViewModels)
-                {
-                    if (RunningScriptsViewModels.Contains(viewModel))
-                    {
-                        RunningScriptsViewModels.Remove(viewModel);
-                    }
-                }
-            });
-
-            IsButtonStartScriptsPressed = false;
+            IsStartButtonEnable = true;
         }
 
         #endregion
@@ -231,31 +204,31 @@ namespace DemonsRunner.ViewModels
             }
 
             switch (message.ExitType)
-                {
-                    case ExitType.ByTaskManager:
+            {
+                case ExitType.ByTaskManager:
+                    {
+                        await App.Current.Dispatcher.InvokeAsync(() =>
                         {
-                            await App.Current.Dispatcher.InvokeAsync(() =>
-                            {
-                                RunningScriptsViewModels.Remove(message.Sender);
-                            });
-                            _dataBus.Send($"{message.Sender.ScriptExecutor.ExecutableScript.Name} was killed in task manager");
-                            message.Sender.Dispose();
-                            break;
-                        }
+                            RunningScriptsViewModels.Remove(message.Sender);
+                        });
+                        _dataBus.Send($"{message.Sender.ScriptExecutor.ExecutableScript.Name} was killed in task manager");
+                        message.Sender.Dispose();
+                        break;
+                    }
                 case ExitType.ByAppInfrastructure:
+                    {
+                        var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(message.Sender.ScriptExecutor);
+                        var stoppingResponse = await _executorScriptsService.StopAsync(message.Sender.ScriptExecutor);
+                        await App.Current.Dispatcher.InvokeAsync(() =>
                         {
-                            var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(message.Sender.ScriptExecutor);
-                            var stoppingResponse = await _executorScriptsService.StopAsync(message.Sender.ScriptExecutor);
-                            await App.Current.Dispatcher.InvokeAsync(() =>
-                            {
-                                RunningScriptsViewModels.Remove(message.Sender);
-                            });
-                            _dataBus.Send(stoppingMessageReceivingResponse.Description);
-                            _dataBus.Send(stoppingResponse.Description);
-                            message.Sender.Dispose();
-                            break;
-                        }
-                }
+                            RunningScriptsViewModels.Remove(message.Sender);
+                        });
+                        _dataBus.Send(stoppingMessageReceivingResponse.Description);
+                        _dataBus.Send(stoppingResponse.Description);
+                        message.Sender.Dispose();
+                        break;
+                    }
+            }
             IsStopButtonEnable = null;
             IsStartButtonEnable = null;
         }

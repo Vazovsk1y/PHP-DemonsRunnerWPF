@@ -1,14 +1,20 @@
 ﻿using DemonsRunner.Domain.Models;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 
 namespace DemonsRunner.Infrastructure.Extensions
 {
     internal static class IListExtensions
     {
+        public static void RemoveAll<T> (this IList<T> collection, IEnumerable<T> deletingCollection)
+        {
+            foreach (var deletingItem in deletingCollection)
+            {
+                collection.Remove(deletingItem);
+            }
+        }
+
         public static void AddRange<T>(this IList<T> collection, IEnumerable<T> addingCollection)
         {
             if (collection is null) 
