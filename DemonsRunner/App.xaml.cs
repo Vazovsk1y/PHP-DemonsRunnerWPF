@@ -1,20 +1,13 @@
-﻿using DemonsRunner.BuisnessLayer.Services;
-using DemonsRunner.BuisnessLayer.Services.Interfaces;
-using DemonsRunner.DAL.Repositories;
-using DemonsRunner.DAL.Repositories.Interfaces;
-using DemonsRunner.DAL.Storage;
-using DemonsRunner.DAL.Storage.Interfaces;
-using DemonsRunner.Domain.Models;
-using DemonsRunner.ViewModels;
+﻿using DemonsRunner.BuisnessLayer.Extensions;
+using DemonsRunner.DAL.Extensions;
+using DemonsRunner.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Documents;
 
 namespace DemonsRunner
 {
@@ -75,27 +68,9 @@ namespace DemonsRunner
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
-            .AddTransient<IStorageFile, StorageFile>(p => new StorageFile("data.json"))
-            .AddTransient<IFileService, FileService>()
-            .AddTransient<IFileDialogService, FileDialogService>()
-            .AddTransient<IScriptConfigureService, ScriptConfigureService>()
-            .AddTransient<IScriptExecutorService, ScriptExecutorService>()
-            .AddTransient<IResponseFactory, ResponseFactory>()
-            .AddTransient<IFileStateChecker, FileStateChecker>()
-            .AddSingleton<IScriptExecutorViewModelFactory, PHPScriptExecutorViewModelFactory>()
-            .AddSingleton<IDataBus, DataBusService>()
-            .AddSingleton<MainWindowViewModel>()
-            .AddSingleton<FilesPanelViewModel>()
-            .AddSingleton<WorkSpaceViewModel>()
-            .AddSingleton<NotificationPanelViewModel>()
-            .AddSingleton(s =>
-            {
-                var viewModel = s.GetRequiredService<MainWindowViewModel>();
-                var window = new MainWindow { DataContext = viewModel };
-
-                return window;
-            })
+            .AddBuisnessLayer()
+            .AddDataAccessLayer()
+            .AddClientLayer()
             ;
 
         private bool IsNewInstance()
