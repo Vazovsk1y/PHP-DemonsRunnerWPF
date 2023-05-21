@@ -15,7 +15,9 @@ namespace DemonsRunner.BuisnessLayer.Services
         private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
-            Title = "Choose file:",
+            Title = "Choose daemons:",
+            Filter = $"php files (*{PHPDemon.EXTENSION})|*{PHPDemon.EXTENSION}",
+            RestoreDirectory = true,
         };
 
         public FileDialogService(ILogger<FileDialogService> logger, IResponseFactory responseFactory)
