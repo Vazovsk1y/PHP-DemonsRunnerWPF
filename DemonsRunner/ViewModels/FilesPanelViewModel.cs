@@ -61,7 +61,7 @@ namespace DemonsRunner.ViewModels
         private async void OnAddingFileExecute(object obj)
         {
             bool isCollectionModified = false;
-            var response = await _fileDialogService.StartDialog().ConfigureAwait(false);
+            var response = await _fileDialogService.StartDialogAsync().ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
