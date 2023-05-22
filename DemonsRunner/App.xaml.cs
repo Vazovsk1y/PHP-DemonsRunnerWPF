@@ -56,6 +56,7 @@ namespace DemonsRunner
             {
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, UniqueEventName);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
+
                 SetupGlobalExceptionsHandlers();
                 var host = Host;
                 base.OnStartup(e);
