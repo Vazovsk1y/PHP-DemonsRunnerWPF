@@ -15,11 +15,11 @@ namespace DemonsRunner.DAL.Repositories
             _storageFile = storageFile;
         }
 
-        public IEnumerable<PHPDemon>? GetAll()
+        public IEnumerable<PHPDemon> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
-                return null;
+                throw new InvalidOperationException("The storage file has been deleted or renamed");
             }
 
             lock(_locker)
