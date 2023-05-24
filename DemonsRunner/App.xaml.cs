@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -77,7 +78,17 @@ namespace DemonsRunner
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
-            .AddTransient<IStorageFile, StorageFile>(p => new StorageFile("data.json"))
+            .AddTransient<StorageFile>()
+            .AddTransient<StorageDirectory>()
+            .AddTransient<StorageResolver>(s => key =>
+            {
+                return key switch
+                {
+                    StorageType.File => s.GetRequiredService<StorageFile>(),
+                    StorageType.Directory => s.GetRequiredService<StorageDirectory>(),
+                    _ => throw new KeyNotFoundException(),
+                };
+            })
             .AddTransient<IFileService, FileService>()
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
