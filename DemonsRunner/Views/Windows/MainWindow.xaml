@@ -28,6 +28,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -39,6 +40,11 @@
             <Grid Grid.Column="1">
                 <controls:WorkSpaceControl 
                     DataContext="{Binding WorkSpaceViewModel}"/>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <controls:NotificationPanelControl
+                    DataContext="{Binding NotificationPanelViewModel}"/>
             </Grid>
         </Grid>
     </DockPanel>

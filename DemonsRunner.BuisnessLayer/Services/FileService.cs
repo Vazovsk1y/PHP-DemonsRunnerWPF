@@ -1,107 +1,60 @@
 ﻿using DemonsRunner.Domain.Models;
-using System.Diagnostics;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.DAL.Repositories.Interfaces;
 using DemonsRunner.Domain.Responses;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
     public class FileService : IFileService
     {
         private readonly IFileRepository<PHPDemon> _repository;
+        private readonly ILogger<FileService> _logger;
 
-        public FileService(IFileRepository<PHPDemon> repository)
+        public FileService(
+            IFileRepository<PHPDemon> repository, 
+            ILogger<FileService> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public IDataResponse<IEnumerable<PHPDemon>> GetSaved()
         {
-            try
+            var files = _repository.GetAll().ToList();
+            var response = new DataResponse<IEnumerable<PHPDemon>>
             {
-                var files = _repository.GetAll().ToList();
+                Data = files,
+                OperationStatus = StatusCode.Success,
+            };
 
-                if (files is null || files.Count == 0)
-                {
-                    return new DataResponse<IEnumerable<PHPDemon>>
-                    {
-                        Description = "Data json file not founded!",
-                        OperationStatus = StatusCode.Fail,
-                    };
-                }
-
-                return new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    Description = "Files were succsessfully given to you!",
-                    OperationStatus = StatusCode.Success,
-                    Data = files
-                };
-            }
-            catch(Exception ex)
+            if (files.Count is 0)
             {
-                Debug.WriteLine(ex.Message);
-                return new DataResponse<IEnumerable<PHPDemon>>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
+                _logger.LogWarning($"Received files count was [0]");
             }
+
+            response.Description = $"[{files.Count}] files were received.";
+            return response;
         }
 
-        public IResponse IsFileExist(PHPDemon file)
+        public IResponse SaveAll(IEnumerable<PHPDemon> saveFiles)
         {
-            try
-            {
-                var fileInfo = new FileInfo(file.FullPath);
-                if (fileInfo.Exists)
-                {
-                    return new Response
-                    {
-                        Description = "File exist!",
-                        OperationStatus = StatusCode.Success,
-                    };
-                }
+            ArgumentNullException.ThrowIfNull(saveFiles);
 
-                return new Response
-                {
-                    Description = "File isn't exist!",
-                    OperationStatus = StatusCode.Fail,
-                };
-            }
-            catch(Exception ex)
+            int savеFilesCount = saveFiles.ToList().Count;
+            var response = new Response
             {
-                Debug.WriteLine(ex.Message);
-                return new Response
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
-            }
-        }
+                OperationStatus = StatusCode.Success,
+            };
 
-        public IResponse Save(IEnumerable<PHPDemon> savedFiles)
-        {
-            try
-            {
-                _repository.SaveAll(savedFiles);
+            _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savеFilesCount);
+            _repository.SaveAll(saveFiles);
+            _logger.LogInformation("[{savedFilesCount}] files were successfully saved", savеFilesCount);
 
-                return new Response
-                {
-                    Description = "Files were succsessfully saved",
-                    OperationStatus = StatusCode.Success,
-                };
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return new DataResponse<PHPDemon>
-                {
-                    Description = "Something go wrong",
-                    OperationStatus = StatusCode.Fail,
-                };
-            }
+            response.Description = $"[{savеFilesCount}] files were successfully saved.";
+            return response;
         }
     }
 }

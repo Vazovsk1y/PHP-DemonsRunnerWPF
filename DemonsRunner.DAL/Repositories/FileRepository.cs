@@ -1,5 +1,5 @@
 ﻿using DemonsRunner.DAL.Repositories.Interfaces;
-using DemonsRunner.DAL.Storage;
+using DemonsRunner.DAL.Storage.Interfaces;
 using DemonsRunner.Domain.Models;
 using Newtonsoft.Json;
 
@@ -7,30 +7,37 @@ namespace DemonsRunner.DAL.Repositories
 {
     public class FileRepository : IFileRepository<PHPDemon>
     {
-        private readonly StorageFile _storageFile;
+        private readonly IStorage _storageFile;
+        private readonly object _locker = new object();
 
-        public FileRepository(StorageFile storageFile)
+        public FileRepository(StorageResolver storageResolver)
         {
-            _storageFile = storageFile;
+            _storageFile = storageResolver.Invoke(StorageType.File);
         }
 
         public IEnumerable<PHPDemon> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
-                return Enumerable.Empty<PHPDemon>();
+                throw new InvalidOperationException("The storage file has been deleted or renamed");
             }
-            using var reader = new StreamReader(_storageFile.FullPath);
-            string json = reader.ReadToEnd();
-            return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json);
+
+            lock(_locker)
+            {
+                using var reader = new StreamReader(_storageFile.FullPath);
+                string json = reader.ReadToEnd();
+                return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json) ?? Enumerable.Empty<PHPDemon>();
+            }
         }
 
-        public bool SaveAll(IEnumerable<PHPDemon> items)
+        public void SaveAll(IEnumerable<PHPDemon> items)
         {
-            using var writer = new StreamWriter(_storageFile.FullPath);
-            string json = JsonConvert.SerializeObject(items, Formatting.Indented);
-            writer.Write(json);
-            return true;
+            lock (_locker)
+            {
+                using var writer = new StreamWriter(_storageFile.FullPath);
+                string json = JsonConvert.SerializeObject(items, Formatting.Indented);
+                writer.Write(json);
+            }
         }
     }
 }

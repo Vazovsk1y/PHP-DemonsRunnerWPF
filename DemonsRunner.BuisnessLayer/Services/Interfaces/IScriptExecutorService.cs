@@ -9,16 +9,31 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
     public interface IScriptExecutorService
     {
         /// <summary>
-        /// Starts new cmd process, begins receiving messages and executes the command that stores in configured script provided by.
+        /// Starts new cmd process with configured script provided by.
         /// </summary>
         /// <returns>
         /// Task from data response, where data is successfully started script.
         /// </returns>
-        public Task<IDataResponse<PHPScriptExecutor>> LaunchAsync(PHPScript script, bool showExecutingWindow);
+        public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow);
 
         /// <summary>
-        /// Breaks message receiving and kills the cmd process in running script.
+        /// Kills the running cmd process in executing script.
         /// </summary>
         public Task<IResponse> StopAsync(PHPScriptExecutor executingScript);
+
+        /// <summary>
+        /// Begins asynchronus output reading from running cmd in executing script.
+        /// </summary>
+        public Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScript);
+
+        /// <summary>
+        /// Executes the command in running cmd of executing script.
+        /// </summary>
+        public Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScript);
+
+        /// <summary>
+        /// Breaks message receiving from running cmd in executing script.
+        /// </summary>
+        public Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScript);
     }
 }

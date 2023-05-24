@@ -1,21 +1,20 @@
 ﻿using DemonsRunner.Domain.Models;
 using DemonsRunner.ViewModels.Base;
-using System.Diagnostics;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Infrastructure.Messages;
+using System.Windows.Input;
+using DemonsRunner.Commands;
 
 namespace DemonsRunner.ViewModels
 {
-    internal class PHPScriptExecutorViewModel : BaseViewModel, IDisposable
+    internal class PHPScriptExecutorViewModel : BaseViewModel, IScriptExecutorViewModel
     {
-        #region --Events--
-
-        public event EventHandler? ScriptExited;
-
-        #endregion
-
         #region --Fields--
 
+        private readonly IDataBus _dataBus;
         private bool _disposed = false;
 
         #endregion
@@ -30,61 +29,48 @@ namespace DemonsRunner.ViewModels
 
         #region --Constructors--
 
-        public PHPScriptExecutorViewModel(PHPScriptExecutor scriptExecutor)
+        public PHPScriptExecutorViewModel(
+            PHPScriptExecutor scriptExecutor,
+            IDataBus dataBus)
         {
             ScriptExecutor = scriptExecutor;
             ScriptExecutor.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUser += OnScriptExited;
+            ScriptExecutor.ScriptExitedByUserOutsideApp += OnScriptExitedByUserOutsideApp;
+            _dataBus = dataBus;
         }
 
         #endregion
 
         #region --Commands--
 
-
+        public ICommand StopScriptCommand => new RelayCommand((arg) =>
+        {
+            _dataBus.Send(new ScriptExitedMessage(this, ExitType.ByAppInfrastructure));
+        });
 
         #endregion
 
         #region --Methods--
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => CleanUp();
 
-        private async void OnScriptExited(object? sender, EventArgs e)
-        {
-            if (sender is PHPScriptExecutor scriptExecutor)
-            {
-                await App.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    ScriptExited?.Invoke(this, e);
-                });
-            }
-        }
+        private void OnScriptExitedByUserOutsideApp(object? sender, EventArgs e) => _dataBus.Send(new ScriptExitedMessage(this, ExitType.ByTaskManager)); 
 
-        private async void OnScriptOutputMessageReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (sender is PHPScriptExecutor scriptExecutor)
-            {
-                await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add(e.Data! + DateTime.Now));
-            }
-        }
+        private async Task OnScriptOutputMessageReceived(object sender, string message) => 
+            await App.Current.Dispatcher.InvokeAsync(() => OutputMessages.Add($"[{DateTime.Now.ToShortTimeString()}]: {message!}"));
 
-        protected virtual void Dispose(bool disposing)
+        protected async void CleanUp()
         {
-            if (!_disposed)
+            if (_disposed)
             {
-                if (disposing)
-                {
-                    ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-                    ScriptExecutor.ScriptExitedByUser -= OnScriptExited;
-                    ScriptExecutor.Dispose();
-                    OutputMessages.Clear();
-                }
-                _disposed = true;
+                return;
             }
+
+            ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
+            ScriptExecutor.ScriptExitedByUserOutsideApp -= OnScriptExitedByUserOutsideApp;
+            ScriptExecutor.Dispose();
+            await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
+            _disposed = true;
         }
 
         #endregion

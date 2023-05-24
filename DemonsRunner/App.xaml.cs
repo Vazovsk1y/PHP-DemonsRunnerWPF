@@ -1,15 +1,12 @@
-﻿using DemonsRunner.BuisnessLayer.Services;
-using DemonsRunner.BuisnessLayer.Services.Interfaces;
-using DemonsRunner.DAL.Repositories;
-using DemonsRunner.DAL.Repositories.Interfaces;
-using DemonsRunner.DAL.Storage;
-using DemonsRunner.Domain.Models;
-using DemonsRunner.ViewModels;
+﻿using DemonsRunner.BuisnessLayer.Extensions;
+using DemonsRunner.DAL.Extensions;
+using DemonsRunner.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -25,7 +22,7 @@ namespace DemonsRunner
 
         private static IHost? _host;
 
-        private static readonly string UniqueEventName = Assembly.GetExecutingAssembly().GetName().Name;
+        private static readonly string UniqueEventName = AppDomain.CurrentDomain.FriendlyName;
 
         #endregion
 
@@ -55,9 +52,11 @@ namespace DemonsRunner
             {
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, UniqueEventName);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
+
+                SetupGlobalExceptionsHandlers();
                 var host = Host;
                 base.OnStartup(e);
-                await host.StartAsync();
+                await host.StartAsync().ConfigureAwait(false);
                 IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
@@ -68,29 +67,14 @@ namespace DemonsRunner
         {
             using var host = Host;
             base.OnExit(e);
-            await host.StopAsync();
+            await host.StopAsync().ConfigureAwait(false);
             Current.Shutdown();
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
-            //.AddScoped<IRepository<PHPDemon>, FileRepository>()
-            //.AddSingleton(new StorageFile("data.json"))
-            .AddTransient<IFileRepository<PHPDemon>, FileRepository>()
-            .AddScoped(provider => new StorageFile("data.json"))
-            .AddTransient<IFileService, FileService>()
-            .AddTransient<IFileDialogService, FileDialogService>()
-            .AddTransient<IScriptConfigureService, ScriptConfigureService>()
-            .AddTransient<IScriptExecutorService, ScriptExecutorService>()
-            .AddSingleton<MainWindowViewModel>()
-            .AddSingleton<FilesPanelViewModel>()
-            .AddSingleton<WorkSpaceViewModel>()
-            .AddTransient(s =>
-            {
-                var viewModel = s.GetRequiredService<MainWindowViewModel>();
-                var window = new MainWindow { DataContext = viewModel };
-
-                return window;
-            })
+            .AddBuisnessLayer()
+            .AddDataAccessLayer()
+            .AddClientLayer()
             ;
 
         private bool IsNewInstance()
@@ -108,8 +92,25 @@ namespace DemonsRunner
             return false;
         }
 
-        private static string GetSourceCodePath([CallerFilePath] string Path = null) => string.IsNullOrWhiteSpace(Path) 
-            ? throw new ArgumentNullException(nameof(Path)) : Path;
+        private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
+            ? throw new ArgumentNullException(nameof(path)) : path;
+
+        private void SetupGlobalExceptionsHandlers()
+        {
+            DispatcherUnhandledException += (sender, e) =>
+            {
+                Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
+                    nameof(DispatcherUnhandledException));
+                e.Handled = true;
+                Current?.Shutdown();
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}", 
+                    nameof(AppDomain.CurrentDomain.UnhandledException));
+            };
+        }
 
         #endregion
     }

@@ -17,6 +17,7 @@ namespace DemonsRunner.ViewModels
         private readonly ObservableCollection<PHPDemon> _demons = new();
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
+        private readonly IDataBus _dataBus;
 
         #endregion
 
@@ -38,16 +39,17 @@ namespace DemonsRunner.ViewModels
 
         public FilesPanelViewModel(
             IFileService fileService,
-            IFileDialogService fileDialogService)
+            IFileDialogService fileDialogService,
+            IDataBus dataBus)
         {
             _fileService = fileService;
             _fileDialogService = fileDialogService;
             var response = _fileService.GetSaved();
             if (response.OperationStatus == StatusCode.Success)
             {
-                Demons.AddRange(response.Data);
+                Demons.AddRange(response.Data!);
             }
-            Demons.CollectionChanged += (s, e) => _fileService.Save(Demons);
+            _dataBus = dataBus;
         }
 
         #endregion
@@ -58,13 +60,20 @@ namespace DemonsRunner.ViewModels
 
         private async void OnAddingFileExecute(object obj)
         {
-            var response = await _fileDialogService.StartDialog().ConfigureAwait(false);
+            bool isCollectionModified = false;
+            var response = await _fileDialogService.StartDialogAsync().ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Demons.AddIfNotExist(response.Data);
+                    isCollectionModified = Demons.AddIfNotExist(response.Data!);
                 });
+
+                if (isCollectionModified)
+                {
+                    var savingResponse = _fileService.SaveAll(Demons);
+                    _dataBus.Send(savingResponse.Description);
+                }
             }
         }
 
@@ -77,6 +86,8 @@ namespace DemonsRunner.ViewModels
             {
                 Demons.Remove(SelectedDemon);
                 SelectedDemon = null;
+                var response = _fileService.SaveAll(Demons);
+                _dataBus.Send(response.Description);
             }
         }
 

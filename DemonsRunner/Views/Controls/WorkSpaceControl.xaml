@@ -80,7 +80,7 @@
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewmodels:FilesPanelViewModel}">
+                            <DataTemplate DataType="{x:Type viewmodels:PHPScriptExecutorViewModel}">
                                 <StackPanel>
                                     <TextBlock Foreground="Red" 
                                                    Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
@@ -94,6 +94,8 @@
                                         </Expander.Header>
                                         <ListBox ItemsSource="{Binding OutputMessages}"/>
                                     </Expander>
+                                    <Button Content="X"
+                                            Command="{Binding StopScriptCommand}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

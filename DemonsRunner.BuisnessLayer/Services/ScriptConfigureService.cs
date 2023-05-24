@@ -1,40 +1,40 @@
 ﻿using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
-using System.Diagnostics;
 using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Domain.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {
     public class ScriptConfigureService : IScriptConfigureService
     {
+        private readonly ILogger<ScriptConfigureService> _logger;
+
+        public ScriptConfigureService(ILogger<ScriptConfigureService> logger)
+        {
+            _logger = logger;
+        }
+
         public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons)
         {
-            try
-            {
-                var configuredScripts = new List<PHPScript>();
-                foreach (var demon in demons)
-                {
-                    configuredScripts.Add(new PHPScript(demon));
-                }
+            ArgumentNullException.ThrowIfNull(demons);
 
-                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
-                {
-                    Description = "Scripts were successfully configurated!",
-                    OperationStatus = StatusCode.Success,
-                    Data = configuredScripts
-                }); 
-            }
-            catch(Exception ex)
+            _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", demons.ToList().Count);
+            var configuredScripts = new List<PHPScript>();
+            foreach (var demon in demons)
             {
-                Debug.WriteLine(ex.Message);
-                return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(new DataResponse<IEnumerable<PHPScript>>
-                {
-                    Description = "Something go wrong!",
-                    OperationStatus = StatusCode.Fail
-                });
+                configuredScripts.Add(new PHPScript(demon));
             }
+            _logger.LogInformation("[{configuredScriptsCount}] scripts were successfully configured", configuredScripts.Count);
+
+            var response = new DataResponse<IEnumerable<PHPScript>>
+            {
+                OperationStatus = StatusCode.Success,
+                Data = configuredScripts,
+                Description = $"[{configuredScripts.Count}] scripts were successfully configured."
+            };
+            return Task.FromResult<IDataResponse<IEnumerable<PHPScript>>>(response);
         }
     }
 }

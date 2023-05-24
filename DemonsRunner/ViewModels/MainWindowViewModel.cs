@@ -1,8 +1,9 @@
 ﻿using DemonsRunner.ViewModels.Base;
+using System;
 
 namespace DemonsRunner.ViewModels
 {
-    internal class MainWindowViewModel : BaseViewModel
+    internal class MainWindowViewModel : BaseViewModel, IDisposable
     {
         #region --Fields--
 
@@ -15,6 +16,8 @@ namespace DemonsRunner.ViewModels
         public FilesPanelViewModel FilesPanelViewModel { get; }
 
         public WorkSpaceViewModel WorkSpaceViewModel { get; }
+
+        public NotificationPanelViewModel NotificationPanelViewModel { get; }
 
         public string WindowTitle
         {
@@ -33,10 +36,12 @@ namespace DemonsRunner.ViewModels
 
         public MainWindowViewModel(
             FilesPanelViewModel filesPanelViewModel,
-            WorkSpaceViewModel workSpaceViewModel)
+            WorkSpaceViewModel workSpaceViewModel,
+            NotificationPanelViewModel userNotificationViewModel)
         {
             WorkSpaceViewModel = workSpaceViewModel;
             FilesPanelViewModel = filesPanelViewModel;
+            NotificationPanelViewModel = userNotificationViewModel;
         }
 
         #endregion
@@ -49,7 +54,11 @@ namespace DemonsRunner.ViewModels
 
         #region --Methods--
 
-
+        public void Dispose()
+        {
+            NotificationPanelViewModel.Dispose();
+            WorkSpaceViewModel.Dispose();
+        }
 
         #endregion
     }

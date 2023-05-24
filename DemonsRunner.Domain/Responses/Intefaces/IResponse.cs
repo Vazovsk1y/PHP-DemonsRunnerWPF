@@ -8,7 +8,7 @@ namespace DemonsRunner.Domain.Responses.Intefaces
     public interface IResponse
     {
         /// <summary>
-        /// Success result or an error description.
+        /// Operation description.
         /// </summary>
         public string Description { get; set; }
 
