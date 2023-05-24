@@ -6,28 +6,21 @@ namespace DemonsRunner.DAL.Storage
     /// <summary>
     /// File in AppData folder that store the selected files(php-daemons) on a previous app session.
     /// </summary>
-    public class StorageFile : IStorageFile
+    public class StorageFile : IStorage
     {
-        private readonly string _name;
+        public string Name => "data.json";
 
-        private readonly string _fullPath;
+        public string FullPath { get; }
 
-        public string Name => _name;
-
-        public string FullPath => _fullPath;
-
-        public StorageFile(string fileName)
+        public StorageFile(StorageResolver resolver)
         {
-            _name = fileName;
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appName = AppDomain.CurrentDomain.FriendlyName;
-            string fileDirectoryPath = Path.Combine(appDataPath, appName);
+            var storageDirectory = resolver.Invoke(StorageType.Directory);
+            FullPath = Path.Combine(storageDirectory.FullPath, Name);
 
-            if (!Directory.Exists(fileDirectoryPath)) 
+            if (!File.Exists(FullPath))
             {
-                Directory.CreateDirectory(fileDirectoryPath);
+                using var fileStream = File.Create(FullPath);
             }
-            _fullPath = Path.Combine(fileDirectoryPath, Name);
         }
     }
 }

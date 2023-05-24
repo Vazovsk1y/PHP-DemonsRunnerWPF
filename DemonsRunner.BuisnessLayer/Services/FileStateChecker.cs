@@ -1,6 +1,7 @@
 ﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
+using DemonsRunner.Domain.Responses;
 using DemonsRunner.Domain.Responses.Intefaces;
 using Microsoft.Extensions.Logging;
 
@@ -9,41 +10,37 @@ namespace DemonsRunner.BuisnessLayer.Services
     public class FileStateChecker : IFileStateChecker
     {
         private readonly ILogger<FileStateChecker> _logger;
-        private readonly IResponseFactory _responseFactory;
 
-        public FileStateChecker(ILogger<FileStateChecker> logger, IResponseFactory responseFactory)
+        public FileStateChecker(ILogger<FileStateChecker> logger)
         {
             _logger = logger;
-            _responseFactory = responseFactory;
         }
 
         public Task<IResponse> IsFileExistAsync(PHPDemon file)
         {
-            string messageResponse = string.Empty;
-            try
+            ArgumentNullException.ThrowIfNull(file);
+
+            var response = new Response
             {
-                _logger.LogInformation("Checking the existence of the [{fileName}] file has started", file.Name);
-                var fileInfo = new FileInfo(file.FullPath);
-                if (fileInfo.Exists)
-                {
-                    _logger.LogInformation("[{FileName}] exist in [{FileFullPath}]", file.Name, file.FullPath);
-                    messageResponse = $"{file.Name} exist.";
+                OperationStatus = StatusCode.Success,
+            };
 
-                    return Task.FromResult(_responseFactory.CreateResponse(StatusCode.Success, messageResponse));
-                }
+            _logger.LogInformation("Checking the existence of the [{fileName}] file has started", file.Name);
+            var fileInfo = new FileInfo(file.FullPath);
 
-                _logger.LogWarning("[{fileName}] isn't exist in [{fileFullPath}]", file.Name, file.FullPath);
-                messageResponse = $"{file.Name} isn't exist in {file.FullPath.TrimEnd(file.Name.ToCharArray())} or was renamed";
-
-                return Task.FromResult(_responseFactory.CreateResponse(StatusCode.Fail, messageResponse));
-            }
-            catch (Exception ex)
+            if (!fileInfo.Exists)
             {
-                _logger.LogError(ex, "{ExcetptionType} was catched", typeof(Exception));
-                messageResponse = "Something go wrong";
+                _logger.LogWarning("[{fileName}] isn't exists in [{fileFullPath}]", file.Name, file.FullPath);
+                response.OperationStatus = StatusCode.Fail;
+                response.Description = $"{file.Name} isn't exists in {file.FullPath.TrimEnd(file.Name.ToCharArray())} or was renamed.";
 
-                return Task.FromResult(_responseFactory.CreateResponse(StatusCode.Fail, messageResponse));
+                return Task.FromResult<IResponse>(response);
             }
+
+            _logger.LogInformation("[{FileName}] exists in [{FileFullPath}]", file.Name, file.FullPath);
+            response.Description = $"{file.Name} exists.";
+
+            return Task.FromResult<IResponse>(response);
         }
     }
 }

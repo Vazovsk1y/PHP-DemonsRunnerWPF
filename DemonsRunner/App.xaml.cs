@@ -3,7 +3,9 @@ using DemonsRunner.DAL.Extensions;
 using DemonsRunner.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -50,6 +52,8 @@ namespace DemonsRunner
             {
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, UniqueEventName);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
+
+                SetupGlobalExceptionsHandlers();
                 var host = Host;
                 base.OnStartup(e);
                 await host.StartAsync().ConfigureAwait(false);
@@ -90,6 +94,23 @@ namespace DemonsRunner
 
         private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
             ? throw new ArgumentNullException(nameof(path)) : path;
+
+        private void SetupGlobalExceptionsHandlers()
+        {
+            DispatcherUnhandledException += (sender, e) =>
+            {
+                Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
+                    nameof(DispatcherUnhandledException));
+                e.Handled = true;
+                Current?.Shutdown();
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}", 
+                    nameof(AppDomain.CurrentDomain.UnhandledException));
+            };
+        }
 
         #endregion
     }

@@ -248,11 +248,13 @@ namespace DemonsRunner.ViewModels
                     {
                         var executorViewModel = _scriptExecutorViewModelFactory.CreateViewModel(startingResponse.Data!);
                         successfullyStartedViewModels.Add(executorViewModel);
+
+                        var messageReceivingResponse = await _executorScriptsService.StartMessagesReceivingAsync(startingResponse.Data!).ConfigureAwait(false);
+                        responses.Add(messageReceivingResponse);
+
+                        var executingCommandResponse = await _executorScriptsService.ExecuteCommandAsync(startingResponse.Data!);
+                        responses.Add(executingCommandResponse);
                     }
-                    var messageReceivingResponse = await _executorScriptsService.StartMessagesReceivingAsync(startingResponse.Data).ConfigureAwait(false);
-                    responses.Add(messageReceivingResponse);
-                    var executingCommandResponse = await _executorScriptsService.ExecuteCommandAsync(startingResponse.Data);
-                    responses.Add(executingCommandResponse);
                 }
             });
 

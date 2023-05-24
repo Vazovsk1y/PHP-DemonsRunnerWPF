@@ -7,19 +7,19 @@ namespace DemonsRunner.DAL.Repositories
 {
     public class FileRepository : IFileRepository<PHPDemon>
     {
-        private readonly IStorageFile _storageFile;
+        private readonly IStorage _storageFile;
         private readonly object _locker = new object();
 
-        public FileRepository(IStorageFile storageFile)
+        public FileRepository(StorageResolver storageResolver)
         {
-            _storageFile = storageFile;
+            _storageFile = storageResolver.Invoke(StorageType.File);
         }
 
-        public IEnumerable<PHPDemon>? GetAll()
+        public IEnumerable<PHPDemon> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
-                return null;
+                throw new InvalidOperationException("The storage file has been deleted or renamed");
             }
 
             lock(_locker)

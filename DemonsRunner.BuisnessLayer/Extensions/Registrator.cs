@@ -11,7 +11,6 @@ namespace DemonsRunner.BuisnessLayer.Extensions
             .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
             .AddTransient<IScriptExecutorService, ScriptExecutorService>()
-            .AddTransient<IResponseFactory, ResponseFactory>()
             .AddTransient<IFileStateChecker, FileStateChecker>()
             .AddSingleton<IDataBus, DataBusService>();
     }
