@@ -80,10 +80,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task<bool> StartAsync()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, this);
             if (IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
@@ -99,10 +96,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StartMessagesReceivingAsync()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, this);
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
@@ -123,10 +117,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task ExecuteCommandAsync()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, this);
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
@@ -143,10 +134,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StopAsync()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, this);
             if (IsMessagesReceiving)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active");
@@ -167,10 +155,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StopMessagesReceivingAsync()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PHPScriptExecutor));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, this);
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
