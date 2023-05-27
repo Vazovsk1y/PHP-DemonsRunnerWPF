@@ -20,7 +20,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             _fileStateChecker = fileStateChecker;
         } 
 
-        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
+        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script)
         {
             _logger.LogInformation("Launching [{scriptName}] started", script.Name);
             var response = new DataResponse<PHPScriptExecutor> 
@@ -37,7 +37,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 return response;
             }
 
-            var executor = new PHPScriptExecutor(script, showExecutingWindow);
+            var executor = new PHPScriptExecutor(script);
             if (await executor.StartAsync().ConfigureAwait(false))
             {
                 _logger.LogInformation("Cmd was successfully started");

@@ -21,7 +21,6 @@ namespace DemonsRunner.ViewModels
 
         private bool? _isStartButtonEnable = null;
         private bool? _isStopButtonEnable = null;
-        private bool _showExecutingWindow = false;
         private ObservableCollection<PHPScript> _configuredScripts;
         private readonly ObservableCollection<IScriptExecutorViewModel> _runningScriptsViewModels = new();
         private readonly FilesPanelViewModel _filesPanelViewModel;
@@ -65,12 +64,6 @@ namespace DemonsRunner.ViewModels
         }
 
         public ObservableCollection<IScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
-
-        public bool ShowExecutingWindow
-        {
-            get => _showExecutingWindow;
-            set => Set(ref _showExecutingWindow, value);
-        }
 
         public ObservableCollection<PHPScript> ConfiguredScripts
         {
@@ -242,7 +235,7 @@ namespace DemonsRunner.ViewModels
             {
                 foreach (var script in ConfiguredScripts.ToList())
                 {
-                    var startingResponse = await _executorScriptsService.StartAsync(script, ShowExecutingWindow).ConfigureAwait(false);
+                    var startingResponse = await _executorScriptsService.StartAsync(script).ConfigureAwait(false);
                     responses.Add(startingResponse);
                     if (startingResponse.OperationStatus is StatusCode.Success)
                     {

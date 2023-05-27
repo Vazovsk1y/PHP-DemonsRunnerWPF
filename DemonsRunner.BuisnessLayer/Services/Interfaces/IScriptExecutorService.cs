@@ -14,7 +14,7 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <returns>
         /// Task from data response, where data is successfully started script.
         /// </returns>
-        public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow);
+        public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script);
 
         /// <summary>
         /// Kills the running cmd process in executing script.

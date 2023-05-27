@@ -30,9 +30,6 @@
                         <Button Content="Запустить"
                                     Margin="5"
                                     Command="{Binding StartScriptsCommand}"/>
-                        <CheckBox Content="Окно?"
-                                      Margin="10"
-                                      IsChecked="{Binding ShowExecutingWindow}"/>
                         <Button Content="Остановить"
                                     Margin="5"
                                     Command="{Binding StopScriptsCommand}"/>

@@ -8,7 +8,5 @@ namespace DemonsRunner.Infrastructure.Messages
         ByAppInfrastructure
     }
 
-   
-
     internal record ScriptExitedMessage(IScriptExecutorViewModel Sender, ExitType ExitType);
 }

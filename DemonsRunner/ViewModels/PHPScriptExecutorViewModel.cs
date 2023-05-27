@@ -35,7 +35,7 @@ namespace DemonsRunner.ViewModels
         {
             ScriptExecutor = scriptExecutor;
             ScriptExecutor.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUserOutsideApp += OnScriptExitedByUserOutsideApp;
+            ScriptExecutor.ScriptExitedByTaskManager += OnScriptExitedByUserOutsideApp;
             _dataBus = dataBus;
         }
 
@@ -67,7 +67,7 @@ namespace DemonsRunner.ViewModels
             }
 
             ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByUserOutsideApp -= OnScriptExitedByUserOutsideApp;
+            ScriptExecutor.ScriptExitedByTaskManager -= OnScriptExitedByUserOutsideApp;
             ScriptExecutor.Dispose();
             await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
             _disposed = true;
