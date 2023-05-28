@@ -19,16 +19,17 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
+        private readonly IDataBus _dataBus;
+        private readonly IDisposable _subscription;
+        private readonly FilesPanelViewModel _filesPanelViewModel;
+        private readonly IScriptExecutorService _executorScriptsService;
+        private readonly IScriptConfigureService _configureSctiptsService;
+        private readonly IScriptExecutorViewModelFactory _scriptExecutorViewModelFactory;
+        private readonly ObservableCollection<IScriptExecutorViewModel> _runningScriptsViewModels = new();
+
+        private ObservableCollection<PHPScript> _configuredScripts;
         private bool? _isStartButtonEnable = null;
         private bool? _isStopButtonEnable = null;
-        private ObservableCollection<PHPScript> _configuredScripts;
-        private readonly ObservableCollection<IScriptExecutorViewModel> _runningScriptsViewModels = new();
-        private readonly FilesPanelViewModel _filesPanelViewModel;
-        private readonly IScriptConfigureService _configureSctiptsService;
-        private readonly IScriptExecutorService _executorScriptsService;
-        private readonly IScriptExecutorViewModelFactory _scriptExecutorViewModelFactory;
-        private readonly IDisposable _subscription;
-        private readonly IDataBus _dataBus;
 
         #endregion
 
@@ -36,11 +37,16 @@ namespace DemonsRunner.ViewModels
 
         public bool? IsStartButtonEnable
         {
-            get => _isStartButtonEnable is bool condition
-                    ? condition
-                    : ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
+            get
+            {
+                bool defaultCondition = ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
                       RunningScriptsViewModels is ICollection<IScriptExecutorViewModel> { Count: 0 };
-            set 
+
+                return _isStartButtonEnable is bool condition
+                    ? condition
+                    : defaultCondition;
+            }
+            set
             {
                 if (Set(ref _isStartButtonEnable, value))
                 {
@@ -103,6 +109,20 @@ namespace DemonsRunner.ViewModels
             OnConfigureScriptsExecute,
             (arg) => _filesPanelViewModel.Demons.Count > 0);
 
+        public ICommand ClearConfigureScripts => new RelayCommand(
+            (arg) => ConfiguredScripts.Clear(),
+            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 });
+
+        public ICommand StartScriptsCommand => new RelayCommand(
+            OnStartScriptsExecute,
+            (arg) => (bool)IsStartButtonEnable!);
+
+        public ICommand StopScriptsCommand => new RelayCommand(
+            OnStopScriptsExecute,
+            (arg) => (bool)IsStopButtonEnable!);
+
+        #region -Commands Handlers-
+
         private async void OnConfigureScriptsExecute(object obj)
         {
             var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons).ConfigureAwait(false);
@@ -115,14 +135,6 @@ namespace DemonsRunner.ViewModels
             }
             _dataBus.Send(response.Description);
         }
-
-        public ICommand ClearConfigureScripts => new RelayCommand(
-            (arg) => ConfiguredScripts.Clear(),
-            (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 });
-
-        public ICommand StartScriptsCommand => new RelayCommand(
-            OnStartScriptsExecute,
-            (arg) => (bool)IsStartButtonEnable!);
 
         private async void OnStartScriptsExecute(object obj)
         {
@@ -137,18 +149,14 @@ namespace DemonsRunner.ViewModels
 
             if (failedResponses.Count is 0)
             {
-                _dataBus.Send($"{executorsViewModels.ToList().Count} scripts were successfully started");
+                _dataBus.Send($"{executorsViewModels.ToList().Count} scripts were successfully started.");
             }
             else
             {
                 _dataBus.SendDescriptions(failedResponses);
             }
-            IsStopButtonEnable = true;
+            IsStopButtonEnable = null;
         }
-
-        public ICommand StopScriptsCommand => new RelayCommand(
-            OnStopScriptsExecute,
-            (arg) => (bool)IsStopButtonEnable!);
 
         private async void OnStopScriptsExecute(object obj)
         {
@@ -163,14 +171,16 @@ namespace DemonsRunner.ViewModels
 
             if (failedResponses.Count is 0)
             {
-                _dataBus.Send($"All scripts were succsessfully stopped");
+                _dataBus.Send($"All scripts were succsessfully stopped.");
             }
             else
             {
                 _dataBus.SendDescriptions(failedResponses);
             }
-            IsStartButtonEnable = true;
+            IsStartButtonEnable = null;
         }
+
+        #endregion
 
         #endregion
 
@@ -191,37 +201,10 @@ namespace DemonsRunner.ViewModels
 
         private async void OnScriptExited(ScriptExitedMessage message)
         {
-            if (!RunningScriptsViewModels.Contains(message.Sender))
+            await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                return;
-            }
-
-            switch (message.ExitType)
-            {
-                case ExitType.ByTaskManager:
-                    {
-                        await App.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            RunningScriptsViewModels.Remove(message.Sender);
-                        });
-                        _dataBus.Send($"{message.Sender.ScriptExecutor.ExecutableScript.Name} was killed in task manager");
-                        message.Sender.Dispose();
-                        break;
-                    }
-                case ExitType.ByAppInfrastructure:
-                    {
-                        var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(message.Sender.ScriptExecutor);
-                        var stoppingResponse = await _executorScriptsService.StopAsync(message.Sender.ScriptExecutor);
-                        await App.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            RunningScriptsViewModels.Remove(message.Sender);
-                        });
-                        _dataBus.Send(stoppingMessageReceivingResponse.Description);
-                        _dataBus.Send(stoppingResponse.Description);
-                        message.Sender.Dispose();
-                        break;
-                    }
-            }
+                RunningScriptsViewModels.Remove(message.Sender);
+            });
             IsStopButtonEnable = null;
             IsStartButtonEnable = null;
         }
