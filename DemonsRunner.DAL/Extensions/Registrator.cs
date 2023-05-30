@@ -10,7 +10,7 @@ namespace DemonsRunner.DAL.Extensions
     public static class Registrator
     {
         public static IServiceCollection AddDataAccessLayer(this IServiceCollection services) => services
-            .AddScoped<IFileRepository<PHPDemon>, FileRepository>()
+            .AddScoped<IFileRepository<PHPFile>, FileRepository>()
             .AddTransient<StorageFile>()
             .AddTransient<StorageDirectory>()
             .AddTransient<StorageResolver>(s => key =>

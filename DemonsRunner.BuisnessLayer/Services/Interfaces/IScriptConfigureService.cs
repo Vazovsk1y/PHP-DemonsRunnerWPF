@@ -14,6 +14,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <returns>
         /// Data response, where data is all successfully configured scripts.
         /// </returns>
-        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons);
+        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPFile> demons);
     }
 }

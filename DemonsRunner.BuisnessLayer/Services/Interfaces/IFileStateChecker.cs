@@ -11,6 +11,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <returns>
         /// Response where Success status is Exist, and Fail is not Exist.
         /// </returns>
-        Task<IResponse> IsFileExistAsync(PHPDemon file);
+        Task<IResponse> IsFileExistAsync(PHPFile file);
     }
 }

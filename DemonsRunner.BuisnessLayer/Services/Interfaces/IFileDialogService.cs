@@ -11,6 +11,6 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <summary>
         /// Start dialog with file system and provides you a list of selected files in this dialog.
         /// </summary>
-        public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialogAsync();
+        public Task<IDataResponse<IEnumerable<PHPFile>>> StartDialogAsync();
     }
 }

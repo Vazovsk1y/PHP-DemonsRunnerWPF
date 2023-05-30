@@ -11,11 +11,11 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
         /// <summary>
         /// Sends back data response, where data are files that store in storage file.
         /// </summary>
-        public IDataResponse<IEnumerable<PHPDemon>> GetSaved();
+        public IDataResponse<IEnumerable<PHPFile>> GetSaved();
 
         /// <summary>
         /// Sends back response with status operation, saves all files provided by.
         /// </summary>
-        public IResponse SaveAll(IEnumerable<PHPDemon> saveFiles);
+        public IResponse SaveAll(IEnumerable<PHPFile> saveFiles);
     }
 }

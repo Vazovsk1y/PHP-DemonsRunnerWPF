@@ -29,7 +29,7 @@
                         ItemsSource="{Binding Demons}"
                         SelectedItem="{Binding SelectedDemon}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type m:PHPDemon}">
+                        <DataTemplate DataType="{x:Type m:PHPFile}">
                             <TextBlock Text="{Binding Name}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

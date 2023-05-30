@@ -10,21 +10,21 @@ namespace DemonsRunner.BuisnessLayer.Services
 {
     public class FileService : IFileService
     {
-        private readonly IFileRepository<PHPDemon> _repository;
+        private readonly IFileRepository<PHPFile> _repository;
         private readonly ILogger<FileService> _logger;
 
         public FileService(
-            IFileRepository<PHPDemon> repository, 
+            IFileRepository<PHPFile> repository, 
             ILogger<FileService> logger)
         {
             _repository = repository;
             _logger = logger;
         }
 
-        public IDataResponse<IEnumerable<PHPDemon>> GetSaved()
+        public IDataResponse<IEnumerable<PHPFile>> GetSaved()
         {
             var files = _repository.GetAll().ToList();
-            var response = new DataResponse<IEnumerable<PHPDemon>>
+            var response = new DataResponse<IEnumerable<PHPFile>>
             {
                 Data = files,
                 OperationStatus = StatusCode.Success,
@@ -39,7 +39,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             return response;
         }
 
-        public IResponse SaveAll(IEnumerable<PHPDemon> saveFiles)
+        public IResponse SaveAll(IEnumerable<PHPFile> saveFiles)
         {
             ArgumentNullException.ThrowIfNull(saveFiles);
 

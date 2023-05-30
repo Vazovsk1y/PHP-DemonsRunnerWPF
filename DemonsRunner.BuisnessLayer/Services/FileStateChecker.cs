@@ -16,7 +16,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             _logger = logger;
         }
 
-        public Task<IResponse> IsFileExistAsync(PHPDemon file)
+        public Task<IResponse> IsFileExistAsync(PHPFile file)
         {
             ArgumentNullException.ThrowIfNull(file);
 

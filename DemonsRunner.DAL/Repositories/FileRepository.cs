@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace DemonsRunner.DAL.Repositories
 {
-    public class FileRepository : IFileRepository<PHPDemon>
+    public class FileRepository : IFileRepository<PHPFile>
     {
         private readonly IStorage _storageFile;
         private readonly object _locker = new object();
@@ -15,7 +15,7 @@ namespace DemonsRunner.DAL.Repositories
             _storageFile = storageResolver.Invoke(StorageType.File);
         }
 
-        public IEnumerable<PHPDemon> GetAll()
+        public IEnumerable<PHPFile> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
@@ -26,11 +26,11 @@ namespace DemonsRunner.DAL.Repositories
             {
                 using var reader = new StreamReader(_storageFile.FullPath);
                 string json = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<IEnumerable<PHPDemon>>(json) ?? Enumerable.Empty<PHPDemon>();
+                return JsonConvert.DeserializeObject<IEnumerable<PHPFile>>(json) ?? Enumerable.Empty<PHPFile>();
             }
         }
 
-        public void SaveAll(IEnumerable<PHPDemon> items)
+        public void SaveAll(IEnumerable<PHPFile> items)
         {
             lock (_locker)
             {

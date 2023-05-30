@@ -16,7 +16,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             _logger = logger;
         }
 
-        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPDemon> demons)
+        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPFile> demons)
         {
             ArgumentNullException.ThrowIfNull(demons);
 

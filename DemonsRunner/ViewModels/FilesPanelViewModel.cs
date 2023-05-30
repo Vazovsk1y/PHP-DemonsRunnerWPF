@@ -13,8 +13,8 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
-        private PHPDemon _selectedDemon;
-        private readonly ObservableCollection<PHPDemon> _demons = new();
+        private PHPFile _selectedDemon;
+        private readonly ObservableCollection<PHPFile> _demons = new();
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
         private readonly IDataBus _dataBus;
@@ -23,9 +23,9 @@ namespace DemonsRunner.ViewModels
 
         #region --Properties--
 
-        public ObservableCollection<PHPDemon> Demons => _demons;
+        public ObservableCollection<PHPFile> Demons => _demons;
 
-        public PHPDemon SelectedDemon
+        public PHPFile SelectedDemon
         {
             get => _selectedDemon;
             set => Set(ref _selectedDemon, value);

@@ -15,7 +15,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         {
             Multiselect = true,
             Title = "Choose daemons:",
-            Filter = $"php files (*{PHPDemon.EXTENSION}) | *{PHPDemon.EXTENSION}",
+            Filter = "php files (*.php) | *.php",
             RestoreDirectory = true,
         };
 
@@ -24,9 +24,9 @@ namespace DemonsRunner.BuisnessLayer.Services
             _logger = logger;
         }
 
-        public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialogAsync()
+        public Task<IDataResponse<IEnumerable<PHPFile>>> StartDialogAsync()
         {
-            var response = new DataResponse<IEnumerable<PHPDemon>>()
+            var response = new DataResponse<IEnumerable<PHPFile>>()
             {
                 OperationStatus = StatusCode.Fail,
             };
@@ -42,27 +42,23 @@ namespace DemonsRunner.BuisnessLayer.Services
                 response.Data = data;
                 response.Description = $"[{data.Count}] files were selected!";
 
-                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(response);
+                return Task.FromResult<IDataResponse<IEnumerable<PHPFile>>>(response);
             }
 
             response.Description = "No files were selected.";
-            return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(response);
+            return Task.FromResult<IDataResponse<IEnumerable<PHPFile>>>(response);
         }
 
-        private IEnumerable<PHPDemon> GetDemons()
+        private IEnumerable<PHPFile> GetDemons()
         {
             _logger.LogInformation("Searching demons in selected files started");
             var fullFilesPath = _fileDialog.FileNames;
             var filesName = _fileDialog.SafeFileNames;
-            List<PHPDemon> demons = new();
+            List<PHPFile> demons = new();
 
             for (int i = 0; i < fullFilesPath.Length; i++)
             {
-                demons.Add(new PHPDemon
-                {
-                    Name = filesName[i],
-                    FullPath = fullFilesPath[i],
-                });
+                demons.Add(new PHPFile(filesName[i], fullFilesPath[i]));
             }
 
             _logger.LogInformation("Demons count in selected files {demonsCount}", demons.Count);

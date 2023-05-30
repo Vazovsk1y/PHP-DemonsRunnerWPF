@@ -32,7 +32,7 @@ namespace DemonsRunner.Infrastructure.Extensions
         /// <returns>
         /// true - if any item was added, false - if collection wasn't modified.
         /// </returns>
-        public static bool AddIfNotExist(this IList<PHPDemon> demons, IEnumerable<PHPDemon> demonsToAdd)
+        public static bool AddIfNotExist(this IList<PHPFile> demons, IEnumerable<PHPFile> demonsToAdd)
         {
             bool isCollectionModified = false;
             foreach (var demon in demonsToAdd)

@@ -3,20 +3,29 @@
 namespace DemonsRunner.Domain.Models
 {
     /// <summary>
-    /// Abstraction over .NET Process class that represent the script execution model in cmd.
+    /// Abstraction over .NET Process class that represents the php-script execution model in cmd.
     /// </summary>
     public class PHPScriptExecutor : IDisposable
     {
+        // represents class to interract with php-demon* execution in command line. The script execution model.
+
+        /* 
+        A PHP daemon is a background process that runs on a server without active user interaction.
+        It runs forever or according to a given schedule, serving to perform certain tasks or process data.
+        A PHP daemon can perform a variety of tasks, such as periodic request processing, scheduling tasks,
+        maintaining background processes, or interacting with other services and server components. 
+        */
+
         #region --Events--
 
         /// <summary>
-        /// Occurs when user closed cmd window manualy or stop the script process in task manager.
+        /// Occurs when user stop the script process in task manager manualy.
         /// Messages receiving if it was started will be stop.
         /// </summary>
         public event EventHandler? ScriptExitedByTaskManager;
 
         /// <summary>
-        /// Occurs when data have received from cmd output, such as errors or messages.
+        /// Occurs when data have received from script cmd output, such as errors or messages.
         /// </summary>
         public event Func<object, string, Task>? ScriptOutputMessageReceived;
 
@@ -26,7 +35,7 @@ namespace DemonsRunner.Domain.Models
 
         private bool _isDisposed = false;
 
-        private bool _isExitedByTaskManager = true;
+        private bool _isClosedByTaskManager = true;
 
         private readonly Process _executableConsole;
 
@@ -35,13 +44,13 @@ namespace DemonsRunner.Domain.Models
         #region --Properties--
 
         /// <summary>
-        /// Script that executed in cmd.
+        /// Php-script model that executed/will be execute in cmd.
         /// </summary>
         public PHPScript ExecutableScript { get; }
 
         public bool IsRunning { get; private set; }
 
-        public bool IsMessagesReceiving { get; private set; }
+        public bool IsMessagesReceivingEnable { get; private set; }
 
         #endregion
 
@@ -66,9 +75,9 @@ namespace DemonsRunner.Domain.Models
                 },
                 EnableRaisingEvents = true,
             };
-            _executableConsole.Exited += OnScriptExited;
-            _executableConsole.ErrorDataReceived += OnScriptOutputDataReceived;
-            _executableConsole.OutputDataReceived += OnScriptOutputDataReceived;
+            _executableConsole.Exited += OnProcessExited;
+            _executableConsole.ErrorDataReceived += OnProcessOutputDataReceived;
+            _executableConsole.OutputDataReceived += OnProcessOutputDataReceived;
         }
 
         #endregion
@@ -76,14 +85,17 @@ namespace DemonsRunner.Domain.Models
         #region --Methods--
 
         /// <summary>
-        /// Starts cmd process.
+        /// Starts script cmd process.
         /// </summary>
+        /// <returns>
+        /// true - if successfully started, otherwise - false.
+        /// </returns>
         public Task<bool> StartAsync()
         {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
             if (IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started.");
             }
 
             bool startingResult = _executableConsole.Start();
@@ -92,35 +104,35 @@ namespace DemonsRunner.Domain.Models
         }
 
         /// <summary>
-        /// Begin receiving data from output.
+        /// Begins receiving data from output.
         /// </summary>
         public Task StartMessagesReceivingAsync()
         {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
-            if (IsMessagesReceiving)
+            if (IsMessagesReceivingEnable)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is already started");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is already started.");
             }
 
             _executableConsole.BeginOutputReadLine();
             _executableConsole.BeginErrorReadLine();
-            IsMessagesReceiving = true;
+            IsMessagesReceivingEnable = true;
             return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Executes the command of the script to be executed at the command line.
+        /// Executes the script command in the command line.
         /// </summary>
         public Task ExecuteCommandAsync()
         {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
             //_executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
@@ -130,50 +142,52 @@ namespace DemonsRunner.Domain.Models
         }
 
         /// <summary>
-        /// Kills runnig cmd process immediately.
+        /// Kills running script cmd process immediately.
         /// </summary>
         public Task StopAsync()
         {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
-            if (IsMessagesReceiving)
+            if (IsMessagesReceivingEnable)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active.");
             }
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
             _executableConsole.Kill();
-            _isExitedByTaskManager = false;
+            _isClosedByTaskManager = false;
             IsRunning = false;
             return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Breaks receiveng messages from output.
+        /// Stops receiving messages from script cmd output.
         /// </summary>
         public Task StopMessagesReceivingAsync()
         {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't starting");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
-            if (!IsMessagesReceiving)
+            if (!IsMessagesReceivingEnable)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving wasnt started");
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving wasn't started.");
             }
 
             _executableConsole.CancelErrorRead();
             _executableConsole.CancelOutputRead();
-            IsMessagesReceiving = false;
+            IsMessagesReceivingEnable = false;
             return Task.CompletedTask;
         }
 
         public void Dispose() => CleanUp();
 
-        private void OnScriptOutputDataReceived(object sender, DataReceivedEventArgs e)
+        #region --EventHandlers--
+
+        private void OnProcessOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             string endcodingMessage = "Active code page: 65001";
             if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
@@ -182,34 +196,36 @@ namespace DemonsRunner.Domain.Models
             }
         }
 
-        private void OnScriptExited(object? sender, EventArgs e) 
+        private void OnProcessExited(object? sender, EventArgs e) 
         {
-            if (!_isExitedByTaskManager)
+            if (!_isClosedByTaskManager)
             {
                 return;
             }
 
-            if (IsMessagesReceiving)
+            if (IsMessagesReceivingEnable)
             {
                 _executableConsole.CancelOutputRead();
                 _executableConsole.CancelErrorRead();
-                IsMessagesReceiving = false;
+                IsMessagesReceivingEnable = false;
             }
+
             IsRunning = false;
-            IsMessagesReceiving = false;
             ScriptExitedByTaskManager?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void CleanUp()
+        #endregion
+
+        private void CleanUp()
         {
             if (_isDisposed)
             {
                 return;
             }
 
-            _executableConsole.Exited -= OnScriptExited;
-            _executableConsole.OutputDataReceived -= OnScriptOutputDataReceived;
-            _executableConsole.ErrorDataReceived -= OnScriptOutputDataReceived;
+            _executableConsole.Exited -= OnProcessExited;
+            _executableConsole.OutputDataReceived -= OnProcessOutputDataReceived;
+            _executableConsole.ErrorDataReceived -= OnProcessOutputDataReceived;
             _executableConsole.Dispose();
             _isDisposed = true;
         }
