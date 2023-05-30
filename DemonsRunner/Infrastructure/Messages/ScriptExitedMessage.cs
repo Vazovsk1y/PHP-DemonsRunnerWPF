@@ -1,4 +1,4 @@
-﻿using DemonsRunner.ViewModels;
+﻿using DemonsRunner.ViewModels.Interfaces;
 
 namespace DemonsRunner.Infrastructure.Messages
 {

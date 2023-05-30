@@ -7,6 +7,7 @@ using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Infrastructure.Messages;
 using System.Windows.Input;
 using DemonsRunner.Commands;
+using DemonsRunner.ViewModels.Interfaces;
 
 namespace DemonsRunner.ViewModels
 {

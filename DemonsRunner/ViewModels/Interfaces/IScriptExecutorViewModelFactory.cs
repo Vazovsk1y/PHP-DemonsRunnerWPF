@@ -1,6 +1,6 @@
 ﻿using DemonsRunner.Domain.Models;
 
-namespace DemonsRunner.ViewModels
+namespace DemonsRunner.ViewModels.Interfaces
 {
     internal interface IScriptExecutorViewModelFactory
     {

@@ -1,6 +1,7 @@
 ﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Infrastructure.Messages;
+using DemonsRunner.ViewModels.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
