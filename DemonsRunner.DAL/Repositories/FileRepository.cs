@@ -7,19 +7,22 @@ namespace DemonsRunner.DAL.Repositories
 {
     public class FileRepository : IFileRepository<PHPFile>
     {
+        // The class responsibility is provide to calling code the interface to interract with data in storage json file on user pc.
+        // Analogy of the repository pattern at work with dbContext of EF.
+
         private readonly IStorage _storageFile;
         private readonly object _locker = new object();
 
-        public FileRepository(StorageResolver storageResolver)
+        public FileRepository(IStorageFactory storageFactory)
         {
-            _storageFile = storageResolver.Invoke(StorageType.File);
+            _storageFile = storageFactory.CreateStorage(StorageType.File, "data.json");
         }
 
         public IEnumerable<PHPFile> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
-                throw new InvalidOperationException("The storage file has been deleted or renamed");
+                throw new InvalidOperationException("The storage file has been deleted or renamed.");
             }
 
             lock(_locker)

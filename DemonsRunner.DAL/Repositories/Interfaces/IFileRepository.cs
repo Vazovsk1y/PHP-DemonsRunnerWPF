@@ -6,12 +6,12 @@
     public interface IFileRepository<T> where T : class
     {
         /// <summary>
-        /// Provides you all files that stores in storage file.
+        /// Provides all files that stores in storage file.
         /// </summary>
         public IEnumerable<T> GetAll();
 
         /// <summary>
-        /// Saves all provided by you files in storage file.
+        /// Saves all transferred files in storage file.
         /// </summary>
         public void SaveAll(IEnumerable<T> entities);
     }

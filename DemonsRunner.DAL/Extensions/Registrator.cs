@@ -11,17 +11,7 @@ namespace DemonsRunner.DAL.Extensions
     {
         public static IServiceCollection AddDataAccessLayer(this IServiceCollection services) => services
             .AddScoped<IFileRepository<PHPFile>, FileRepository>()
-            .AddTransient<StorageFile>()
-            .AddTransient<StorageDirectory>()
-            .AddTransient<StorageResolver>(s => key =>
-            {
-                return key switch
-                {
-                    StorageType.Directory => s.GetRequiredService<StorageDirectory>(),
-                    StorageType.File => s.GetRequiredService<StorageFile>(),
-                    _ => throw new KeyNotFoundException(),
-                };
-            })
+            .AddTransient<IStorageFactory, StorageFactory>()
             ;
     }
 }
