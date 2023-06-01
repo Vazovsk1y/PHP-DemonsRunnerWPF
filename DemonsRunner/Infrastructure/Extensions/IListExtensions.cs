@@ -7,12 +7,17 @@ namespace DemonsRunner.Infrastructure.Extensions
 {
     internal static class IListExtensions
     {
-        public static void RemoveAll<T> (this IList<T> collection, IEnumerable<T> deletingCollection)
+        public static bool RemoveAll<T> (this IList<T> collection, IEnumerable<T> deletingCollection)
         {
+            bool isCollectionModified = false;
             foreach (var deletingItem in deletingCollection)
             {
-                collection.Remove(deletingItem);
+                if (collection.Remove(deletingItem))
+                {
+                    isCollectionModified = true;
+                }
             }
+            return isCollectionModified;
         }
 
         public static void AddRange<T>(this IList<T> collection, IEnumerable<T> addingCollection)

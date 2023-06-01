@@ -4,7 +4,9 @@ using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
+using System.Collections;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
@@ -13,8 +15,7 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
-        private PHPFile _selectedDemon;
-        private readonly ObservableCollection<PHPFile> _demons = new();
+        private readonly ObservableCollection<PHPFile> _files = new();
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
         private readonly IDataBus _dataBus;
@@ -23,13 +24,7 @@ namespace DemonsRunner.ViewModels
 
         #region --Properties--
 
-        public ObservableCollection<PHPFile> Demons => _demons;
-
-        public PHPFile SelectedDemon
-        {
-            get => _selectedDemon;
-            set => Set(ref _selectedDemon, value);
-        }
+        public ObservableCollection<PHPFile> Files => _files;
 
         #endregion
 
@@ -47,7 +42,7 @@ namespace DemonsRunner.ViewModels
             var response = _fileService.GetSaved();
             if (response.OperationStatus == StatusCode.Success)
             {
-                Demons.AddRange(response.Data!);
+                Files.AddRange(response.Data!);
             }
             _dataBus = dataBus;
         }
@@ -66,28 +61,33 @@ namespace DemonsRunner.ViewModels
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    isCollectionModified = Demons.AddIfNotExist(response.Data!);
+                    isCollectionModified = Files.AddIfNotExist(response.Data!);
                 });
 
                 if (isCollectionModified)
                 {
-                    var savingResponse = _fileService.SaveAll(Demons);
+                    var savingResponse = _fileService.SaveAll(Files);
                     _dataBus.Send(savingResponse.Description);
                 }
             }
         }
 
         public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute,
-            (arg) => Demons.Count > 0 && SelectedDemon is not null);
+            (arg) => Files.Count > 0);
 
-        private void OnDeletingFileExecute(object obj)
+        private void OnDeletingFileExecute(object commandParametr)
         {
-            if (Demons.Contains(SelectedDemon))
+            var items = commandParametr as IList;
+            var selectedFiles = items?.Cast<PHPFile>().ToList();
+
+            if (selectedFiles is not null)
             {
-                Demons.Remove(SelectedDemon);
-                SelectedDemon = null;
-                var response = _fileService.SaveAll(Demons);
-                _dataBus.Send(response.Description);
+                bool isCollectionModified = Files.RemoveAll(selectedFiles);
+                if (isCollectionModified)
+                {
+                    var response = _fileService.SaveAll(Files);
+                    _dataBus.Send(response.Description);
+                }
             }
         }
 

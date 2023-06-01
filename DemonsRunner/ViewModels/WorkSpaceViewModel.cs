@@ -104,7 +104,7 @@ namespace DemonsRunner.ViewModels
 
         public ICommand ConfigureScriptsCommand => new RelayCommand(
             OnConfigureScriptsExecute,
-            (arg) => _filesPanelViewModel.Demons.Count > 0);
+            (arg) => _filesPanelViewModel.Files.Count > 0);
 
         public ICommand ClearConfigureScripts => new RelayCommand(
             (arg) => ConfiguredScripts.Clear(),
@@ -122,7 +122,7 @@ namespace DemonsRunner.ViewModels
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Demons).ConfigureAwait(false);
+            var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Files).ConfigureAwait(false);
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>

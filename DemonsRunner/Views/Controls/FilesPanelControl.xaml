@@ -12,7 +12,7 @@
     <Grid>
         <GroupBox Grid.Column="0">
             <DockPanel>
-                <TextBlock Text="{Binding Demons.Count, StringFormat='Files count {0}'}"
+                <TextBlock Text="{Binding Files.Count, StringFormat='Files count {0}'}"
                            DockPanel.Dock="Top"/>
                 <UniformGrid DockPanel.Dock="Bottom" Rows="1">
                     <Button  
@@ -23,11 +23,12 @@
                     <Button 
                         Margin="5"
                         Content="Delete"
-                        Command="{Binding DeleteFileFromListCommand}"/>
+                        Command="{Binding DeleteFileFromListCommand}"
+                        CommandParameter="{Binding ElementName=filesListBox, Path=SelectedItems}"/>
                 </UniformGrid>
-                <ListBox 
-                        ItemsSource="{Binding Demons}"
-                        SelectedItem="{Binding SelectedDemon}">
+                <ListBox x:Name="filesListBox"
+                         SelectionMode="Multiple"
+                         ItemsSource="{Binding Files}">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type m:PHPFile}">
                             <TextBlock Text="{Binding Name}"/>
