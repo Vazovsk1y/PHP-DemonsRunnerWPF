@@ -4,36 +4,48 @@ using DemonsRunner.Domain.Responses.Intefaces;
 namespace DemonsRunner.BuisnessLayer.Services.Interfaces
 {
     /// <summary>
-    /// Service for interaction with script executing.
+    /// Service for interracting with scripts executing.
     /// </summary>
     public interface IScriptExecutorService
     {
         /// <summary>
-        /// Starts new cmd process with configured script provided by.
+        /// Will create and run a new script execution model based on the passed configured script.
         /// </summary>
         /// <returns>
-        /// Task from data response, where data is successfully started script.
+        /// Task from IDataResponse, where data is successfully started script execution model.
         /// </returns>
         public Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script);
 
         /// <summary>
-        /// Kills the running cmd process in executing script.
+        /// Will stop execution of the running script execution model by killing its process within the operating system.
         /// </summary>
-        public Task<IResponse> StopAsync(PHPScriptExecutor executingScript);
+        /// <returns>
+        /// IResponse with the operation status.
+        /// </returns>
+        public Task<IResponse> StopAsync(PHPScriptExecutor runningScriptExecutor);
 
         /// <summary>
-        /// Begins asynchronus output reading from running cmd in executing script.
+        /// Begins asynchronus output reading from running script executor.
         /// </summary>
-        public Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScript);
+        /// <returns>
+        /// IResponse with the operation status.
+        /// </returns>
+        public Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScriptExecutor);
 
         /// <summary>
-        /// Executes the command in running cmd of executing script.
+        /// Executes the command in running script executor.
         /// </summary>
-        public Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScript);
+        /// <returns>
+        /// IResponse with the operation status.
+        /// </returns>
+        public Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScriptExecutor);
 
         /// <summary>
-        /// Breaks message receiving from running cmd in executing script.
+        /// Breaks messages receiving in running script executor.
         /// </summary>
-        public Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScript);
+        /// <returns>
+        /// IResponse with the operation status.
+        /// </returns>
+        public Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScriptExecutor);
     }
 }

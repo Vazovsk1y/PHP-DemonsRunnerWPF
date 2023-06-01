@@ -16,13 +16,13 @@ namespace DemonsRunner.BuisnessLayer.Services
             _logger = logger;
         }
 
-        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPFile> demons)
+        public Task<IDataResponse<IEnumerable<PHPScript>>> ConfigureScripts(IEnumerable<PHPFile> phpFiles)
         {
-            ArgumentNullException.ThrowIfNull(demons);
+            ArgumentNullException.ThrowIfNull(phpFiles);
 
-            _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", demons.ToList().Count);
+            _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", phpFiles.ToList().Count);
             var configuredScripts = new List<PHPScript>();
-            foreach (var demon in demons)
+            foreach (var demon in phpFiles)
             {
                 configuredScripts.Add(new PHPScript(demon));
             }

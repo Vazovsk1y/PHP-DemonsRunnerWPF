@@ -14,7 +14,7 @@ namespace DemonsRunner.BuisnessLayer.Services
         private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
-            Title = "Choose daemons:",
+            Title = "Choose files:",
             Filter = "php files (*.php) | *.php",
             RestoreDirectory = true,
         };
@@ -37,7 +37,7 @@ namespace DemonsRunner.BuisnessLayer.Services
 
             if (dialogResult is bool result && result is true)
             {
-                var data = GetDemons().ToList();
+                var data = GetPHPFiles().ToList();
                 response.OperationStatus = StatusCode.Success;
                 response.Data = data;
                 response.Description = $"[{data.Count}] files were selected!";
@@ -49,20 +49,20 @@ namespace DemonsRunner.BuisnessLayer.Services
             return Task.FromResult<IDataResponse<IEnumerable<PHPFile>>>(response);
         }
 
-        private IEnumerable<PHPFile> GetDemons()
+        private IEnumerable<PHPFile> GetPHPFiles()
         {
-            _logger.LogInformation("Searching demons in selected files started");
+            _logger.LogInformation("Searching php-files in selected files started");
             var fullFilesPath = _fileDialog.FileNames;
             var filesName = _fileDialog.SafeFileNames;
-            List<PHPFile> demons = new();
+            List<PHPFile> files = new();
 
             for (int i = 0; i < fullFilesPath.Length; i++)
             {
-                demons.Add(new PHPFile(filesName[i], fullFilesPath[i]));
+                files.Add(new PHPFile(filesName[i], fullFilesPath[i]));
             }
 
-            _logger.LogInformation("Demons count in selected files {demonsCount}", demons.Count);
-            return demons;
+            _logger.LogInformation("Php-files count in selected files [{demonsCount}]", files.Count);
+            return files;
         }
     }
 }
