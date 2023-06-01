@@ -22,7 +22,7 @@ namespace DemonsRunner
 
         private static IHost? _host;
 
-        private static readonly string UniqueEventName = AppDomain.CurrentDomain.FriendlyName;
+        public static readonly string Name = AppDomain.CurrentDomain.FriendlyName;
 
         #endregion
 
@@ -50,7 +50,7 @@ namespace DemonsRunner
         {
             if (IsNewInstance())
             {
-                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, UniqueEventName);
+                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
 
                 SetupGlobalExceptionsHandlers();
@@ -81,7 +81,7 @@ namespace DemonsRunner
         {
             try
             {
-                EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(UniqueEventName); // here will be exception if app is not even starting
+                EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
                 eventWaitHandle.Set();
                 Shutdown();
             }

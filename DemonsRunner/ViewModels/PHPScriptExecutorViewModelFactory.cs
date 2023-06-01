@@ -7,11 +7,14 @@ using DemonsRunner.ViewModels.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace DemonsRunner.ViewModels
 {
     internal class PHPScriptExecutorViewModelFactory : IScriptExecutorViewModelFactory, IDisposable
     {
+        // The class responsibility is to control the life cycle of the view models that are created by the factory.
+
         private readonly IDataBus _dataBus;
         private readonly IDisposable _subscription;
         private readonly IServiceProvider _serviceProvider;
@@ -60,7 +63,7 @@ namespace DemonsRunner.ViewModels
                         var serviceManager = scope.ServiceProvider.GetRequiredService<IServiceManager>();
 
                         var stoppingResult = await serviceManager.GetStoppingResultAsync(message.Sender);
-                        _dataBus.SendDescriptions(stoppingResult);
+                        _dataBus.SendAll(stoppingResult.Select(r => r.Description));
                         message.Sender.Dispose();
                         viewModelScope.Dispose();
 
@@ -69,5 +72,5 @@ namespace DemonsRunner.ViewModels
             }
         }
     }
-            
+
 }

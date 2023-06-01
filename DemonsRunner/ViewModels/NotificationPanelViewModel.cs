@@ -12,9 +12,9 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
+        private readonly IDataBus _dataBus;
         private readonly ObservableCollection<string> _notifications = new();
         private readonly ICollection<IDisposable> _subscriptions = new List<IDisposable>();
-        private readonly IDataBus _dataBus;
 
         #endregion
 
@@ -54,10 +54,8 @@ namespace DemonsRunner.ViewModels
             }
         }
 
-        private async void OnMessageReceived(string message)
-        {
+        private async void OnMessageReceived(string message) =>
             await App.Current.Dispatcher.InvokeAsync(() => Notifications.Add($"[{DateTime.Now.ToShortTimeString()}]: {message}"));
-        }
 
         #endregion
     }

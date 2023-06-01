@@ -145,7 +145,7 @@ namespace DemonsRunner.ViewModels
             }
             else
             {
-                _dataBus.SendDescriptions(failedResponses);
+                _dataBus.SendAll(failedResponses.Select(r => r.Description));
             }
 
             await App.Current.Dispatcher.InvokeAsync(() =>
@@ -167,7 +167,7 @@ namespace DemonsRunner.ViewModels
             }
             else
             {
-                _dataBus.SendDescriptions(failedResponses);
+                _dataBus.SendAll(failedResponses.Select(r => r.Description));
             }
 
             await App.Current.Dispatcher.InvokeAsync(() =>

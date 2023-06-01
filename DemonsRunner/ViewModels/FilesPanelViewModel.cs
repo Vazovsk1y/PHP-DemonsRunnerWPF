@@ -15,10 +15,10 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
-        private readonly ObservableCollection<PHPFile> _files = new();
+        private readonly IDataBus _dataBus;
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
-        private readonly IDataBus _dataBus;
+        private readonly ObservableCollection<PHPFile> _files = new();
 
         #endregion
 
@@ -53,15 +53,22 @@ namespace DemonsRunner.ViewModels
 
         public ICommand AddFileToListCommand => new RelayCommand(OnAddingFileExecute);
 
+        public ICommand DeleteFileFromListCommand => new RelayCommand(
+            OnDeletingFileExecute,
+            (arg) => Files.Count > 0);
+
+        #region --Command Handlers--
+
         private async void OnAddingFileExecute(object obj)
         {
             bool isCollectionModified = false;
             var response = await _fileDialogService.StartDialogAsync().ConfigureAwait(false);
-            if (response.OperationStatus == StatusCode.Success)
+
+            if (response.OperationStatus is StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    isCollectionModified = Files.AddIfNotExist(response.Data!);
+                    isCollectionModified = Files.AddFileIfNotExist(response.Data!);
                 });
 
                 if (isCollectionModified)
@@ -71,9 +78,6 @@ namespace DemonsRunner.ViewModels
                 }
             }
         }
-
-        public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute,
-            (arg) => Files.Count > 0);
 
         private void OnDeletingFileExecute(object commandParametr)
         {
@@ -90,6 +94,8 @@ namespace DemonsRunner.ViewModels
                 }
             }
         }
+
+        #endregion
 
         #endregion
 

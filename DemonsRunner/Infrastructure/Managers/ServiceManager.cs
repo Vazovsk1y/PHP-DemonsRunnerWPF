@@ -82,7 +82,7 @@ namespace DemonsRunner.Infrastructure.Managers
         {
             var responses = new List<IResponse>();
 
-            var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor);
+            var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor).ConfigureAwait(false);
             responses.Add(stoppingMessageReceivingResponse);
             var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor);
             responses.Add(stoppingResponse);
