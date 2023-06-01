@@ -21,10 +21,10 @@ namespace DemonsRunner.ViewModels
 
         private readonly IDataBus _dataBus;
         private readonly IDisposable _subscription;
-        private readonly FilesPanelViewModel _filesPanelViewModel;
         private readonly IServiceManager _serviceManager;
+        private readonly FilesPanelViewModel _filesPanelViewModel;
         private readonly IScriptConfigureService _configureSctiptsService;
-        private readonly ObservableCollection<IScriptExecutorViewModel> _runningScriptsViewModels = new();
+        private readonly ObservableCollection<IScriptExecutorViewModel> _scriptsExecutorsViewModels = new();
 
         private ObservableCollection<PHPScript> _configuredScripts;
         private bool? _isStartButtonEnable = null;
@@ -39,7 +39,7 @@ namespace DemonsRunner.ViewModels
             get
             {
                 bool defaultCondition = ConfiguredScripts is ICollection<PHPScript> { Count: > 0 } &&
-                      RunningScriptsViewModels is ICollection<IScriptExecutorViewModel> { Count: 0 };
+                      ScriptsExecutorsViewModels is ICollection<IScriptExecutorViewModel> { Count: 0 };
 
                 return _isStartButtonEnable is bool condition
                     ? condition
@@ -58,7 +58,7 @@ namespace DemonsRunner.ViewModels
         {
             get => _isStopButtonEnable is bool condition
                     ? condition
-                    : RunningScriptsViewModels is ICollection<IScriptExecutorViewModel> { Count: > 0 };
+                    : ScriptsExecutorsViewModels is ICollection<IScriptExecutorViewModel> { Count: > 0 };
             set
             {
                 if (Set(ref _isStopButtonEnable, value))
@@ -68,7 +68,7 @@ namespace DemonsRunner.ViewModels
             }
         }
 
-        public ObservableCollection<IScriptExecutorViewModel> RunningScriptsViewModels => _runningScriptsViewModels;
+        public ObservableCollection<IScriptExecutorViewModel> ScriptsExecutorsViewModels => _scriptsExecutorsViewModels;
 
         public ObservableCollection<PHPScript> ConfiguredScripts
         {
@@ -106,7 +106,7 @@ namespace DemonsRunner.ViewModels
             OnConfigureScriptsExecute,
             (arg) => _filesPanelViewModel.Files.Count > 0);
 
-        public ICommand ClearConfigureScripts => new RelayCommand(
+        public ICommand ClearConfiguredScripts => new RelayCommand(
             (arg) => ConfiguredScripts.Clear(),
             (arg) => ConfiguredScripts is ICollection<PHPScript> { Count: > 0 });
 
@@ -122,8 +122,8 @@ namespace DemonsRunner.ViewModels
 
         private async void OnConfigureScriptsExecute(object obj)
         {
-            var response = await _configureSctiptsService.ConfigureScripts(_filesPanelViewModel.Files).ConfigureAwait(false);
-            if (response.OperationStatus == StatusCode.Success)
+            var response = await _configureSctiptsService.ConfigureScriptsAsync(_filesPanelViewModel.Files).ConfigureAwait(false);
+            if (response.OperationStatus is StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -150,7 +150,7 @@ namespace DemonsRunner.ViewModels
 
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                RunningScriptsViewModels.AddRange(executorsViewModels);
+                ScriptsExecutorsViewModels.AddRange(executorsViewModels);
             });
             IsStopButtonEnable = null;
         }
@@ -158,7 +158,7 @@ namespace DemonsRunner.ViewModels
         private async void OnStopScriptsExecute(object obj)
         {
             IsStopButtonEnable = false;
-            var (responses, successfullyStoppedViewModels) = await _serviceManager.GetStoppingResultAsync(RunningScriptsViewModels).ConfigureAwait(false);
+            var (responses, successfullyStoppedViewModels) = await _serviceManager.GetStoppingResultAsync(ScriptsExecutorsViewModels).ConfigureAwait(false);
             var failedResponses = responses.Where(r => r.OperationStatus is StatusCode.Fail).ToList();
 
             if (failedResponses.Count is 0)
@@ -172,7 +172,7 @@ namespace DemonsRunner.ViewModels
 
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                RunningScriptsViewModels.RemoveAll(successfullyStoppedViewModels);
+                ScriptsExecutorsViewModels.RemoveAll(successfullyStoppedViewModels);
             });
             IsStartButtonEnable = null;
         }
@@ -186,13 +186,13 @@ namespace DemonsRunner.ViewModels
         public void Dispose()
         {
             _subscription.Dispose();
-            if (RunningScriptsViewModels.Count > 0)
+            if (ScriptsExecutorsViewModels.Count > 0)
             {
-                foreach (var scriptViewModel in RunningScriptsViewModels)
+                foreach (var scriptViewModel in ScriptsExecutorsViewModels)
                 {
                     scriptViewModel.Dispose();
                 }
-                RunningScriptsViewModels.Clear();
+                ScriptsExecutorsViewModels.Clear();
             }
         }
 
@@ -202,7 +202,7 @@ namespace DemonsRunner.ViewModels
         {
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
-                RunningScriptsViewModels.Remove(message.Sender);
+                ScriptsExecutorsViewModels.Remove(message.Sender);
             });
             IsStopButtonEnable = null;
             IsStartButtonEnable = null;

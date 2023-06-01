@@ -77,5 +77,17 @@ namespace DemonsRunner.Infrastructure.Managers
 
             return (responses, successfullyStoppedViewModels);
         }
+
+        public async Task<IEnumerable<IResponse>> GetStoppingResultAsync(IScriptExecutorViewModel scriptExecutorViewModel)
+        {
+            var responses = new List<IResponse>();
+
+            var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(scriptExecutorViewModel.ScriptExecutor);
+            responses.Add(stoppingMessageReceivingResponse);
+            var stoppingResponse = await _executorScriptsService.StopAsync(scriptExecutorViewModel.ScriptExecutor);
+            responses.Add(stoppingResponse);
+
+            return responses;
+        }
     }
 }

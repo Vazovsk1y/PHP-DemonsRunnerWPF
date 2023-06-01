@@ -1,5 +1,7 @@
 ﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Domain.Models;
+using DemonsRunner.Infrastructure.Extensions;
+using DemonsRunner.Infrastructure.Managers.Interfaces;
 using DemonsRunner.Infrastructure.Messages;
 using DemonsRunner.ViewModels.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,17 +15,14 @@ namespace DemonsRunner.ViewModels
         private readonly IDataBus _dataBus;
         private readonly IDisposable _subscription;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IScriptExecutorService _executorScriptsService;
         private readonly ConcurrentDictionary<IScriptExecutorViewModel, IServiceScope> _viewModelsLifetimeControlStorage = new();
 
         public PHPScriptExecutorViewModelFactory(
             IDataBus dataBus,
-            IServiceProvider serviceProvider,
-            IScriptExecutorService executorScriptsService)
+            IServiceProvider serviceProvider)
         {
             _dataBus = dataBus;
             _serviceProvider = serviceProvider;
-            _executorScriptsService = executorScriptsService;
             _subscription = _dataBus.RegisterHandler<ScriptExitedMessage>(OnScriptExited);
         }
 
@@ -40,7 +39,7 @@ namespace DemonsRunner.ViewModels
 
         private async void OnScriptExited(ScriptExitedMessage message)
         {
-            if (!_viewModelsLifetimeControlStorage.TryRemove(message.Sender, out var scope))
+            if (!_viewModelsLifetimeControlStorage.TryRemove(message.Sender, out var viewModelScope))
             {
                 return;
             }
@@ -51,17 +50,20 @@ namespace DemonsRunner.ViewModels
                     {
                         _dataBus.Send($"{message.Sender.ScriptExecutor.ExecutableScript.Name} was killed in task manager.");
                         message.Sender.Dispose();
-                        scope.Dispose();
+                        viewModelScope.Dispose();
+
                         break;
                     }
                 case ExitType.ByAppInfrastructure:
                     {
-                        var stoppingMessageReceivingResponse = await _executorScriptsService.StopMessagesReceivingAsync(message.Sender.ScriptExecutor);
-                        var stoppingResponse = await _executorScriptsService.StopAsync(message.Sender.ScriptExecutor);
-                        _dataBus.Send(stoppingMessageReceivingResponse.Description);
-                        _dataBus.Send(stoppingResponse.Description);
+                        using var scope = _serviceProvider.CreateScope();
+                        var serviceManager = scope.ServiceProvider.GetRequiredService<IServiceManager>();
+
+                        var stoppingResult = await serviceManager.GetStoppingResultAsync(message.Sender);
+                        _dataBus.SendDescriptions(stoppingResult);
                         message.Sender.Dispose();
-                        scope.Dispose();
+                        viewModelScope.Dispose();
+
                         break;
                     }
             }

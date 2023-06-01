@@ -19,7 +19,7 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Запущенные скрипты"/>
-                    <TextBlock Text="{Binding WorkSpaceViewModel.RunningScriptsViewModels.Count}"/>
+                    <TextBlock Text="{Binding WorkSpaceViewModel.ScriptsExecutorsViewModels.Count}"/>
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>

@@ -26,7 +26,7 @@
                                     Command="{Binding ConfigureScriptsCommand}"/>
                         <Button Content="Сбросить скрипты"
                                     Margin="5"
-                                    Command="{Binding ClearConfigureScripts}"/>
+                                    Command="{Binding ClearConfiguredScripts}"/>
                         <Button Content="Запустить"
                                     Margin="5"
                                     Command="{Binding StartScriptsCommand}"/>
@@ -64,11 +64,11 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Панель вывода"/>
-                        <TextBlock Text="{Binding RunningScriptsViewModels.Count, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="{Binding ScriptsExecutorsViewModels.Count, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ListBox ItemsSource="{Binding RunningScriptsViewModels}">
+                    <ListBox ItemsSource="{Binding ScriptsExecutorsViewModels}">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="BorderBrush" Value="Black"/>

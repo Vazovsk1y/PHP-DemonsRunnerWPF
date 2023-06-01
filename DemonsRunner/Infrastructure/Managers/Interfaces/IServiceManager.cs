@@ -13,5 +13,7 @@ namespace DemonsRunner.Infrastructure.Managers.Interfaces
 
         Task<(IEnumerable<IResponse> responses, IEnumerable<IScriptExecutorViewModel> successfullyStoppedViewModels)> 
             GetStoppingResultAsync(IEnumerable<IScriptExecutorViewModel> runningViewModels);
+
+        Task<IEnumerable<IResponse>> GetStoppingResultAsync(IScriptExecutorViewModel scriptExecutorViewModel);
     }
 }
