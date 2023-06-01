@@ -4,7 +4,11 @@ using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 
 namespace DemonsRunner.ViewModels
@@ -13,8 +17,7 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
-        private PHPFile _selectedDemon;
-        private readonly ObservableCollection<PHPFile> _demons = new();
+        private readonly ObservableCollection<SelectionViewModel<PHPFile>> _filesViewModels = new();
         private readonly IFileService _fileService;
         private readonly IFileDialogService _fileDialogService;
         private readonly IDataBus _dataBus;
@@ -23,13 +26,11 @@ namespace DemonsRunner.ViewModels
 
         #region --Properties--
 
-        public ObservableCollection<PHPFile> Demons => _demons;
+        public ObservableCollection<SelectionViewModel<PHPFile>> FilesViewModels => _filesViewModels;
 
-        public PHPFile SelectedDemon
-        {
-            get => _selectedDemon;
-            set => Set(ref _selectedDemon, value);
-        }
+        public ICollection<PHPFile> SelectedFiles => FilesViewModels.Where(v => v.IsSelected).Select(i => i.Value).ToList();
+
+        public ICollection<PHPFile> Files => FilesViewModels.Select(i => i.Value).ToList();
 
         #endregion
 
@@ -47,7 +48,12 @@ namespace DemonsRunner.ViewModels
             var response = _fileService.GetSaved();
             if (response.OperationStatus == StatusCode.Success)
             {
-                Demons.AddRange(response.Data!);
+                var viewModels = new List<SelectionViewModel<PHPFile>>();
+                foreach (var file in response.Data!)
+                {
+                    viewModels.Add(new SelectionViewModel<PHPFile>(file));
+                }
+                FilesViewModels.AddRange(viewModels);
             }
             _dataBus = dataBus;
         }
@@ -62,41 +68,70 @@ namespace DemonsRunner.ViewModels
         {
             bool isCollectionModified = false;
             var response = await _fileDialogService.StartDialogAsync().ConfigureAwait(false);
+
             if (response.OperationStatus == StatusCode.Success)
             {
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    isCollectionModified = Demons.AddIfNotExist(response.Data!);
+                    foreach (var file in response.Data!)
+                    {
+                        if (Files.FirstOrDefault(d => d.Name == file.Name && d.FullPath == file.FullPath) is null)
+                        {
+                            isCollectionModified = true;
+                            FilesViewModels.Add(new SelectionViewModel<PHPFile>(file));
+                        }
+                    }
                 });
 
                 if (isCollectionModified)
                 {
-                    var savingResponse = _fileService.SaveAll(Demons);
+                    var savingResponse = _fileService.SaveAll(Files);
                     _dataBus.Send(savingResponse.Description);
                 }
             }
         }
 
         public ICommand DeleteFileFromListCommand => new RelayCommand(OnDeletingFileExecute,
-            (arg) => Demons.Count > 0 && SelectedDemon is not null);
+            (arg) => Files.Count > 0 && SelectedFiles.Count > 0);
 
         private void OnDeletingFileExecute(object obj)
         {
-            if (Demons.Contains(SelectedDemon))
+            foreach(var selectedFile in SelectedFiles)
             {
-                Demons.Remove(SelectedDemon);
-                SelectedDemon = null;
-                var response = _fileService.SaveAll(Demons);
-                _dataBus.Send(response.Description);
+                var viewModelToDelete = FilesViewModels.FirstOrDefault(i => i.Value.Name == selectedFile.Name);
+                if (viewModelToDelete is not null)
+                {
+                    FilesViewModels.Remove(viewModelToDelete);
+                }
             }
+            var response = _fileService.SaveAll(Files);
+            _dataBus.Send(response.Description);
         }
 
         #endregion
 
         #region --Methods--
-
+       
 
 
         #endregion
+    }
+
+    internal class SelectionViewModel<T> : BaseViewModel
+    {
+        private bool _isSelected;
+
+        public SelectionViewModel(T value)
+        {
+            Value = value;
+        }
+
+        public T Value { get; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => Set(ref _isSelected, value);
+        }
     }
 }

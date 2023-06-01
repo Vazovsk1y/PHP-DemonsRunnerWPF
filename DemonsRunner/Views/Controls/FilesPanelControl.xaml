@@ -12,7 +12,7 @@
     <Grid>
         <GroupBox Grid.Column="0">
             <DockPanel>
-                <TextBlock Text="{Binding Demons.Count, StringFormat='Files count {0}'}"
+                <TextBlock Text="{Binding FilesViewModels.Count, StringFormat='Files count {0}'}"
                            DockPanel.Dock="Top"/>
                 <UniformGrid DockPanel.Dock="Bottom" Rows="1">
                     <Button  
@@ -25,7 +25,20 @@
                         Content="Delete"
                         Command="{Binding DeleteFileFromListCommand}"/>
                 </UniformGrid>
-                <ListBox 
+                <ListBox SelectionMode="Multiple"
+                        ItemsSource="{Binding FilesViewModels}">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="IsSelected" Value="{Binding Mode=TwoWay, Path=IsSelected}"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Value.Name}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <!--<ListBox 
                         ItemsSource="{Binding Demons}"
                         SelectedItem="{Binding SelectedDemon}">
                     <ListBox.ItemTemplate>
@@ -33,7 +46,7 @@
                             <TextBlock Text="{Binding Name}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </ListBox>-->
             </DockPanel>
         </GroupBox>
     </Grid>
