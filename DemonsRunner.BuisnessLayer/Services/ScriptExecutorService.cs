@@ -20,8 +20,10 @@ namespace DemonsRunner.BuisnessLayer.Services
             _fileStateChecker = fileStateChecker;
         } 
 
-        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script, bool showExecutingWindow)
+        public async Task<IDataResponse<PHPScriptExecutor>> StartAsync(PHPScript script)
         {
+            ArgumentNullException.ThrowIfNull(script);
+
             _logger.LogInformation("Launching [{scriptName}] started", script.Name);
             var response = new DataResponse<PHPScriptExecutor> 
             {
@@ -37,7 +39,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 return response;
             }
 
-            var executor = new PHPScriptExecutor(script, showExecutingWindow);
+            var executor = new PHPScriptExecutor(script);
             if (await executor.StartAsync().ConfigureAwait(false))
             {
                 _logger.LogInformation("Cmd was successfully started");
@@ -54,33 +56,33 @@ namespace DemonsRunner.BuisnessLayer.Services
             return response;
         }
 
-        public async Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScript)
+        public async Task<IResponse> StartMessagesReceivingAsync(PHPScriptExecutor runningScriptExecutor)
         {
-            ArgumentNullException.ThrowIfNull(runningScript);
-            _logger.LogInformation("Launching messages reception of [{runningScriptName}] has started", runningScript.ExecutableScript.Name);
+            ArgumentNullException.ThrowIfNull(runningScriptExecutor);
 
+            _logger.LogInformation("Launching messages reception of [{runningScriptName}] has started", runningScriptExecutor.ExecutableScript.Name);
             var response = new Response
             {
                 OperationStatus = StatusCode.Fail,
             };
 
-            if (!runningScript.IsRunning)
+            if (!runningScriptExecutor.IsRunning)
             {
-                _logger.LogError("[{RunningScriptName}] wasn't started", runningScript.ExecutableScript.Name);
-                response.Description = $"{runningScript.ExecutableScript.Name} script wasn't started messages receiving not available.";
+                _logger.LogError("[{RunningScriptName}] wasn't started", runningScriptExecutor.ExecutableScript.Name);
+                response.Description = $"{runningScriptExecutor.ExecutableScript.Name} script wasn't started messages receiving not available.";
 
                 return response;
             }
 
-            if (runningScript.IsMessagesReceiving)
+            if (runningScriptExecutor.IsMessagesReceivingEnable)
             {
-                _logger.LogError("[{RunningScriptName}] messages receiving was already started", runningScript.ExecutableScript.Name);
-                response.Description = $"{runningScript.ExecutableScript.Name} script messages receiving was already started.";
+                _logger.LogError("[{RunningScriptName}] messages receiving was already started", runningScriptExecutor.ExecutableScript.Name);
+                response.Description = $"{runningScriptExecutor.ExecutableScript.Name} script messages receiving was already started.";
 
                 return response;
             }
 
-            await runningScript.StartMessagesReceivingAsync().ConfigureAwait(false);
+            await runningScriptExecutor.StartMessagesReceivingAsync().ConfigureAwait(false);
             _logger.LogInformation("Launching messages receiving was completed successfully");
             response.Description = "Messages receiving was successfully started.";
             response.OperationStatus = StatusCode.Success;
@@ -88,25 +90,25 @@ namespace DemonsRunner.BuisnessLayer.Services
             return response;
         }
 
-        public async Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScript)
+        public async Task<IResponse> ExecuteCommandAsync(PHPScriptExecutor runningScriptExecutor)
         {
-            ArgumentNullException.ThrowIfNull(runningScript);
-            _logger.LogInformation("Executing command in [{runningScriptName}] started", runningScript.ExecutableScript.Name);
+            ArgumentNullException.ThrowIfNull(runningScriptExecutor);
 
+            _logger.LogInformation("Executing command in [{runningScriptName}] started", runningScriptExecutor.ExecutableScript.Name);
             var response = new Response
             {
                 OperationStatus = StatusCode.Fail,
             };
 
-            if (!runningScript.IsRunning)
+            if (!runningScriptExecutor.IsRunning)
             {
-                _logger.LogError("[{runningScriptName}] wasn't started", runningScript.ExecutableScript.Name);
-                response.Description = $"{runningScript.ExecutableScript.Name} script wasn't started command executing canceled.";
+                _logger.LogError("[{runningScriptName}] wasn't started", runningScriptExecutor.ExecutableScript.Name);
+                response.Description = $"{runningScriptExecutor.ExecutableScript.Name} script wasn't started command executing canceled.";
 
                 return response;
             }
 
-            await runningScript.ExecuteCommandAsync().ConfigureAwait(false);
+            await runningScriptExecutor.ExecuteCommandAsync().ConfigureAwait(false);
             _logger.LogInformation("Executing command was completed successfully");
             response.Description = "Command was successfully executed.";
             response.OperationStatus = StatusCode.Success;
@@ -114,61 +116,61 @@ namespace DemonsRunner.BuisnessLayer.Services
             return response;
         }
 
-        public async Task<IResponse> StopAsync(PHPScriptExecutor runningScript)
+        public async Task<IResponse> StopAsync(PHPScriptExecutor runningScriptExecutor)
         {
-            ArgumentNullException.ThrowIfNull(runningScript);
-            _logger.LogInformation("Stopping script [{executingScriptName}] executing has started.", runningScript.ExecutableScript.Name);
+            ArgumentNullException.ThrowIfNull(runningScriptExecutor);
 
+            _logger.LogInformation("Stopping script [{executingScriptName}] executing has started.", runningScriptExecutor.ExecutableScript.Name);
             var response = new Response
             {
                 OperationStatus = StatusCode.Fail,
             };
 
-            if (!runningScript.IsRunning)
+            if (!runningScriptExecutor.IsRunning)
             {
-                _logger.LogError("[{executingScriptName}] was not running", runningScript.ExecutableScript.Name);
-                response.Description = $"{runningScript.ExecutableScript.Name} wasn't started no stopping is posible.";
+                _logger.LogError("[{executingScriptName}] was not running", runningScriptExecutor.ExecutableScript.Name);
+                response.Description = $"{runningScriptExecutor.ExecutableScript.Name} wasn't started no stopping is posible.";
 
                 return response;
             }
 
-            await runningScript.StopAsync().ConfigureAwait(false);
+            await runningScriptExecutor.StopAsync().ConfigureAwait(false);
             _logger.LogInformation("Cmd was successfully killed");
-            response.Description = $"{runningScript.ExecutableScript.Name} was successfully stopped!";
+            response.Description = $"{runningScriptExecutor.ExecutableScript.Name} was successfully stopped!";
             response.OperationStatus = StatusCode.Success;
 
             return response;
         }
 
-        public async Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScript)
+        public async Task<IResponse> StopMessagesReceivingAsync(PHPScriptExecutor runningScriptExecutor)
         {
-            ArgumentNullException.ThrowIfNull(runningScript);
-            _logger.LogInformation("Stopping message receiving in [{runningScriptName}] has started", runningScript.ExecutableScript.Name);
+            ArgumentNullException.ThrowIfNull(runningScriptExecutor);
 
+            _logger.LogInformation("Stopping message receiving in [{runningScriptName}] has started", runningScriptExecutor.ExecutableScript.Name);
             var response = new Response
             {
                 OperationStatus = StatusCode.Fail,
             };
 
-            if (!runningScript.IsRunning)
+            if (!runningScriptExecutor.IsRunning)
             {
-                _logger.LogError("[{runningScriptName}] wasn't started", runningScript.ExecutableScript.Name);
+                _logger.LogError("[{runningScriptName}] wasn't started", runningScriptExecutor.ExecutableScript.Name);
                 response.Description = 
-                    $"{runningScript.ExecutableScript.Name} wasn't started stopping messages receiving is not available.";
+                    $"{runningScriptExecutor.ExecutableScript.Name} wasn't started stopping messages receiving is not available.";
 
                 return response;
             }
 
-            if (!runningScript.IsMessagesReceiving)
+            if (!runningScriptExecutor.IsMessagesReceivingEnable)
             {
-                _logger.LogError("[{RunningScriptName}] messages receiving wasn't started", runningScript.ExecutableScript.Name);
+                _logger.LogError("[{RunningScriptName}] messages receiving wasn't started", runningScriptExecutor.ExecutableScript.Name);
                 response.Description = 
-                    $"{runningScript.ExecutableScript.Name} script messages receiving wasn't started stopping messages receiving is not available.";
+                    $"{runningScriptExecutor.ExecutableScript.Name} script messages receiving wasn't started stopping messages receiving is not available.";
 
                 return response;
             }
 
-            await runningScript.StopMessagesReceivingAsync().ConfigureAwait(false);
+            await runningScriptExecutor.StopMessagesReceivingAsync().ConfigureAwait(false);
             _logger.LogInformation("Stopping message receiving successfully completed");
             response.Description = "Messages receiving was successfully stopped.";
             response.OperationStatus = StatusCode.Success;

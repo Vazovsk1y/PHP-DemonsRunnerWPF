@@ -1,4 +1,4 @@
-﻿using DemonsRunner.ViewModels;
+﻿using DemonsRunner.ViewModels.Interfaces;
 
 namespace DemonsRunner.Infrastructure.Messages
 {
@@ -7,8 +7,6 @@ namespace DemonsRunner.Infrastructure.Messages
         ByTaskManager,
         ByAppInfrastructure
     }
-
-   
 
     internal record ScriptExitedMessage(IScriptExecutorViewModel Sender, ExitType ExitType);
 }

@@ -1,17 +1,20 @@
 ﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
-using DemonsRunner.Domain.Responses.Intefaces;
 using System.Collections.Generic;
 
 namespace DemonsRunner.Infrastructure.Extensions
 {
     internal static class IDataBusExtensions
     {
-        public static void SendDescriptions(this IDataBus dataBus, IEnumerable<IResponse> responses)
+        #region --Generic Extensions--
+
+        public static void SendAll<T>(this IDataBus dataBus, IEnumerable<T> messages)
         {
-            foreach (var response in responses)
+            foreach(var message in messages) 
             {
-                dataBus.Send(response.Description);
+                dataBus.Send(message);
             }
         }
+
+        #endregion
     }
 }

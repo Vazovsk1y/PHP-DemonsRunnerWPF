@@ -5,28 +5,31 @@ using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using DemonsRunner.Domain.Responses;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DemonsRunner.BuisnessLayer.Services
+namespace DemonsRunner.Services
 {
-    public class FileDialogService : IFileDialogService
+    public class WPFFileDialogService : IFileDialog
     {
-        private readonly ILogger<FileDialogService> _logger;
+        private readonly ILogger<WPFFileDialogService> _logger;
         private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
-            Title = "Choose daemons:",
-            Filter = $"php files (*{PHPDemon.EXTENSION}) | *{PHPDemon.EXTENSION}",
+            Title = "Choose files:",
+            Filter = "php files (*.php) | *.php",
             RestoreDirectory = true,
         };
 
-        public FileDialogService(ILogger<FileDialogService> logger)
+        public WPFFileDialogService(ILogger<WPFFileDialogService> logger)
         {
             _logger = logger;
         }
 
-        public Task<IDataResponse<IEnumerable<PHPDemon>>> StartDialogAsync()
+        public Task<IDataResponse<IEnumerable<PHPFile>>> StartDialogAsync()
         {
-            var response = new DataResponse<IEnumerable<PHPDemon>>()
+            var response = new DataResponse<IEnumerable<PHPFile>>()
             {
                 OperationStatus = StatusCode.Fail,
             };
@@ -37,36 +40,32 @@ namespace DemonsRunner.BuisnessLayer.Services
 
             if (dialogResult is bool result && result is true)
             {
-                var data = GetDemons().ToList();
+                var data = GetPHPFiles().ToList();
                 response.OperationStatus = StatusCode.Success;
                 response.Data = data;
                 response.Description = $"[{data.Count}] files were selected!";
 
-                return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(response);
+                return Task.FromResult<IDataResponse<IEnumerable<PHPFile>>>(response);
             }
 
             response.Description = "No files were selected.";
-            return Task.FromResult<IDataResponse<IEnumerable<PHPDemon>>>(response);
+            return Task.FromResult<IDataResponse<IEnumerable<PHPFile>>>(response);
         }
 
-        private IEnumerable<PHPDemon> GetDemons()
+        private IEnumerable<PHPFile> GetPHPFiles()
         {
-            _logger.LogInformation("Searching demons in selected files started");
+            _logger.LogInformation("Searching php-files in selected files started");
             var fullFilesPath = _fileDialog.FileNames;
             var filesName = _fileDialog.SafeFileNames;
-            List<PHPDemon> demons = new();
+            List<PHPFile> files = new();
 
             for (int i = 0; i < fullFilesPath.Length; i++)
             {
-                demons.Add(new PHPDemon
-                {
-                    Name = filesName[i],
-                    FullPath = fullFilesPath[i],
-                });
+                files.Add(new PHPFile(filesName[i], fullFilesPath[i]));
             }
 
-            _logger.LogInformation("Demons count in selected files {demonsCount}", demons.Count);
-            return demons;
+            _logger.LogInformation("Php-files count in selected files [{demonsCount}]", files.Count);
+            return files;
         }
     }
 }

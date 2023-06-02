@@ -7,6 +7,8 @@ namespace DemonsRunner.Domain.Responses.Intefaces
     /// </summary>
     public interface IResponse
     {
+        // represents the answer that is formed within the business logic.
+
         /// <summary>
         /// Operation description.
         /// </summary>

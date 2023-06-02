@@ -6,12 +6,4 @@
 
         string FullPath { get; }
     }
-
-    public enum StorageType
-    {
-        File,
-        Directory
-    }
-
-    public delegate IStorage StorageResolver(StorageType type);
 }

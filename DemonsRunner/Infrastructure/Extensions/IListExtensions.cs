@@ -7,40 +7,58 @@ namespace DemonsRunner.Infrastructure.Extensions
 {
     internal static class IListExtensions
     {
-        public static void RemoveAll<T> (this IList<T> collection, IEnumerable<T> deletingCollection)
+        #region --Generic Extensions--
+
+        /// <summary>
+        /// Removes all transfered objects from collection.
+        /// </summary>
+        /// <returns>
+        /// true - if any item was deleted, false - if collection wasn't modified.
+        /// </returns>
+        public static bool RemoveAll<T> (this IList<T> collection, IEnumerable<T> deletingCollection)
         {
+            ArgumentNullException.ThrowIfNull(deletingCollection);
+
+            bool isCollectionModified = false;
             foreach (var deletingItem in deletingCollection)
             {
-                collection.Remove(deletingItem);
+                if (collection.Remove(deletingItem))
+                {
+                    isCollectionModified = true;
+                }
             }
+            return isCollectionModified;
         }
 
         public static void AddRange<T>(this IList<T> collection, IEnumerable<T> addingCollection)
         {
-            if (collection is null) 
-                throw new NullReferenceException(nameof(collection));
-
+            ArgumentNullException.ThrowIfNull(addingCollection);
+          
             foreach (var item in addingCollection)
             {
                 collection.Add(item);
             }
         }
 
+        #endregion
+
         /// <summary>
-        /// Add demon if it not exist in collection.
+        /// Add php-file if it not exists in collection.
         /// </summary>
         /// <returns>
         /// true - if any item was added, false - if collection wasn't modified.
         /// </returns>
-        public static bool AddIfNotExist(this IList<PHPDemon> demons, IEnumerable<PHPDemon> demonsToAdd)
+        public static bool AddFileIfNotExist(this IList<PHPFile> demons, IEnumerable<PHPFile> filesToAdd)
         {
+            ArgumentNullException.ThrowIfNull(filesToAdd);
+
             bool isCollectionModified = false;
-            foreach (var demon in demonsToAdd)
+            foreach (var file in filesToAdd)
             {
-                if (demons.FirstOrDefault(d => d.Name == demon.Name && d.FullPath == demon.FullPath) is null)
+                if (demons.FirstOrDefault(d => d.Name == file.Name && d.FullPath == file.FullPath) is null)
                 {
                     isCollectionModified = true;
-                    demons.Add(demon);
+                    demons.Add(file);
                 }
             }
             return isCollectionModified;

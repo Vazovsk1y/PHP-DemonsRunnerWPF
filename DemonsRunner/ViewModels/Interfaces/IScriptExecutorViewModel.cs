@@ -3,7 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace DemonsRunner.ViewModels
+namespace DemonsRunner.ViewModels.Interfaces
 {
     internal interface IScriptExecutorViewModel : IDisposable, INotifyPropertyChanged
     {

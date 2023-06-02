@@ -1,20 +1,22 @@
 ﻿using DemonsRunner.DAL.Storage.Interfaces;
-using System.Reflection;
 
 namespace DemonsRunner.DAL.Storage
 {
     /// <summary>
-    /// File in AppData folder that store the selected files(php-daemons) on a previous app session.
+    /// File that stores selected files(php-daemons) in previous app session.
     /// </summary>
     public class StorageFile : IStorage
     {
-        public string Name => "data.json";
+        // The class responsibility is to provide calling code the interface to interract with file on user pc.
+
+        public string Name { get; }
 
         public string FullPath { get; }
 
-        public StorageFile(StorageResolver resolver)
+        public StorageFile(IStorageFactory storageFactory, string fileName)
         {
-            var storageDirectory = resolver.Invoke(StorageType.Directory);
+            var storageDirectory = storageFactory.CreateStorage(StorageType.Directory, AppDomain.CurrentDomain.FriendlyName);
+            Name = fileName;
             FullPath = Path.Combine(storageDirectory.FullPath, Name);
 
             if (!File.Exists(FullPath))

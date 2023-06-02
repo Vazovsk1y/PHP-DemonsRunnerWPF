@@ -7,7 +7,7 @@ namespace DemonsRunner.ViewModels
     {
         #region --Fields--
 
-        private string _windowTitle = "Main";
+        private string _windowTitle = App.Name;
 
         #endregion
 

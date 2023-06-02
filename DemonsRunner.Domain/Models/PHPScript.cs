@@ -1,26 +1,30 @@
-﻿namespace DemonsRunner.Domain.Models
+﻿using Microsoft.VisualBasic;
+
+namespace DemonsRunner.Domain.Models
 {
     /// <summary>
-    /// Configured php-script model.
+    /// Represents a script that references a PHP file and includes a command to be executed in the console.
     /// </summary>
     public class PHPScript
     {
+        // represents php-script model that might be start in console.
+
         /// <summary>
-        /// Script title.
+        /// Script name.
         /// </summary>
         public string Name => $"{ExecutableFile.Name} script";
 
         /// <summary>
-        /// Command to execute in command line.
+        /// Command to execute in command line for php-daemon starting.
         /// </summary>
-        public string Command => $"demon .php {ExecutableFile.Name} start";
+        public string Command => $"php {ExecutableFile.Name} start";
 
         /// <summary>
-        /// File that will be executed in the command.
+        /// File containing the code to be executed by the daemon.
         /// </summary>
-        public PHPDemon ExecutableFile { get; }
+        public PHPFile ExecutableFile { get; }
 
-        public PHPScript(PHPDemon executableFile)
+        public PHPScript(PHPFile executableFile)
         {
             ExecutableFile = executableFile;
         }

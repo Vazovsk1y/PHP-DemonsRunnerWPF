@@ -1,4 +1,9 @@
-﻿using DemonsRunner.ViewModels;
+﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
+using DemonsRunner.Infrastructure.Managers;
+using DemonsRunner.Infrastructure.Managers.Interfaces;
+using DemonsRunner.Services;
+using DemonsRunner.ViewModels;
+using DemonsRunner.ViewModels.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DemonsRunner.Infrastructure.Extensions
@@ -11,6 +16,8 @@ namespace DemonsRunner.Infrastructure.Extensions
             .AddSingleton<FilesPanelViewModel>()
             .AddSingleton<WorkSpaceViewModel>()
             .AddSingleton<NotificationPanelViewModel>()
+            .AddSingleton<IServiceManager, ServiceManager>()
+            .AddTransient<IFileDialog, WPFFileDialogService>()
             .AddSingleton(s =>
             {
                 var viewModel = s.GetRequiredService<MainWindowViewModel>();
