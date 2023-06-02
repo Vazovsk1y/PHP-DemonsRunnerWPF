@@ -17,7 +17,7 @@ namespace DemonsRunner.ViewModels
 
         private readonly IDataBus _dataBus;
         private readonly IFileService _fileService;
-        private readonly IFileDialogService _fileDialogService;
+        private readonly IFileDialog _fileDialogService;
         private readonly ObservableCollection<PHPFile> _files = new();
 
         #endregion
@@ -34,7 +34,7 @@ namespace DemonsRunner.ViewModels
 
         public FilesPanelViewModel(
             IFileService fileService,
-            IFileDialogService fileDialogService,
+            IFileDialog fileDialogService,
             IDataBus dataBus)
         {
             _fileService = fileService;

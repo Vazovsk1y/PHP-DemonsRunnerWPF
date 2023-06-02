@@ -5,12 +5,15 @@ using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using DemonsRunner.Domain.Responses;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DemonsRunner.BuisnessLayer.Services
+namespace DemonsRunner.Services
 {
-    public class FileDialogService : IFileDialogService
+    public class WPFFileDialogService : IFileDialog
     {
-        private readonly ILogger<FileDialogService> _logger;
+        private readonly ILogger<WPFFileDialogService> _logger;
         private readonly OpenFileDialog _fileDialog = new()
         {
             Multiselect = true,
@@ -19,7 +22,7 @@ namespace DemonsRunner.BuisnessLayer.Services
             RestoreDirectory = true,
         };
 
-        public FileDialogService(ILogger<FileDialogService> logger)
+        public WPFFileDialogService(ILogger<WPFFileDialogService> logger)
         {
             _logger = logger;
         }

@@ -8,7 +8,6 @@ namespace DemonsRunner.BuisnessLayer.Extensions
     {
         public static IServiceCollection AddBuisnessLayer(this IServiceCollection services) => services
             .AddTransient<IFileService, FileService>()
-            .AddTransient<IFileDialogService, FileDialogService>()
             .AddTransient<IScriptConfigureService, ScriptConfigureService>()
             .AddTransient<IScriptExecutorService, ScriptExecutorService>()
             .AddTransient<IFileStateChecker, FileStateChecker>()

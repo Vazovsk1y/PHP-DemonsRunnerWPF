@@ -6,7 +6,7 @@ namespace DemonsRunner.BuisnessLayer.Services.Interfaces
     /// <summary>
     /// Dialog service for interacting with system class OpenFileDialog.
     /// </summary>
-    public interface IFileDialogService
+    public interface IFileDialog
     {
         /// <summary>
         /// Start dialog with file system and provides you a response that contain all selected files in this dialog.
