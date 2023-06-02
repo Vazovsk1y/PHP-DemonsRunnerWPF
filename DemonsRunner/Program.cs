@@ -22,7 +22,13 @@ namespace DemonsRunner
             {
                 string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 string appName = AppDomain.CurrentDomain.FriendlyName;
+
                 string logFileDirectoryPath = Path.Combine(appDataPath, appName);
+                if (!Directory.Exists(logFileDirectoryPath))
+                {
+                    Directory.CreateDirectory(logFileDirectoryPath);
+                }
+
                 string logFileName = "log.txt";
                 string logFileFullPath = Path.Combine(logFileDirectoryPath, logFileName);
 

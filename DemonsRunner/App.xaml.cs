@@ -40,7 +40,10 @@ namespace DemonsRunner
 
         #region --Constructors--
 
-
+        public App()
+        {
+            SetupGlobalExceptionsHandlers();
+        }
 
         #endregion
 
@@ -53,7 +56,7 @@ namespace DemonsRunner
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
 
-                SetupGlobalExceptionsHandlers();
+                //SetupGlobalExceptionsHandlers();
                 var host = Host;
                 base.OnStartup(e);
                 await host.StartAsync().ConfigureAwait(false);
