@@ -110,6 +110,8 @@ namespace DemonsRunner
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
+                var exeption = e.ExceptionObject as Exception;
+                MessageBox.Show(exeption?.Message);
                 Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}", 
                     nameof(AppDomain.CurrentDomain.UnhandledException));
             };
