@@ -58,10 +58,18 @@ namespace DemonsRunner
                 //Current.Exit += (sender, args) => eventWaitHandle.Close();
 
                 //SetupGlobalExceptionsHandlers();
-                base.OnStartup(e);
-                var host = Host;
-                await host.StartAsync().ConfigureAwait(false);
                 IsDesignMode = false;
+                base.OnStartup(e);
+                MessageBox.Show("after base.OnStartup");
+
+                try
+                {
+                    await Host.StartAsync();
+                }
+                catch
+                {
+                    MessageBox.Show("Exception throw while host start");
+                }
 
                 Services.GetRequiredService<MainWindow>().Show();
                 //return;
