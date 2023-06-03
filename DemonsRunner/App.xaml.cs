@@ -56,12 +56,11 @@ namespace DemonsRunner
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
 
-                var host = Host;
                 base.OnStartup(e);
 
                 try
                 {
-                    await host.StartAsync().ConfigureAwait(false);
+                    await Host.StartAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
