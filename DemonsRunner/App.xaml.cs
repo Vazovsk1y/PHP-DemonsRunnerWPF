@@ -58,7 +58,7 @@ namespace DemonsRunner
 
                 IsDesignMode = false;
                 base.OnStartup(e);
-                await Host.StartAsync();
+                await Host.StartAsync().ConfigureAwait(false);
                 Services.GetRequiredService<MainWindow>().Show();
             }
 
