@@ -9,7 +9,6 @@
 
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	<PublishSingleFile>true</PublishSingleFile>
 	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>

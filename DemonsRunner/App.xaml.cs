@@ -28,7 +28,7 @@ namespace DemonsRunner
 
         #region --Properties--
 
-        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath()) : Environment.CurrentDirectory;
+        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath())! : Environment.CurrentDirectory;
 
         public static bool IsDesignMode { get; private set; } = true;
 
@@ -58,53 +58,15 @@ namespace DemonsRunner
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
 
                 base.OnStartup(e);
-
-                try
-                {
-                    await Host.StartAsync().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Execption throwned while host starting\n{ex.Message}\n{ex.StackTrace}");
-                }
-
-
-
+                await Host.StartAsync();
                 Services.GetRequiredService<MainWindow>().Show();
             }
-
-
-            //MessageBox.Show("IN Startup before start");
-            ////if (IsNewInstance())
-            //{
-            //    //EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
-            //    //Current.Exit += (sender, args) => eventWaitHandle.Close();
-
-            //    //SetupGlobalExceptionsHandlers();
-            //    IsDesignMode = false;
-            //    base.OnStartup(e);
-            //    MessageBox.Show("after base.OnStartup");
-
-            //    try
-            //    {
-            //        await Host.StartAsync();
-            //    }
-            //    catch
-            //    {
-            //        MessageBox.Show("Exception throw while host start");
-            //    }
-
-            //    Services.GetRequiredService<MainWindow>().Show();
-            //    //return;
-            //}
-
-            //MessageBox.Show("Not new Instance");
         }
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            using var host = Host;
             base.OnExit(e);
+            using var host = Host;
             await host.StopAsync();
         }
 
@@ -120,13 +82,11 @@ namespace DemonsRunner
             {
                 EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
 
-                MessageBox.Show("App is already started!");
                 eventWaitHandle.Set();
                 Current.Shutdown();
             }
             catch (WaitHandleCannotBeOpenedException)
             {
-                MessageBox.Show("Exception thrown, new instance - true");
                 return true;
             }
             return false;
@@ -139,7 +99,6 @@ namespace DemonsRunner
         {
             DispatcherUnhandledException += (sender, e) =>
             {
-                MessageBox.Show($"Exception in main thread\n{e.Exception.Message}\n{e.Exception.InnerException}\n{e.Exception.GetType()}\n{e.Exception.Source}\n{e.Exception.StackTrace}");
                 Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
                     nameof(DispatcherUnhandledException));
                 e.Handled = true;
@@ -148,8 +107,6 @@ namespace DemonsRunner
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                var exeption = e.ExceptionObject as Exception;
-                MessageBox.Show(exeption?.Message);
                 Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}", 
                     nameof(AppDomain.CurrentDomain.UnhandledException));
             };
