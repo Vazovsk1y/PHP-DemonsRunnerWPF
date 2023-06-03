@@ -69,8 +69,8 @@ namespace DemonsRunner.Domain.Models
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    //WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
-                    WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
+                    WorkingDirectory = ExecutableScript.ExecutableFile.FullPath.TrimEnd(ExecutableScript.ExecutableFile.Name.ToCharArray()),
+                    //WorkingDirectory = "D:\\IDE\\MyTelegramBot\\TelegramBot\\bin\\Release\\net7.0",   // for testing 
                     CreateNoWindow = true,
                 },
                 EnableRaisingEvents = true,
@@ -135,8 +135,8 @@ namespace DemonsRunner.Domain.Models
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
-            //_executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
-            _executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
+            _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
+            //_executableConsole.StandardInput.WriteLine("TelegramBot.exe start");  // for test
             _executableConsole.StandardInput.Flush();
             return Task.CompletedTask;
         }

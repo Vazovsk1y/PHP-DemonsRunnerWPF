@@ -28,7 +28,7 @@ namespace DemonsRunner
 
         #region --Properties--
 
-        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath()) : Environment.CurrentDirectory;
+        public static string CurrentDirectory => IsDesignMode ? Path.GetDirectoryName(GetSourceCodePath())! : Environment.CurrentDirectory;
 
         public static bool IsDesignMode { get; private set; } = true;
 
@@ -40,50 +40,27 @@ namespace DemonsRunner
 
         #region --Constructors--
 
-
+        public App()
+        {
+            SetupGlobalExceptionsHandlers();
+        }
 
         #endregion
 
         #region --Methods--
 
-        protected override async void OnStartup(StartupEventArgs e)
-        {
-            if (IsNewInstance())
-            {
-                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
-                Current.Exit += (sender, args) => eventWaitHandle.Close();
-
-                SetupGlobalExceptionsHandlers();
-                var host = Host;
-                base.OnStartup(e);
-                await host.StartAsync().ConfigureAwait(false);
-                IsDesignMode = false;
-
-                Services.GetRequiredService<MainWindow>().Show();
-            }
-        }
-
-        protected override async void OnExit(ExitEventArgs e)
-        {
-            using var host = Host;
-            base.OnExit(e);
-            await host.StopAsync().ConfigureAwait(false);
-            Current.Shutdown();
-        }
-
-        internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
+        public static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             .AddBuisnessLayer()
             .AddDataAccessLayer()
             .AddClientLayer()
             ;
 
-        private bool IsNewInstance()
+        public bool IsNewInstance()
         {
             try
             {
                 EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
                 eventWaitHandle.Set();
-                Shutdown();
             }
             catch (WaitHandleCannotBeOpenedException)
             {
@@ -92,14 +69,14 @@ namespace DemonsRunner
             return false;
         }
 
-        private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
+        private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path)
             ? throw new ArgumentNullException(nameof(path)) : path;
 
         private void SetupGlobalExceptionsHandlers()
         {
             DispatcherUnhandledException += (sender, e) =>
             {
-                Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
+                Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}",
                     nameof(DispatcherUnhandledException));
                 e.Handled = true;
                 Current?.Shutdown();
@@ -107,11 +84,37 @@ namespace DemonsRunner
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}", 
+                Log.Error(e.ExceptionObject as Exception, "Something went wrong in {nameofCurrentDomainUnhandledException}",
                     nameof(AppDomain.CurrentDomain.UnhandledException));
             };
+        }
+
+        protected override async void OnStartup(StartupEventArgs e)
+        {
+            IsDesignMode = false;
+            if (IsNewInstance())
+            {
+                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
+                Current.Exit += (sender, args) => eventWaitHandle.Close();
+
+                base.OnStartup(e);
+                await Host.StartAsync();
+                Services.GetRequiredService<MainWindow>().Show();
+            }
+            else
+            {
+                Current.Shutdown();
+            }
+        }
+
+        protected override async void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            using var host = Host;
+            await host.StopAsync();
         }
 
         #endregion
     }
 }
+
