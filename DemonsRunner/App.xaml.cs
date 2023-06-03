@@ -130,7 +130,7 @@ namespace DemonsRunner
         {
             DispatcherUnhandledException += (sender, e) =>
             {
-                MessageBox.Show(e.Exception.Message);
+                MessageBox.Show($"Exception in main thread\n{e.Exception.Message}\n{e.Exception.InnerException}\n{e.Exception.GetType()}\n{e.Exception.Source}\n{e.Exception.StackTrace}");
                 Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
                     nameof(DispatcherUnhandledException));
                 e.Handled = true;
