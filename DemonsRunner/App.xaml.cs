@@ -51,6 +51,7 @@ namespace DemonsRunner
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            ////////
             IsDesignMode = false;
             if (IsNewInstance())
             {
