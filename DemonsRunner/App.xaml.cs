@@ -56,9 +56,11 @@ namespace DemonsRunner
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
                 Current.Exit += (sender, args) => eventWaitHandle.Close();
 
-                IsDesignMode = false;
+                var host = Host;
                 base.OnStartup(e);
-                await Host.StartAsync().ConfigureAwait(false);
+                await host.StartAsync().ConfigureAwait(false);
+                IsDesignMode = false;
+
                 Services.GetRequiredService<MainWindow>().Show();
             }
 
