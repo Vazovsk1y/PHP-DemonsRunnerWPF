@@ -30,24 +30,32 @@ namespace DemonsRunner
             .CreateDefaultBuilder(args)
             .UseSerilog((host, loggingConfiguration) =>
             {
-                string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string appName = AppDomain.CurrentDomain.FriendlyName;
-
-                string logFileDirectoryPath = Path.Combine(appDataPath, appName);
-                if (!Directory.Exists(logFileDirectoryPath))
+                try
                 {
-                    Directory.CreateDirectory(logFileDirectoryPath);
-                }
+                    string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    string appName = AppDomain.CurrentDomain.FriendlyName;
 
-                string logFileName = "log.txt";
-                string logFileFullPath = Path.Combine(logFileDirectoryPath, logFileName);
+                    string logFileDirectoryPath = Path.Combine(appDataPath, appName);
+                    if (!Directory.Exists(logFileDirectoryPath))
+                    {
+                        Directory.CreateDirectory(logFileDirectoryPath);
+                    }
 
-                loggingConfiguration.MinimumLevel.Information();
+                    string logFileName = "log.txt";
+                    string logFileFullPath = Path.Combine(logFileDirectoryPath, logFileName);
+
+                    loggingConfiguration.MinimumLevel.Information();
 #if DEBUG
-                loggingConfiguration.WriteTo.Debug();
+                    loggingConfiguration.WriteTo.Debug();
 #else
                 loggingConfiguration.WriteTo.File(logFileFullPath, rollingInterval: RollingInterval.Day);
 #endif
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Execption throwned in use serilog \n{ex.Message}\n{ex.StackTrace}");
+                }
+               
             })
             .UseContentRoot(App.CurrentDirectory)
             .ConfigureServices(App.ConfigureServices)
