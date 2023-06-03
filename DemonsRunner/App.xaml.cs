@@ -51,6 +51,7 @@ namespace DemonsRunner
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            MessageBox.Show("IN Startup before IsNewInstance");
             if (IsNewInstance())
             {
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
@@ -63,7 +64,10 @@ namespace DemonsRunner
                 IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
+                return;
             }
+
+            MessageBox.Show("Not new Instance");
         }
 
         protected override async void OnExit(ExitEventArgs e)
@@ -90,6 +94,7 @@ namespace DemonsRunner
             }
             catch (WaitHandleCannotBeOpenedException)
             {
+                MessageBox.Show("App is not starting, exception thrown, new instance");
                 return true;
             }
             return false;
