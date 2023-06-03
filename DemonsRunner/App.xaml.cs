@@ -58,7 +58,17 @@ namespace DemonsRunner
 
                 var host = Host;
                 base.OnStartup(e);
-                await host.StartAsync().ConfigureAwait(false);
+
+                try
+                {
+                    await host.StartAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Execption throwned while host starting\n{ex.Message}\n{ex.StackTrace}");
+                }
+
+
                 IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
