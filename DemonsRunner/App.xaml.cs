@@ -51,23 +51,23 @@ namespace DemonsRunner
 
         protected override async void OnStartup(StartupEventArgs e)
         {
-            MessageBox.Show("IN Startup before IsNewInstance");
-            if (IsNewInstance())
+            MessageBox.Show("IN Startup before start");
+            //if (IsNewInstance())
             {
-                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
-                Current.Exit += (sender, args) => eventWaitHandle.Close();
+                //EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
+                //Current.Exit += (sender, args) => eventWaitHandle.Close();
 
                 //SetupGlobalExceptionsHandlers();
-                var host = Host;
                 base.OnStartup(e);
+                var host = Host;
                 await host.StartAsync().ConfigureAwait(false);
                 IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
-                return;
+                //return;
             }
 
-            MessageBox.Show("Not new Instance");
+            //MessageBox.Show("Not new Instance");
         }
 
         protected override async void OnExit(ExitEventArgs e)
@@ -84,21 +84,21 @@ namespace DemonsRunner
             .AddClientLayer()
             ;
 
-        private bool IsNewInstance()
-        {
-            try
-            {
-                EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
-                eventWaitHandle.Set();
-                Shutdown();
-            }
-            catch (WaitHandleCannotBeOpenedException)
-            {
-                MessageBox.Show("App is not starting, exception thrown, new instance");
-                return true;
-            }
-            return false;
-        }
+        //private bool IsNewInstance()
+        //{
+        //    try
+        //    {
+        //        EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
+        //        eventWaitHandle.Set();
+        //        Shutdown();
+        //    }
+        //    catch (WaitHandleCannotBeOpenedException)
+        //    {
+        //        MessageBox.Show("App is not starting, exception thrown, new instance");
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
             ? throw new ArgumentNullException(nameof(path)) : path;
