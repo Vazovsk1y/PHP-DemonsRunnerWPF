@@ -51,6 +51,7 @@ namespace DemonsRunner
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            IsDesignMode = false;
             if (IsNewInstance())
             {
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
@@ -68,7 +69,6 @@ namespace DemonsRunner
                 }
 
 
-                IsDesignMode = false;
 
                 Services.GetRequiredService<MainWindow>().Show();
             }
