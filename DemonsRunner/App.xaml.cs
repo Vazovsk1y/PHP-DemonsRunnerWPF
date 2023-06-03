@@ -51,29 +51,41 @@ namespace DemonsRunner
 
         protected override async void OnStartup(StartupEventArgs e)
         {
-            MessageBox.Show("IN Startup before start");
-            //if (IsNewInstance())
+            if (IsNewInstance())
             {
-                //EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
-                //Current.Exit += (sender, args) => eventWaitHandle.Close();
+                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
+                Current.Exit += (sender, args) => eventWaitHandle.Close();
 
-                //SetupGlobalExceptionsHandlers();
                 IsDesignMode = false;
                 base.OnStartup(e);
-                MessageBox.Show("after base.OnStartup");
-
-                try
-                {
-                    await Host.StartAsync();
-                }
-                catch
-                {
-                    MessageBox.Show("Exception throw while host start");
-                }
-
+                await Host.StartAsync();
                 Services.GetRequiredService<MainWindow>().Show();
-                //return;
             }
+
+
+            //MessageBox.Show("IN Startup before start");
+            ////if (IsNewInstance())
+            //{
+            //    //EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
+            //    //Current.Exit += (sender, args) => eventWaitHandle.Close();
+
+            //    //SetupGlobalExceptionsHandlers();
+            //    IsDesignMode = false;
+            //    base.OnStartup(e);
+            //    MessageBox.Show("after base.OnStartup");
+
+            //    try
+            //    {
+            //        await Host.StartAsync();
+            //    }
+            //    catch
+            //    {
+            //        MessageBox.Show("Exception throw while host start");
+            //    }
+
+            //    Services.GetRequiredService<MainWindow>().Show();
+            //    //return;
+            //}
 
             //MessageBox.Show("Not new Instance");
         }
@@ -82,8 +94,7 @@ namespace DemonsRunner
         {
             using var host = Host;
             base.OnExit(e);
-            await host.StopAsync().ConfigureAwait(false);
-            Current.Shutdown();
+            await host.StopAsync();
         }
 
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
@@ -92,21 +103,23 @@ namespace DemonsRunner
             .AddClientLayer()
             ;
 
-        //private bool IsNewInstance()
-        //{
-        //    try
-        //    {
-        //        EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
-        //        eventWaitHandle.Set();
-        //        Shutdown();
-        //    }
-        //    catch (WaitHandleCannotBeOpenedException)
-        //    {
-        //        MessageBox.Show("App is not starting, exception thrown, new instance");
-        //        return true;
-        //    }
-        //    return false;
-        //}
+        private bool IsNewInstance()
+        {
+            try
+            {
+                EventWaitHandle eventWaitHandle = EventWaitHandle.OpenExisting(Name); // here will be exception if app is not even starting
+
+                MessageBox.Show("App is already started!");
+                eventWaitHandle.Set();
+                Current.Shutdown();
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                MessageBox.Show("Exception thrown, new instance - true");
+                return true;
+            }
+            return false;
+        }
 
         private static string GetSourceCodePath([CallerFilePath] string path = null) => string.IsNullOrWhiteSpace(path) 
             ? throw new ArgumentNullException(nameof(path)) : path;
@@ -115,6 +128,7 @@ namespace DemonsRunner
         {
             DispatcherUnhandledException += (sender, e) =>
             {
+                MessageBox.Show(e.Exception.Message);
                 Log.Error(e.Exception, "Something went wrong in {nameofDispatcherUnhandledException}", 
                     nameof(DispatcherUnhandledException));
                 e.Handled = true;
