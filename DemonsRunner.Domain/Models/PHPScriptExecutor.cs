@@ -156,7 +156,7 @@ namespace DemonsRunner.Domain.Models
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
-            _executableConsole.Kill();
+            _executableConsole.Kill(true);
             _isClosedByTaskManager = false;
             IsRunning = false;
             return Task.CompletedTask;
@@ -187,12 +187,15 @@ namespace DemonsRunner.Domain.Models
 
         #region --EventHandlers--
 
-        private void OnProcessOutputDataReceived(object sender, DataReceivedEventArgs e)
+        private async void OnProcessOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             string endcodingMessage = "Active code page: 65001";
             if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
             {
-                ScriptOutputMessageReceived?.Invoke(this, e.Data);
+                if (ScriptOutputMessageReceived != null)
+                {
+                    await ScriptOutputMessageReceived.Invoke(this, e.Data);
+                }
             }
         }
 
