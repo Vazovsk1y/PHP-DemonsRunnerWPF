@@ -156,8 +156,8 @@ namespace DemonsRunner.Domain.Models
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
-            _executableConsole.Kill(true);
             _isClosedByTaskManager = false;
+            _executableConsole.Kill(true);
             IsRunning = false;
             return Task.CompletedTask;
         }
