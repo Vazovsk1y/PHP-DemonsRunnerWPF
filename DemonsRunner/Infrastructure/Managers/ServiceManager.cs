@@ -1,7 +1,7 @@
-﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
-using DemonsRunner.Domain.Enums;
+﻿using DemonsRunner.BuisnessLayer.Responses.Enums;
+using DemonsRunner.BuisnessLayer.Responses.Interfaces;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.Infrastructure.Managers.Interfaces;
 using DemonsRunner.ViewModels.Interfaces;
 using System.Collections.Generic;

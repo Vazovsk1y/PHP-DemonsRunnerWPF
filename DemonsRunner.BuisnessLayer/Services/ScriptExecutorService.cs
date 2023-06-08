@@ -1,9 +1,10 @@
-﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Responses.Intefaces;
+﻿using DemonsRunner.Domain.Models;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using DemonsRunner.Domain.Responses;
+using DemonsRunner.BuisnessLayer.Responses.Enums;
+using DemonsRunner.BuisnessLayer.Responses.Interfaces;
+using DemonsRunner.BuisnessLayer.Responses;
 
 namespace DemonsRunner.BuisnessLayer.Services
 {

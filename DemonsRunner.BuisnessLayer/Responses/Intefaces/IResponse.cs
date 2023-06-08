@@ -1,6 +1,6 @@
-﻿using DemonsRunner.Domain.Enums;
+﻿using DemonsRunner.BuisnessLayer.Responses.Enums;
 
-namespace DemonsRunner.Domain.Responses.Intefaces
+namespace DemonsRunner.BuisnessLayer.Responses.Interfaces
 {
     /// <summary>
     /// Base response from services.

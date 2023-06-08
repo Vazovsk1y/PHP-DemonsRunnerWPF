@@ -1,4 +1,4 @@
-﻿namespace DemonsRunner.Domain.Enums
+﻿namespace DemonsRunner.BuisnessLayer.Responses.Enums
 {
     /// <summary>
     /// Operation result code.

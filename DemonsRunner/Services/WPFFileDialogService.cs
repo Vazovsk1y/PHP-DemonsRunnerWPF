@@ -1,13 +1,13 @@
-﻿using DemonsRunner.Domain.Enums;
-using DemonsRunner.Domain.Models;
+﻿using DemonsRunner.Domain.Models;
 using Microsoft.Win32;
-using DemonsRunner.Domain.Responses.Intefaces;
 using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using DemonsRunner.Domain.Responses;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using DemonsRunner.BuisnessLayer.Responses.Enums;
+using DemonsRunner.BuisnessLayer.Responses.Interfaces;
+using DemonsRunner.BuisnessLayer.Responses;
 
 namespace DemonsRunner.Services
 {

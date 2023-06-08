@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemonsRunner.Domain", "Demo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemonsRunner.DAL", "DemonsRunner.DAL\DemonsRunner.DAL.csproj", "{BDFEE2AF-D088-4F0B-9D25-72277ACF62FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemonsRunner.BuisnessLayer", "DemonsRunner.BuisnessLayer\DemonsRunner.BuisnessLayer.csproj", "{FAB5B4EB-DB3E-4BBD-8FA0-56A92CB677C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemonsRunner.BuisnessLayer", "DemonsRunner.BuisnessLayer\DemonsRunner.BuisnessLayer.csproj", "{FAB5B4EB-DB3E-4BBD-8FA0-56A92CB677C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

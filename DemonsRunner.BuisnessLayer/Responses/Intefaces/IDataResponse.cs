@@ -1,4 +1,4 @@
-﻿namespace DemonsRunner.Domain.Responses.Intefaces
+﻿namespace DemonsRunner.BuisnessLayer.Responses.Interfaces
 {
     /// <summary>
     /// Response from services with data, extend base response.

@@ -1,5 +1,5 @@
-﻿using DemonsRunner.Domain.Models;
-using DemonsRunner.Domain.Responses.Intefaces;
+﻿using DemonsRunner.BuisnessLayer.Responses.Interfaces;
+using DemonsRunner.Domain.Models;
 using DemonsRunner.ViewModels.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,6 +1,6 @@
-﻿using DemonsRunner.BuisnessLayer.Services.Interfaces;
+﻿using DemonsRunner.BuisnessLayer.Responses.Enums;
+using DemonsRunner.BuisnessLayer.Services.Interfaces;
 using DemonsRunner.Commands;
-using DemonsRunner.Domain.Enums;
 using DemonsRunner.Domain.Models;
 using DemonsRunner.Infrastructure.Extensions;
 using DemonsRunner.ViewModels.Base;
