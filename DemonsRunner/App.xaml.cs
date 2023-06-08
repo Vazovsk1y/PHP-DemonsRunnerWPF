@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -55,7 +54,7 @@ namespace DemonsRunner
             .AddClientLayer()
             ;
 
-        public bool IsNewInstance()
+        public bool IsNewAppProcessInstance()
         {
             try
             {
@@ -92,19 +91,9 @@ namespace DemonsRunner
         protected override async void OnStartup(StartupEventArgs e)
         {
             IsDesignMode = false;
-            if (IsNewInstance())
-            {
-                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, Name);
-                Current.Exit += (sender, args) => eventWaitHandle.Close();
-
-                base.OnStartup(e);
-                await Host.StartAsync();
-                Services.GetRequiredService<MainWindow>().Show();
-            }
-            else
-            {
-                Current.Shutdown();
-            }
+            base.OnStartup(e);
+            await Host.StartAsync();
+            Services.GetRequiredService<MainWindow>().Show();
         }
 
         protected override async void OnExit(ExitEventArgs e)

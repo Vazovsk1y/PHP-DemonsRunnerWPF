@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using System.IO;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace DemonsRunner
@@ -13,7 +14,13 @@ namespace DemonsRunner
         public static void Main(string[] args)
         {
             App app = new();
-            app.Run();
+            if (app.IsNewAppProcessInstance())
+            {
+                EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, App.Name);
+                app.Exit += (sender, args) => eventWaitHandle.Close();
+
+                app.Run();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host
