@@ -27,7 +27,7 @@ namespace DemonsRunner.Domain.Models
         /// <summary>
         /// Occurs when data have received from script cmd output, such as errors or messages.
         /// </summary>
-        public event Func<object, string, Task>? ScriptOutputMessageReceived;
+        public event Func<object, string, Task>? OutputMessageReceived;
 
         #endregion
 
@@ -44,8 +44,6 @@ namespace DemonsRunner.Domain.Models
         private bool _isDisposed = false;
 
         private bool _isClosedByTaskManager = true;
-
-        private readonly Process _executableConsole;
 
         #endregion
 
@@ -257,6 +255,11 @@ namespace DemonsRunner.Domain.Models
                 return;
             }
 
+            if (IsRunning)
+            {
+                _executableConsole.Kill(true);
+                IsRunning = false;
+            }
             _executableConsole.Exited -= OnProcessExited;
             _executableConsole.OutputDataReceived -= OnProcessOutputDataReceived;
             _executableConsole.ErrorDataReceived -= OnProcessOutputDataReceived;
