@@ -75,7 +75,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 return response;
             }
 
-            if (runningScriptExecutor.IsMessagesReceivingEnable)
+            if (runningScriptExecutor.IsMessagesReceiving)
             {
                 _logger.LogError("[{RunningScriptName}] messages receiving was already started", runningScriptExecutor.ExecutableScript.Name);
                 response.Description = $"{runningScriptExecutor.ExecutableScript.Name} script messages receiving was already started.";
@@ -162,7 +162,7 @@ namespace DemonsRunner.BuisnessLayer.Services
                 return response;
             }
 
-            if (!runningScriptExecutor.IsMessagesReceivingEnable)
+            if (!runningScriptExecutor.IsMessagesReceiving)
             {
                 _logger.LogError("[{RunningScriptName}] messages receiving wasn't started", runningScriptExecutor.ExecutableScript.Name);
                 response.Description = 

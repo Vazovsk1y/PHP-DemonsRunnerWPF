@@ -22,7 +22,7 @@ namespace DemonsRunner.Domain.Models
         /// Occurs when user stop the script process in task manager manualy.
         /// Messages receiving if it was started will be stop.
         /// </summary>
-        public event EventHandler? ScriptExitedByTaskManager;
+        public event EventHandler? ExitedByTaskManager;
 
         /// <summary>
         /// Occurs when data have received from script cmd output, such as errors or messages.
@@ -32,6 +32,14 @@ namespace DemonsRunner.Domain.Models
         #endregion
 
         #region --Fields--
+
+        private readonly PHPScript _executableScript;
+
+        private readonly Process _executableConsole;
+
+        private bool _isMessagesReceivingEnable;
+
+        private bool _isRunning;
 
         private bool _isDisposed = false;
 
@@ -46,11 +54,34 @@ namespace DemonsRunner.Domain.Models
         /// <summary>
         /// Php-script model that executed/will be execute in cmd.
         /// </summary>
-        public PHPScript ExecutableScript { get; }
+        public PHPScript ExecutableScript 
+        {
+            get 
+            {
+                ThrownExceptionIfDisposed();
+                return _executableScript;
+            }
+        }
 
-        public bool IsRunning { get; private set; }
+        public bool IsRunning
+        {
+            get
+            {
+                ThrownExceptionIfDisposed();
+                return _isRunning;
+            }
+            private set => _isRunning = value;
+        }
 
-        public bool IsMessagesReceivingEnable { get; private set; }
+        public bool IsMessagesReceiving
+        {
+            get
+            {
+                ThrownExceptionIfDisposed();
+                return _isMessagesReceivingEnable;
+            }
+            private set => _isMessagesReceivingEnable = value;
+        }
 
         #endregion
 
@@ -58,7 +89,7 @@ namespace DemonsRunner.Domain.Models
 
         public PHPScriptExecutor(PHPScript executableScript)
         {
-            ExecutableScript = executableScript;
+            _executableScript = executableScript;
             _executableConsole = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -92,7 +123,7 @@ namespace DemonsRunner.Domain.Models
         /// </returns>
         public Task<bool> StartAsync()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
+            ThrownExceptionIfDisposed();
             if (IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started.");
@@ -108,19 +139,19 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StartMessagesReceivingAsync()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
+            ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
-            if (IsMessagesReceivingEnable)
+            if (IsMessagesReceiving)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is already started.");
             }
 
             _executableConsole.BeginOutputReadLine();
             _executableConsole.BeginErrorReadLine();
-            IsMessagesReceivingEnable = true;
+            IsMessagesReceiving = true;
             return Task.CompletedTask;
         }
 
@@ -129,7 +160,7 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task ExecuteCommandAsync()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
+            ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
@@ -146,14 +177,14 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StopAsync()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-            if (IsMessagesReceivingEnable)
-            {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active.");
-            }
+            ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
+            }
+            if (IsMessagesReceiving)
+            {
+                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active.");
             }
 
             _isClosedByTaskManager = false;
@@ -167,19 +198,19 @@ namespace DemonsRunner.Domain.Models
         /// </summary>
         public Task StopMessagesReceivingAsync()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
+            ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
-            if (!IsMessagesReceivingEnable)
+            if (!IsMessagesReceiving)
             {
                 throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving wasn't started.");
             }
 
             _executableConsole.CancelErrorRead();
             _executableConsole.CancelOutputRead();
-            IsMessagesReceivingEnable = false;
+            IsMessagesReceiving = false;
             return Task.CompletedTask;
         }
 
@@ -192,9 +223,9 @@ namespace DemonsRunner.Domain.Models
             string endcodingMessage = "Active code page: 65001";
             if (!string.IsNullOrEmpty(e.Data) && e.Data != endcodingMessage)
             {
-                if (ScriptOutputMessageReceived != null)
+                if (OutputMessageReceived != null)
                 {
-                    await ScriptOutputMessageReceived.Invoke(this, e.Data);
+                    await OutputMessageReceived.Invoke(this, e.Data);
                 }
             }
         }
@@ -206,15 +237,15 @@ namespace DemonsRunner.Domain.Models
                 return;
             }
 
-            if (IsMessagesReceivingEnable)
+            if (IsMessagesReceiving)
             {
                 _executableConsole.CancelOutputRead();
                 _executableConsole.CancelErrorRead();
-                IsMessagesReceivingEnable = false;
+                IsMessagesReceiving = false;
             }
 
             IsRunning = false;
-            ScriptExitedByTaskManager?.Invoke(this, EventArgs.Empty);
+            ExitedByTaskManager?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
@@ -232,6 +263,8 @@ namespace DemonsRunner.Domain.Models
             _executableConsole.Dispose();
             _isDisposed = true;
         }
+
+        private void ThrownExceptionIfDisposed() => ObjectDisposedException.ThrowIf(_isDisposed, this);
 
         #endregion
     }
