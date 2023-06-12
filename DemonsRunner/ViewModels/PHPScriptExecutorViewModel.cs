@@ -35,8 +35,8 @@ namespace DemonsRunner.ViewModels
             IDataBus dataBus)
         {
             ScriptExecutor = scriptExecutor;
-            ScriptExecutor.ScriptOutputMessageReceived += OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByTaskManager += OnScriptExitedByTaskManager;
+            ScriptExecutor.OutputMessageReceived += OnScriptOutputMessageReceived;
+            ScriptExecutor.ExitedByTaskManager += OnScriptExitedByTaskManager;
             _dataBus = dataBus;
         }
 
@@ -67,8 +67,8 @@ namespace DemonsRunner.ViewModels
                 return;
             }
 
-            ScriptExecutor.ScriptOutputMessageReceived -= OnScriptOutputMessageReceived;
-            ScriptExecutor.ScriptExitedByTaskManager -= OnScriptExitedByTaskManager;
+            ScriptExecutor.OutputMessageReceived -= OnScriptOutputMessageReceived;
+            ScriptExecutor.ExitedByTaskManager -= OnScriptExitedByTaskManager;
             ScriptExecutor.Dispose();
             await App.Current.Dispatcher.InvokeAsync(OutputMessages.Clear);
             _disposed = true;
