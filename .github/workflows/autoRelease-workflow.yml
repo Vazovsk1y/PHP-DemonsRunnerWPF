@@ -1,12 +1,12 @@
-name: "Deploy DemonsRunner"
+name: "Deploy DaemonsRunner"
 
 on:
   push:
     tags:
-      - "demonsRunner/v*"
+      - "daemonsRunner/v*"
 
 env:
-  PROJECT_PATH: DemonsRunner/DemonsRunner.csproj
+  PROJECT_PATH: DaemonsRunner/DaemonsRunner.WPF.csproj
 
 jobs:
   deploy:
