@@ -6,7 +6,7 @@ on:
       - "daemonsRunner/v*"
 
 env:
-  PROJECT_PATH: DaemonsRunner/DaemonsRunner.WPF.csproj
+  PROJECT_PATH: DaemonsRunner.WPF/DaemonsRunner.WPF.csproj
 
 jobs:
   deploy:
