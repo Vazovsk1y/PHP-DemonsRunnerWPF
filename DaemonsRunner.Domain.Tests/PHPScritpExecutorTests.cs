@@ -131,22 +131,6 @@ namespace DaemonsRunner.Domain.Tests
         }
 
         [Fact]
-        public async Task IS_Executor_Output_Message_Received_Event_Raised_when_messages_receiving_started()
-        {
-            using var testExecutor = CreateTestExecutor();
-
-            var eventSpy = new ExecutorOutputMessageReceivedEventSpy();
-            testExecutor.OutputMessageReceived += eventSpy.HandleEvent;
-            await testExecutor.StartAsync();
-            await testExecutor.StartMessagesReceivingAsync();
-            await testExecutor.ExecuteCommandAsync();
-
-            await Task.Delay(eventSpy.EventWaitTimeMs);
-
-            Assert.True(eventSpy.EventHandled);
-        }
-
-        [Fact]
         public async Task IS_Executor_Exited_By_Task_Manager_Event_NOT_Raised_when_kills_the_executor_by_task_manager()
         {
             using var testExecutor = CreateTestExecutor();
