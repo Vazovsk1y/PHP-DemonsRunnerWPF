@@ -19,6 +19,7 @@ namespace DaemonsRunner
                 EventWaitHandle eventWaitHandle = new(false, EventResetMode.AutoReset, App.Name);
                 app.Exit += (sender, args) => eventWaitHandle.Close();
 
+                app.InitializeComponent();
                 app.Run();
             }
         }
