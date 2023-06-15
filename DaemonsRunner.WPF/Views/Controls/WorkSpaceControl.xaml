@@ -8,33 +8,49 @@
              xmlns:m="clr-namespace:DaemonsRunner.Domain.Models;assembly=DaemonsRunner.Domain"
              d:DataContext="{d:DesignInstance Type=viewmodels:WorkSpaceViewModel, IsDesignTimeCreatable=True}"
              mc:Ignorable="d" 
+             Background="Transparent"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TabControl>
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Сконфигурированные скрипты"/>
-                        <TextBlock Text="{Binding ConfiguredScripts.Count}"/>
-                    </StackPanel>
-                </TabItem.Header>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" 
+                CornerRadius="15"
+                Background="{StaticResource BaseBlocksBackgroundBrush}">
+            <Grid>
                 <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="Сконфигурированные скрипты" 
+                               Style="{StaticResource BaseTitlesTextBlocks}"
+                               Margin="10"/>
+
                     <UniformGrid DockPanel.Dock="Bottom"
+                                 Background="{StaticResource BaseWindowBackgroundBrush}"
                                      Rows="1">
-                        <Button Content="Сконфигурировать"
-                                    Margin="5"
-                                    Command="{Binding ConfigureScriptsCommand}"/>
-                        <Button Content="Сбросить скрипты"
-                                    Margin="5"
-                                    Command="{Binding ClearConfiguredScripts}"/>
-                        <Button Content="Запустить"
-                                    Margin="5"
-                                    Command="{Binding StartScriptsCommand}"/>
-                        <Button Content="Остановить"
-                                    Margin="5"
-                                    Command="{Binding StopScriptsCommand}"/>
+                        
+                        <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Margin="0, 5, 5, 5"
+                                    MinHeight="50"
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Command="{Binding ConfigureScriptsCommand}">
+                            <TextBlock Text="Сконфигурировать" 
+                                       Style="{StaticResource BaseElementsTextBlocks}"/>
+                        </Button>
+
+                        <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Margin="5,5,0,5"
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Command="{Binding ClearConfiguredScripts}">
+                            <TextBlock Text="Cбросить" 
+                                       Style="{StaticResource BaseElementsTextBlocks}"/>
+                        </Button>
                     </UniformGrid>
-                    <ListBox ItemsSource="{Binding ConfiguredScripts}">
+
+                    <ListBox DockPanel.Dock="Top"
+                        ItemsSource="{Binding ConfiguredScripts}" BorderThickness="0">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="BorderBrush" Value="Black"/>
@@ -57,18 +73,53 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    
                 </DockPanel>
-            </TabItem>
+            </Grid>
 
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Панель вывода"/>
-                        <TextBlock Text="{Binding ScriptsExecutorsViewModels.Count, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ListBox ItemsSource="{Binding ScriptsExecutorsViewModels}">
+        </Border>
+
+        <GridSplitter Grid.Column="1" 
+                      BorderThickness="0"
+                      Width="10" 
+                      Background="{StaticResource BaseWindowBackgroundBrush}"/>
+
+        <Border Grid.Column="2"
+                CornerRadius="15"
+                  Background="{StaticResource BaseBlocksBackgroundBrush}"
+                  BorderThickness="0"
+                  >
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Margin="10"
+                    Text="Терминал" 
+                           Style="{StaticResource BaseTitlesTextBlocks}"/>
+
+                <UniformGrid DockPanel.Dock="Bottom"
+                             Background="{StaticResource BaseWindowBackgroundBrush}"
+                                     Rows="1">
+                    <Button 
+                                    Margin="0, 5, 5, 5"
+                                    Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Command="{Binding StartScriptsCommand}"
+                        MinHeight="50"
+                        Style="{StaticResource BaseRoundedButton}">
+                        <TextBlock Text="Запустить" Style="{StaticResource BaseElementsTextBlocks}"/>
+                    </Button>
+                    <Button 
+                                    Margin="5,5,0,5"
+                        Style="{StaticResource BaseRoundedButton}"
+                        Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Command="{Binding StopScriptsCommand}">
+                        <TextBlock Text="Остановить" Style="{StaticResource BaseElementsTextBlocks}"/>
+                    </Button>
+                </UniformGrid>
+                
+                <ScrollViewer DockPanel.Dock="Top"
+                              BorderThickness="0"
+                    VerticalScrollBarVisibility="Auto">
+                    <ListBox BorderThickness="0"
+                        ItemsSource="{Binding ScriptsExecutorsViewModels}">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="BorderBrush" Value="Black"/>
@@ -98,7 +149,9 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </ScrollViewer>
-            </TabItem>
-        </TabControl>
+                
+            </DockPanel>
+        </Border>
+        
     </Grid>
 </UserControl>
