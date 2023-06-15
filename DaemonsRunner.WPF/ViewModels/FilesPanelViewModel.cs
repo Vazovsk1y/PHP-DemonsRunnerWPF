@@ -30,7 +30,14 @@ namespace DaemonsRunner.ViewModels
 
         #region --Constructors--
 
-        public FilesPanelViewModel() { }
+        public FilesPanelViewModel() 
+        {
+            if (App.IsDesignMode)
+            {
+                var files = Enumerable.Range(0, 10).Select(i => new PHPFile("Test.php", "C:/fj/Test.php")).ToList();
+                _files = new ObservableCollection<PHPFile>(files);
+            }
+        }
 
         public FilesPanelViewModel(
             IFileService fileService,
