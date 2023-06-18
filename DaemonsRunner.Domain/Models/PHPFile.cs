@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using DaemonsRunner.Domain.Exceptions.Base;
+using System.Text.Json.Serialization;
 
 namespace DaemonsRunner.Domain.Models
 {
@@ -35,11 +36,11 @@ namespace DaemonsRunner.Domain.Models
         {
             if (!name.EndsWith(".php"))
             {
-                throw new ArgumentException("File extension wasn't correct.", name);
+                throw new DomainException("File extension wasn't correct.");
             }
             if (!fullPath.EndsWith(name))
             {
-                throw new ArgumentException($"Incorrect path.\nName: {name}\nPath: {fullPath}", fullPath);
+                throw new DomainException($"Incorrect path.\nName: {name}\nPath: {fullPath}");
             }
 
             return new PHPFile(name, fullPath);

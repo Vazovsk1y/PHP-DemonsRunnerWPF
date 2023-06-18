@@ -1,4 +1,5 @@
-﻿using DaemonsRunner.Domain.Models;
+﻿using DaemonsRunner.Domain.Exceptions.Base;
+using DaemonsRunner.Domain.Models;
 using DaemonsRunner.Domain.Tests.Infrastructure;
 using DaemonsRunner.Domain.Tests.Infrastructure.EventSpies;
 
@@ -57,7 +58,7 @@ namespace DaemonsRunner.Domain.Tests
 
             var startingResult = await testExecutor.StartAsync();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.StartAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.StartAsync);
         }
 
         [Fact]
@@ -77,7 +78,7 @@ namespace DaemonsRunner.Domain.Tests
         {
             using var testExecutor = CreateTestExecutor();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.StopAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.StopAsync);
         }
 
         [Fact]
@@ -88,7 +89,7 @@ namespace DaemonsRunner.Domain.Tests
             await testExecutor.StartAsync();
             await testExecutor.StartMessagesReceivingAsync();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.StopAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.StopAsync);
         }
 
         [Fact]
@@ -108,7 +109,7 @@ namespace DaemonsRunner.Domain.Tests
         {
             using var testExecutor = CreateTestExecutor();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.StartMessagesReceivingAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.StartMessagesReceivingAsync);
         }
 
         [Fact]
@@ -119,7 +120,7 @@ namespace DaemonsRunner.Domain.Tests
             await testExecutor.StartAsync();
             await testExecutor.StartMessagesReceivingAsync();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.StartMessagesReceivingAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.StartMessagesReceivingAsync);
         }
 
         [Fact]
@@ -127,7 +128,7 @@ namespace DaemonsRunner.Domain.Tests
         {
             using var testExecutor = CreateTestExecutor();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(testExecutor.ExecuteCommandAsync);
+            await Assert.ThrowsAsync<DomainException>(testExecutor.ExecuteCommandAsync);
         }
 
         [Fact]

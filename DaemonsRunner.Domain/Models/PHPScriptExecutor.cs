@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using DaemonsRunner.Domain.Exceptions.Base;
+using System.Diagnostics;
 
 namespace DaemonsRunner.Domain.Models
 {
@@ -129,7 +130,7 @@ namespace DaemonsRunner.Domain.Models
             ThrownExceptionIfDisposed();
             if (IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} is already started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} is already started.");
             }
 
             bool startingResult = _executableConsole.Start();
@@ -145,11 +146,11 @@ namespace DaemonsRunner.Domain.Models
             ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
             if (IsMessagesReceiving)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is already started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} messages receiving is already started.");
             }
 
             _executableConsole.BeginOutputReadLine();
@@ -166,7 +167,7 @@ namespace DaemonsRunner.Domain.Models
             ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
 
             _executableConsole.StandardInput.WriteLine(ExecutableScript.Command);
@@ -183,11 +184,11 @@ namespace DaemonsRunner.Domain.Models
             ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
             if (IsMessagesReceiving)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving is active.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} messages receiving is active.");
             }
 
             _isClosedByTaskManager = false;
@@ -204,11 +205,11 @@ namespace DaemonsRunner.Domain.Models
             ThrownExceptionIfDisposed();
             if (!IsRunning)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} wasn't started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} wasn't started.");
             }
             if (!IsMessagesReceiving)
             {
-                throw new InvalidOperationException($"{nameof(PHPScriptExecutor)} messages receiving wasn't started.");
+                throw new DomainException($"{nameof(PHPScriptExecutor)} messages receiving wasn't started.");
             }
 
             _executableConsole.CancelErrorRead();
