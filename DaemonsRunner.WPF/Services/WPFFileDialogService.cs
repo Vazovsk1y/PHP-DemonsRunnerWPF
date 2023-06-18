@@ -61,7 +61,7 @@ namespace DaemonsRunner.Services
 
             for (int i = 0; i < fullFilesPath.Length; i++)
             {
-                files.Add(new PHPFile(filesName[i], fullFilesPath[i]));
+                files.Add(PHPFile.Create(filesName[i], fullFilesPath[i]));
             }
 
             _logger.LogInformation("Php-files count in selected files [{demonsCount}]", files.Count);

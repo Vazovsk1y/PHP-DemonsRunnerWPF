@@ -6,16 +6,18 @@ using Microsoft.Extensions.Logging;
 using DaemonsRunner.BuisnessLayer.Responses.Enums;
 using DaemonsRunner.BuisnessLayer.Responses.Interfaces;
 using DaemonsRunner.BuisnessLayer.Responses;
+using DaemonsRunner.DAL.Repositories;
+using DaemonsRunner.DAL.Mappers;
 
 namespace DaemonsRunner.BuisnessLayer.Services
 {
     public class FileService : IFileService
     {
-        private readonly IFileRepository<PHPFile> _repository;
+        private readonly IFileRepository<PHPFileDTO> _repository;
         private readonly ILogger<FileService> _logger;
 
         public FileService(
-            IFileRepository<PHPFile> repository, 
+            IFileRepository<PHPFileDTO> repository, 
             ILogger<FileService> logger)
         {
             _repository = repository;
@@ -24,7 +26,9 @@ namespace DaemonsRunner.BuisnessLayer.Services
 
         public IDataResponse<IEnumerable<PHPFile>> GetSaved()
         {
-            var files = _repository.GetAll().ToList();
+            var filesDTO = _repository.GetAll().ToList();
+            var files = filesDTO.Select(i => i.MapToModel()).ToList();
+
             var response = new DataResponse<IEnumerable<PHPFile>>
             {
                 Data = files,
@@ -45,13 +49,14 @@ namespace DaemonsRunner.BuisnessLayer.Services
             ArgumentNullException.ThrowIfNull(saveFiles);
 
             int savеFilesCount = saveFiles.ToList().Count;
+            var saveFilesDTO = saveFiles.Select(i => i.MapToDTO()).ToList();
             var response = new Response
             {
                 OperationStatus = StatusCode.Success,
             };
 
             _logger.LogInformation("Saving [{savedFilesCount}] files in storage file started", savеFilesCount);
-            _repository.SaveAll(saveFiles);
+            _repository.SaveAll(saveFilesDTO);
             _logger.LogInformation("[{savedFilesCount}] files were successfully saved", savеFilesCount);
 
             response.Description = $"[{savеFilesCount}] files were successfully saved.";

@@ -190,10 +190,10 @@ namespace DaemonsRunner.Domain.Tests
         private PHPScriptExecutor CreateTestExecutor()
         {
             var randomFileName = _testStorage.GetRandomFileName();
-            var phpFile = new PHPFile(randomFileName, Path.Combine(_testStorage.TestDirectoryPath, randomFileName));
-            var script = new PHPScript(phpFile);
+            var phpFile = PHPFile.Create(randomFileName, Path.Combine(_testStorage.TestDirectoryPath, randomFileName));
+            var script = PHPScript.Create(phpFile);
 
-            return new PHPScriptExecutor(script);
+            return PHPScriptExecutor.Create(script);
         }
     }
 }

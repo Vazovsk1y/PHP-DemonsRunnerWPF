@@ -10,7 +10,7 @@ namespace DaemonsRunner.DAL.Extensions
     public static class Registrator
     {
         public static IServiceCollection AddDataAccessLayer(this IServiceCollection services) => services
-            .AddScoped<IFileRepository<PHPFile>, FileRepository>()
+            .AddScoped<IFileRepository<PHPFileDTO>, FileRepository>()
             .AddTransient<IStorageFactory, StorageFactory>()
             ;
     }

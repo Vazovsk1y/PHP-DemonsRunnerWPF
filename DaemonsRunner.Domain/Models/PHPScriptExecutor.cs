@@ -85,7 +85,7 @@ namespace DaemonsRunner.Domain.Models
 
         #region --Constructors--
 
-        public PHPScriptExecutor(PHPScript executableScript)
+        private PHPScriptExecutor(PHPScript executableScript)
         {
             _executableScript = executableScript;
             _executableConsole = new Process
@@ -112,6 +112,11 @@ namespace DaemonsRunner.Domain.Models
         #endregion
 
         #region --Methods--
+
+        public static PHPScriptExecutor Create(PHPScript executableScript)
+        {
+            return new PHPScriptExecutor(executableScript);
+        }
 
         /// <summary>
         /// Starts script cmd process.

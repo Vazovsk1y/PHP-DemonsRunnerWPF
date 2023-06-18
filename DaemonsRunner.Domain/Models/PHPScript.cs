@@ -24,9 +24,14 @@ namespace DaemonsRunner.Domain.Models
         /// </summary>
         public PHPFile ExecutableFile { get; }
 
-        public PHPScript(PHPFile executableFile)
+        private PHPScript(PHPFile executableFile)
         {
             ExecutableFile = executableFile;
+        }
+
+        public static PHPScript Create(PHPFile executableFile)
+        {
+            return new PHPScript(executableFile);
         }
     }
 }

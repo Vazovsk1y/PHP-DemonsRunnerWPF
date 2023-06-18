@@ -40,7 +40,7 @@ namespace DaemonsRunner.BuisnessLayer.Services
                 return response;
             }
 
-            var executor = new PHPScriptExecutor(script);
+            var executor = PHPScriptExecutor.Create(script);
             if (await executor.StartAsync().ConfigureAwait(false))
             {
                 _logger.LogInformation("Cmd was successfully started");

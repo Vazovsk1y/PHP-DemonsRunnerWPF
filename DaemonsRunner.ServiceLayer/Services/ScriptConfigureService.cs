@@ -23,9 +23,9 @@ namespace DaemonsRunner.BuisnessLayer.Services
 
             _logger.LogInformation("Configuring [{demonsCount}] files in scripts started", phpFiles.ToList().Count);
             var configuredScripts = new List<PHPScript>();
-            foreach (var demon in phpFiles)
+            foreach (var file in phpFiles)
             {
-                configuredScripts.Add(new PHPScript(demon));
+                configuredScripts.Add(PHPScript.Create(file));
             }
             _logger.LogInformation("[{configuredScriptsCount}] scripts were successfully configured", configuredScripts.Count);
 

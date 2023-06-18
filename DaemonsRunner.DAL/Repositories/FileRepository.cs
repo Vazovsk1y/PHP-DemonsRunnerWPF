@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace DaemonsRunner.DAL.Repositories
 {
-    public class FileRepository : IFileRepository<PHPFile>
+    public class FileRepository : IFileRepository<PHPFileDTO>
     {
         // The class responsibility is provide to calling code the interface to interract with data in storage json file on user pc.
         // Analogy of the repository pattern at work with dbContext of EF.
@@ -18,7 +18,7 @@ namespace DaemonsRunner.DAL.Repositories
             _storageFile = storageFactory.CreateStorage(StorageType.File, "data.json");
         }
 
-        public IEnumerable<PHPFile> GetAll()
+        public IEnumerable<PHPFileDTO> GetAll()
         {
             if (!File.Exists(_storageFile.FullPath))
             {
@@ -29,11 +29,11 @@ namespace DaemonsRunner.DAL.Repositories
             {
                 using var reader = new StreamReader(_storageFile.FullPath);
                 string json = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<IEnumerable<PHPFile>>(json) ?? Enumerable.Empty<PHPFile>();
+                return JsonConvert.DeserializeObject<IEnumerable<PHPFileDTO>>(json) ?? Enumerable.Empty<PHPFileDTO>();
             }
         }
 
-        public void SaveAll(IEnumerable<PHPFile> items)
+        public void SaveAll(IEnumerable<PHPFileDTO> items)
         {
             lock (_locker)
             {
@@ -42,5 +42,12 @@ namespace DaemonsRunner.DAL.Repositories
                 writer.Write(json);
             }
         }
+    }
+
+    public class PHPFileDTO 
+    {
+        public string Name { get; set; } = null!;
+
+        public string FullPath { get; set; } = null!;
     }
 }
