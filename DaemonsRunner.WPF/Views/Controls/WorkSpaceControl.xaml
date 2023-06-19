@@ -17,39 +17,24 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" 
-                CornerRadius="15"
-                Background="{StaticResource BaseBlocksBackgroundBrush}">
-            <Grid>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="0.3*"/>
+            </Grid.RowDefinitions>
+
+
+            <Border Grid.Row="0" 
+                    Background="{StaticResource BaseBlocksBackgroundBrush}"
+                    CornerRadius="{StaticResource BaseBlocksRoundingAngle}">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top"
-                               Text="Сконфигурированные скрипты" 
-                               Style="{StaticResource BaseTitlesTextBlocks}"
-                               Margin="10"/>
-
-                    <UniformGrid DockPanel.Dock="Bottom"
-                                 Background="{StaticResource BaseWindowBackgroundBrush}"
-                                     Rows="1">
-                        
-                        <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
-                                    Margin="0, 5, 5, 5"
-                                    MinHeight="50"
-                                    Style="{StaticResource BaseRoundedButton}"
-                                    Command="{Binding ConfigureScriptsCommand}">
-                            <TextBlock Text="Сконфигурировать" 
-                                       Style="{StaticResource BaseElementsTextBlocks}"/>
-                        </Button>
-
-                        <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
-                                    Margin="5,5,0,5"
-                                    Style="{StaticResource BaseRoundedButton}"
-                                    Command="{Binding ClearConfiguredScripts}">
-                            <TextBlock Text="Cбросить" 
-                                       Style="{StaticResource BaseElementsTextBlocks}"/>
-                        </Button>
-                    </UniformGrid>
+                           Margin="10"
+                           Text="Сконфигурированные скрипты" 
+                           Style="{StaticResource BaseTitlesTextBlocks}"/>
 
                     <ListBox DockPanel.Dock="Top"
+                             Background="Transparent"
                         ItemsSource="{Binding ConfiguredScripts}" BorderThickness="0">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
@@ -73,85 +58,109 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    
                 </DockPanel>
-            </Grid>
+            </Border>
 
-        </Border>
+            <UniformGrid Grid.Row="1" 
+                         Rows="1"
+                         Margin="0,5,0,0">
+                <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Margin="0, 5, 5, 5"
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Command="{Binding ConfigureScriptsCommand}">
+                    <TextBlock Text="Сконфигурировать" 
+                                       Style="{StaticResource BaseElementsTextBlocks}"/>
+                </Button>
 
+                <Button     Background="{StaticResource BaseBlocksBackgroundBrush}"
+                                    Margin="5,5,0,5"
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Command="{Binding ClearConfiguredScripts}">
+                    <TextBlock Text="Cбросить" 
+                                       Style="{StaticResource BaseElementsTextBlocks}"/>
+                </Button>
+            </UniformGrid>
+        </Grid>
+        
         <GridSplitter Grid.Column="1" 
                       BorderThickness="0"
                       Width="10" 
                       Background="{StaticResource BaseWindowBackgroundBrush}"/>
 
-        <Border Grid.Column="2"
-                CornerRadius="15"
-                  Background="{StaticResource BaseBlocksBackgroundBrush}"
-                  BorderThickness="0"
-                  >
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Top"
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="0.3*"/>
+            </Grid.RowDefinitions>
+
+
+            <Border Grid.Row="0" 
+                    Background="{StaticResource BaseBlocksBackgroundBrush}"
+                    CornerRadius="{StaticResource BaseBlocksRoundingAngle}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
                            Margin="10"
                     Text="Терминал" 
                            Style="{StaticResource BaseTitlesTextBlocks}"/>
 
-                <UniformGrid DockPanel.Dock="Bottom"
-                             Background="{StaticResource BaseWindowBackgroundBrush}"
-                                     Rows="1">
-                    <Button 
+                    <ScrollViewer DockPanel.Dock="Top"
+                              BorderThickness="0"
+                    VerticalScrollBarVisibility="Auto">
+                        <ListBox BorderThickness="0"
+                                 Background="Transparent"
+                        ItemsSource="{Binding ScriptsExecutorsViewModels}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="BorderBrush" Value="Black"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Setter Property="Margin" Value="5"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewmodels:PHPScriptExecutorViewModel}">
+                                    <StackPanel>
+                                        <TextBlock Foreground="Red" 
+                                                   Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
+                                        <Expander>
+                                            <Expander.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Сообщения"/>
+                                                    <TextBlock Margin="0,0,5,0"
+                                                        Text="{Binding OutputMessages.Count}"/>
+                                                </StackPanel>
+                                            </Expander.Header>
+                                            <ListBox ItemsSource="{Binding OutputMessages}"/>
+                                        </Expander>
+                                        <Button Content="X"
+                                            Command="{Binding StopScriptCommand}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                    
+                </DockPanel>
+            </Border>
+
+            <UniformGrid Grid.Row="1" 
+                         Rows="1"
+                         Margin="0,5,0,0">
+                <Button 
                                     Margin="0, 5, 5, 5"
                                     Background="{StaticResource BaseBlocksBackgroundBrush}"
                                     Command="{Binding StartScriptsCommand}"
-                        MinHeight="50"
                         Style="{StaticResource BaseRoundedButton}">
-                        <TextBlock Text="Запустить" Style="{StaticResource BaseElementsTextBlocks}"/>
-                    </Button>
-                    <Button 
+                    <TextBlock Text="Запустить" Style="{StaticResource BaseElementsTextBlocks}"/>
+                </Button>
+                <Button 
                                     Margin="5,5,0,5"
                         Style="{StaticResource BaseRoundedButton}"
                         Background="{StaticResource BaseBlocksBackgroundBrush}"
                                     Command="{Binding StopScriptsCommand}">
-                        <TextBlock Text="Остановить" Style="{StaticResource BaseElementsTextBlocks}"/>
-                    </Button>
-                </UniformGrid>
-                
-                <ScrollViewer DockPanel.Dock="Top"
-                              BorderThickness="0"
-                    VerticalScrollBarVisibility="Auto">
-                    <ListBox BorderThickness="0"
-                        ItemsSource="{Binding ScriptsExecutorsViewModels}">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter Property="BorderBrush" Value="Black"/>
-                                <Setter Property="BorderThickness" Value="2"/>
-                                <Setter Property="Margin" Value="5"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewmodels:PHPScriptExecutorViewModel}">
-                                <StackPanel>
-                                    <TextBlock Foreground="Red" 
-                                                   Text="{Binding ScriptExecutor.ExecutableScript.Name, StringFormat='Отправитель: {0}'}"/>
-                                    <Expander>
-                                        <Expander.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Сообщения"/>
-                                                <TextBlock Margin="0,0,5,0"
-                                                        Text="{Binding OutputMessages.Count}"/>
-                                            </StackPanel>
-                                        </Expander.Header>
-                                        <ListBox ItemsSource="{Binding OutputMessages}"/>
-                                    </Expander>
-                                    <Button Content="X"
-                                            Command="{Binding StopScriptCommand}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </ScrollViewer>
-                
-            </DockPanel>
-        </Border>
+                    <TextBlock Text="Остановить" Style="{StaticResource BaseElementsTextBlocks}"/>
+                </Button>
+            </UniformGrid>
+        </Grid>
         
     </Grid>
 </UserControl>

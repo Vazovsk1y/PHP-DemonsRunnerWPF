@@ -7,19 +7,18 @@
              xmlns:viewmodels="clr-namespace:DaemonsRunner.ViewModels" 
              d:DataContext="{d:DesignInstance Type=viewmodels:NotificationPanelViewModel}"
              mc:Ignorable="d" 
-             Background="{StaticResource BaseBlocksBackgroundBrush}"
              d:DesignHeight="450" d:DesignWidth="400">
-    <Grid>
+    <Grid Background="{StaticResource BaseBlocksBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="9*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        
+
         <DockPanel Grid.Row="0">
             <TextBlock DockPanel.Dock="Top"
                        Margin="10,5"
                 Text="Уведомления" Style="{StaticResource BaseTitlesTextBlocks}"/>
-            
+
             <ListBox DockPanel.Dock="Top" 
                  BorderThickness="0"
             ItemsSource="{Binding Notifications}">

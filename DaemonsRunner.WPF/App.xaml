@@ -8,6 +8,7 @@
                 <ResourceDictionary Source="Views\Styles\Colours.xaml"/>
                 <ResourceDictionary Source="Views\Styles\FontsSizes.xaml"/>
                 <ResourceDictionary Source="Views\Styles\Images.xaml"/>
+                <ResourceDictionary Source="Views\Styles\RoundingAngles.xaml"/>
 
                 <ResourceDictionary Source="Views\Styles\TextBlocks.xaml"/>
                 <ResourceDictionary Source="Views\Styles\Buttons.xaml"/>
